@@ -1,0 +1,50 @@
+.filter-sidebar {
+  width: 300px;
+  padding: 20px;
+  border-right: 1px solid #eee;
+  background: white;
+  height: calc(100vh - 90px);
+  overflow-y: auto;
+  position: sticky;
+  top: 90px;
+}
+
+.filter-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.filter-section {
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.section-header {
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-body label {
+  font-size: 14px;
+}
+
+.row-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.row-inputs input {
+  width: 100%;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}

@@ -1,0 +1,47 @@
+.admin-wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+.admin-sidebar {
+  width: 220px;
+  background: navy;
+  color: white;
+  padding: 20px;
+}
+
+.admin-sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.admin-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-sidebar li {
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+/* MAIN */
+.admin-main {
+  flex: 1;
+  padding: 30px;
+  background: #f9fafb;
+}
+
+.stats {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  flex: 1;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+}

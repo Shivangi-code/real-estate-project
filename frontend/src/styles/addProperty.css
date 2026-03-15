@@ -1,0 +1,40 @@
+.add-wrapper {
+  min-height: 100vh;
+  background: #f5f7ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.add-box {
+  background: white;
+  padding: 40px;
+  width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+.add-box h2 {
+  text-align: center;
+  color: navy;
+  margin-bottom: 20px;
+}
+
+.add-box input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.add-box button {
+  width: 100%;
+  padding: 12px;
+  background: navy;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}

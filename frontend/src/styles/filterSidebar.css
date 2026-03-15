@@ -1,0 +1,52 @@
+/* SIDEBAR */
+.filter-sidebar {
+  padding: 20px;
+  background: #ffffff;
+  height: 100%;
+  border-right: 1px solid #e5e7eb;
+}
+
+.filter-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #1e3a8a;
+}
+
+/* SECTION */
+.filter-section {
+  margin-bottom: 15px;
+}
+
+.section-header {
+  font-weight: 600;
+  cursor: pointer;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  color: #111827;
+}
+
+.section-body {
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-body label {
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.row-inputs {
+  display: flex;
+  gap: 10px;
+}
+
+.row-inputs input {
+  flex: 1;
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
