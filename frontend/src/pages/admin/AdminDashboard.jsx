@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Outlet } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [properties, setProperties] = useState([]);
@@ -24,10 +25,15 @@ const AdminDashboard = () => {
     <div style={{ padding: "40px" }}>
       <h2>Admin Dashboard</h2>
 
+      {/* Main Dashboard Table */}
       <table
         border="1"
         cellPadding="10"
-        style={{ marginTop: "20px", width: "100%", borderCollapse: "collapse" }}
+        style={{
+          marginTop: "20px",
+          width: "100%",
+          borderCollapse: "collapse",
+        }}
       >
         <thead>
           <tr>
@@ -52,6 +58,11 @@ const AdminDashboard = () => {
           ))}
         </tbody>
       </table>
+
+      {/* 👇 Nested routes will render here */}
+      <div style={{ marginTop: "40px" }}>
+        <Outlet />
+      </div>
     </div>
   );
 };

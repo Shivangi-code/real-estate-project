@@ -1,0 +1,314 @@
+/* 🔹 Premium Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+/* 🔹 Footer Base */
+.footer {
+  font-family: 'Poppins', sans-serif;
+
+  background: linear-gradient(270deg, #001a33, #003366, #004080, #001a33);
+  background-size: 400% 400%;
+  animation: gradientMove 18s ease infinite;
+
+  color: white;
+  padding: 60px 20px 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 🌌 Overlay */
+.footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 0;
+}
+
+.footer > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 🌌 Mouse Glow */
+.mouse-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(0,198,255,0.25), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  left: var(--x);
+  top: var(--y);
+}
+
+/* 🌌 PARTICLES */
+.particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.particles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #00c6ff;
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: floatParticle 12s linear infinite;
+}
+
+/* random positions */
+.particles span:nth-child(1){left:10%; animation-delay:0s;}
+.particles span:nth-child(2){left:20%; animation-delay:2s;}
+.particles span:nth-child(3){left:30%; animation-delay:4s;}
+.particles span:nth-child(4){left:40%; animation-delay:1s;}
+.particles span:nth-child(5){left:50%; animation-delay:3s;}
+.particles span:nth-child(6){left:60%; animation-delay:5s;}
+.particles span:nth-child(7){left:70%; animation-delay:2s;}
+.particles span:nth-child(8){left:80%; animation-delay:4s;}
+.particles span:nth-child(9){left:90%; animation-delay:1s;}
+
+@keyframes floatParticle {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-800px);
+    opacity: 1;
+  }
+}
+
+/* 🔥 Background Animation */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 🔹 Brand */
+.footer-brand-center {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+/* 🔥 NO GAP FIX */
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 1;
+}
+
+.logo-main {
+  font-size: 42px;
+  font-weight: 700;
+  margin: 0; /* ❗ remove gap */
+  cursor: pointer;
+}
+
+.logo-sub {
+  font-size: 14px;
+  letter-spacing: 4px;
+  margin: 0; /* ❗ remove gap */
+  line-height: 1;
+  margin-top: -2px; /* 🔥 tighten more */
+}
+
+/* 🌊 Tagline */
+.dynamic-text {
+  font-size: clamp(18px, 2.5vw, 28px);
+  font-weight: 600;
+  margin-top: 15px;
+
+  background: linear-gradient(90deg, #00c6ff, #0072ff, #00c6ff);
+  background-size: 300% auto;
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  animation: shine 4s linear infinite,
+             floatWave 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+  100% { background-position: 300% center; }
+}
+
+@keyframes floatWave {
+  0% { transform: translateY(0); }
+  25% { transform: translateY(-6px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(6px); }
+  100% { transform: translateY(0); }
+}
+
+/* 🔹 Layout */
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+/* 💎 Glass Cards */
+.footer-section {
+  flex: 1;
+  min-width: 220px;
+
+  background: rgba(255, 255, 255, 0.05);
+  padding: 18px;
+  border-radius: 14px;
+  backdrop-filter: blur(10px);
+
+  transform-style: preserve-3d;
+  transition: transform 0.4s ease, box-shadow 0.3s;
+}
+
+/* 🌊 Hover Effect */
+.footer-section:hover {
+  transform: translateY(-10px) scale(1.03) rotateX(5deg);
+  box-shadow: 0 15px 30px rgba(0, 198, 255, 0.25);
+}
+
+/* 🔹 Links */
+.footer-links {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links a {
+  color: #ccc;
+  text-decoration: none;
+  position: relative;
+  transition: 0.3s;
+}
+
+.footer-links a::before {
+  content: "➤";
+  position: absolute;
+  left: -20px;
+  opacity: 0;
+  color: #00c6ff;
+  transition: 0.3s;
+}
+
+.footer-links a:hover::before {
+  left: -5px;
+  opacity: 1;
+}
+
+.footer-links a:hover {
+  color: #00c6ff;
+  padding-left: 10px;
+}
+
+/* 🔹 Newsletter */
+.newsletter {
+  display: flex;
+  gap: 10px;
+}
+
+.newsletter input {
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+}
+
+.newsletter button {
+  padding: 10px;
+  background: #00c6ff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+/* 🔥 Stats */
+.footer-stats {
+  display: flex;
+  justify-content: space-around;
+  margin: 50px 0;
+  text-align: center;
+}
+
+.stat-box h4 {
+  font-size: clamp(30px, 3vw, 44px);
+  font-weight: 700;
+  color: #00c6ff;
+  text-shadow: 0 0 12px rgba(0,198,255,0.6);
+}
+
+/* 🔹 Social */
+.footer-social {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* 🔹 Bottom */
+.footer-bottom {
+  text-align: center;
+  color: #aaa;
+}
+
+/* 🔼 Scroll */
+.scroll-top {
+  position: absolute;
+  right: 20px;
+  bottom: 90px;
+  background: #00c6ff;
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+/* 🌊 Wave */
+.footer-wave {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100px;
+  background: url("https://svgshare.com/i/uHh.svg");
+  background-size: cover;
+  opacity: 0.5;
+  animation: waveMove 10s linear infinite;
+}
+
+@keyframes waveMove {
+  from { background-position-x: 0; }
+  to { background-position-x: 1000px; }
+}
+
+/* 🎯 Scroll Reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: all 0.8s ease;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 🎉 Popup */
+.secret-popup {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #00c6ff;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  animation: popupFade 3s ease;
+}
+
+@keyframes popupFade {
+  0% { opacity: 0; transform: translate(-50%, 20px); }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, 20px); }
+}
