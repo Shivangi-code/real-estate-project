@@ -65,8 +65,7 @@ function Home() {
 
   return (
     <div>
-
-      <Navbar />
+ 
 
       {/* HERO */}
       <div className="hero-section">

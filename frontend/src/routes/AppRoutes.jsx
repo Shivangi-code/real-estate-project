@@ -4,9 +4,16 @@ import ProtectedRoute from "../components/ProtectedRoute";
 import AdminDashboard from "../pages/admin/AdminDashboard";
 import SellerDashboard from "../pages/seller/SellerDashboard";
 
+import Chat from "../components/Chat";
+import Contact from "../components/Contact";
+
 const AppRoutes = () => {
   return (
     <Routes>
+
+      {/* PUBLIC ROUTES */}
+      <Route path="/chat" element={<Chat />} />
+      <Route path="/contact" element={<Contact />} />
 
       {/* ADMIN */}
       <Route element={<ProtectedRoute role="admin" />}>
