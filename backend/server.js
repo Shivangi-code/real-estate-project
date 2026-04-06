@@ -6,6 +6,7 @@ const cors = require("cors");
 const propertyRoutes = require("./routes/propertyRoutes");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const contactRoutes = require("./routes/contactRoutes"); // ✅ ADD
 
 const app = express();
 
@@ -20,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/property", propertyRoutes);
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
+app.use("/api/contact", contactRoutes); // ✅ ADD
 
 app.get("/", (req, res) => {
   res.send("Backend Running 🚀");

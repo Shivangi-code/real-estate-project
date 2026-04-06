@@ -1,51 +1,85 @@
-import React from "react";
+import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
-import Navbar from "./components/Navbar.jsx";
-import Footer from "./components/Footer.jsx";
-import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
+
+import FloatingChat from "./components/FloatingChat";
+import ChatPopup from "./components/ChatPopup";
 
 // Public Pages
 import Home from "./pages/public/Home";
 import Properties from "./pages/public/Properties";
+import About from "./pages/public/About";
+import Chat from "./components/Chat";
+import Contact from "./components/Contact";
 import SelectRole from "./pages/public/SelectRole";
 import Login from "./pages/public/Login";
-import Onboarding from "./pages/public/Onboarding";
+// import Onboarding from "./pages/public/Onboarding"; // agar hai to uncomment karo
 
 // Private Pages
-import UserDashboard from "./pages/private/UserDashboard.jsx";
-import AddProperty from "./pages/private/AddProperty.jsx";
+import UserDashboard from "./pages/private/UserDashboard";
+import AddProperty from "./pages/private/AddProperty";
 
 // Admin Pages
-import AdminLayout from "./pages/admin/AdminDashboard.jsx";
+import AdminLayout from "./pages/admin/AdminDashboard";
 import Overview from "./pages/admin/Overview";
 import PendingProperties from "./pages/admin/PendingProperties";
 import ApprovedProperties from "./pages/admin/ApprovedProperties";
 
 function App() {
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleChatClick = () => setIsChatOpen(true);
+  const handleCloseChat = () => setIsChatOpen(false);
+
   return (
     <>
+      {/* ✅ Navbar */}
       <Navbar />
 
+      {/* ✅ Routes */}
       <Routes>
-        {/* Public Routes */}
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={<Properties />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/chat" element={<Chat />} />
+        <Route path="/contact" element={<Contact />} />
+
         <Route path="/select-role" element={<SelectRole />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/onboarding" element={<Onboarding />} />
 
-        {/* User Dashboard */}
+        {/* USER DASHBOARD (ROLE BASED) */}
         <Route
-          path="/dashboard"
+          path="/seller"
           element={
-            <ProtectedRoute allowedRoles={["seller", "agent", "builder"]}>
+            <ProtectedRoute allowedRoles={["seller"]}>
               <UserDashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* Add Property */}
+        <Route
+          path="/agent"
+          element={
+            <ProtectedRoute allowedRoles={["agent"]}>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/builder"
+          element={
+            <ProtectedRoute allowedRoles={["builder"]}>
+              <UserDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ADD PROPERTY */}
         <Route
           path="/add-property"
           element={
@@ -55,9 +89,9 @@ function App() {
           }
         />
 
-        {/* Admin Routes */}
+        {/* ADMIN ROUTES */}
         <Route
-          path="/admin/*"
+          path="/admin"
           element={
             <ProtectedRoute allowedRoles={["admin"]}>
               <AdminLayout />
@@ -71,7 +105,12 @@ function App() {
         </Route>
       </Routes>
 
+      {/* ✅ Footer */}
       <Footer />
+
+      {/* 🔥 Floating Chat */}
+      <FloatingChat onClick={handleChatClick} />
+      <ChatPopup isOpen={isChatOpen} onClose={handleCloseChat} />
     </>
   );
 }

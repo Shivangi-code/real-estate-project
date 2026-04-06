@@ -65,6 +65,7 @@ function Home() {
         <p>Explore verified homes, flats and commercial properties</p>
       </div>
 
+      {/* FILTER */}
       <PropertyFilter />
 
       {/* MAIN WRAPPER */}

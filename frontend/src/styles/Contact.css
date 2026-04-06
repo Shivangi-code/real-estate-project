@@ -1,0 +1,38 @@
+.contact-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  text-align: center;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+}
+
+.contact-form button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  background: white;
+  color: #2563eb;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.contact-form button:hover {
+  transform: scale(1.05);
+}
+
+.success-msg {
+  margin-bottom: 10px;
+  font-weight: bold;
+}

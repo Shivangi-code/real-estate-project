@@ -5,7 +5,6 @@ import logo from "../assets/logo.png";
 import "../styles/navbar.css";
 
 function Navbar() {
-
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
@@ -15,18 +14,15 @@ function Navbar() {
   const role = localStorage.getItem("role");
 
   const handleSellClick = () => {
-
     if (!token) {
       navigate("/login");
       return;
     }
-
     if (role === "seller" || role === "agent" || role === "builder") {
       navigate("/add-property");
     } else {
       alert("Please login as seller, agent or builder to add property.");
     }
-
   };
 
   const handleLogout = () => {
@@ -44,7 +40,7 @@ function Navbar() {
           <img src={logo} alt="Housify" className="nav-logo" />
         </div>
 
-        {/* SEARCH */}
+        {/* CENTER SEARCH */}
         <div className="nav-center">
           <div className="search-box">
             <span className="location-fixed">Jabalpur</span>
@@ -58,9 +54,23 @@ function Navbar() {
           </div>
         </div>
 
-        {/* RIGHT */}
+        {/* RIGHT BUTTONS */}
         <div className="nav-right">
 
+          <Link to="/about" className="login-btn">
+            About Us
+          </Link>
+
+          {/* ✅ NEW */}
+          <Link to="/chat" className="login-btn">
+            Chat
+          </Link>
+
+          <Link to="/contact" className="login-btn">
+            Contact
+          </Link>
+
+          {/* Login / Logout */}
           {!token ? (
             <Link to="/login" className="login-btn">
               Login
@@ -71,17 +81,17 @@ function Navbar() {
             </button>
           )}
 
+          {/* Mobile Menu Button */}
           <button className="menu-btn" onClick={() => setOpen(true)}>
             <Menu size={26} />
           </button>
-
         </div>
-
       </div>
 
-      {/* DRAWER */}
+      {/* DRAWER (Mobile Menu) */}
       <div className={`drawer ${open ? "active" : ""}`}>
 
+        {/* HEADER */}
         <div className="drawer-header">
           <X size={26} onClick={() => setOpen(false)} />
         </div>
@@ -97,6 +107,7 @@ function Navbar() {
           </div>
         )}
 
+        {/* LINKS */}
         <Link to="/" onClick={() => setOpen(false)}>
           Buy Property
         </Link>
@@ -111,7 +122,6 @@ function Navbar() {
             <Link to="/my-properties" onClick={() => setOpen(false)}>
               My Properties
             </Link>
-
             <Link to="/saved" onClick={() => setOpen(false)}>
               Saved Properties
             </Link>
@@ -124,6 +134,19 @@ function Navbar() {
 
         <Link to="/builder" onClick={() => setOpen(false)}>
           Builders
+        </Link>
+
+        <Link to="/about" onClick={() => setOpen(false)}>
+          About Us
+        </Link>
+
+        {/* ✅ NEW */}
+        <Link to="/chat" onClick={() => setOpen(false)}>
+          Chat
+        </Link>
+
+        <Link to="/contact" onClick={() => setOpen(false)}>
+          Contact
         </Link>
 
         {/* ADMIN */}
@@ -143,12 +166,10 @@ function Navbar() {
             Logout
           </button>
         )}
-
       </div>
 
       {/* OVERLAY */}
       {open && <div className="overlay" onClick={() => setOpen(false)} />}
-
     </>
   );
 }
