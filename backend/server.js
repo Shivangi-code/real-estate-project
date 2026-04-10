@@ -6,12 +6,12 @@ const cors = require("cors");
 
 const app = express();
 
-
 // ================= ROUTES =================
 const propertyRoutes = require("./routes/propertyRoutes");
 const authRoutes = require("./routes/authRoutes");        // seller/admin
 const adminRoutes = require("./routes/adminRoutes");
 const userAuthRoutes = require("./routes/userAuthRoutes"); // buyer
+const contactRoutes = require("./routes/contactRoutes");   // contact
 
 
 // ================= MIDDLEWARE =================
@@ -34,6 +34,7 @@ app.use("/api/property", propertyRoutes);
 app.use("/api/auth", authRoutes);          // seller/admin
 app.use("/api/admin", adminRoutes);        // admin
 app.use("/api/user-auth", userAuthRoutes); // buyer
+app.use("/api/contact", contactRoutes);    // contact
 
 
 // ================= ROOT =================
@@ -48,7 +49,7 @@ app.use((req, res) => {
 
   res.status(404).json({
     message: "Route not found",
-    path: req.originalUrl, // ✅ helpful debug
+    path: req.originalUrl,
   });
 });
 
