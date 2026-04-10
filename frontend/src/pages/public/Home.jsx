@@ -7,46 +7,11 @@ import "../../styles/home.css";
 
 function Home() {
   const [properties, setProperties] = useState([]);
-<<<<<<< HEAD
+  const [loading, setLoading] = useState(true);
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   const navigate = useNavigate();
 
-  // ================= INIT =================
-=======
-  const [loading, setLoading] = useState(true);
-  const [showPopup, setShowPopup] = useState(false);
-  const [showRolePopup, setShowRolePopup] = useState(false);
-
-  const navigate = useNavigate();
-
-  // Fetch properties
-  const fetchProperties = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/property/approved");
-      const data = await res.json();
-      setProperties(data);
-    } catch (error) {
-      console.error("Error fetching properties:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
->>>>>>> f717a4b9edc06de0eefd6c685bb552bd74a5c856
-  useEffect(() => {
-    fetchProperties();
-
-    const seen = localStorage.getItem("onboardingSeen");
-
-    if (!seen) {
-      setTimeout(() => {
-        setShowOnboarding(true);
-      }, 2500);
-    }
-  }, []);
-
-<<<<<<< HEAD
   // ================= FETCH =================
   const fetchProperties = async () => {
     try {
@@ -55,40 +20,39 @@ function Home() {
       setProperties(data);
     } catch (error) {
       console.log("Error fetching properties", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ================= ONBOARDING ACTIONS =================
+  // ================= INIT =================
+  useEffect(() => {
+    fetchProperties();
+
+    const seen = localStorage.getItem("onboardingSeen");
+
+    if (!seen) {
+      setTimeout(() => {
+        setShowOnboarding(true);
+      }, 2000);
+    }
+  }, []);
+
+  // ================= ONBOARDING =================
   const handleCloseOnboarding = () => {
     setShowOnboarding(false);
     localStorage.setItem("onboardingSeen", "true");
   };
 
-  const handleSellClick = () => {
-    localStorage.setItem("intentSelected", "sell");
-    localStorage.setItem("onboardingSeen", "true");
-=======
-  // Handlers
-  const handleBuy = () => {
-    localStorage.setItem("intentSelected", "buy");
-    setShowPopup(false);
-  };
-
-  const handleSell = () => {
-    setShowPopup(false);
-    setShowRolePopup(true);
-  };
-
-  const selectRole = (role) => {
-    localStorage.setItem("role", role);
-    localStorage.setItem("intentSelected", "sell");
->>>>>>> f717a4b9edc06de0eefd6c685bb552bd74a5c856
-    navigate("/login");
-  };
-
   const handleBuyClick = () => {
     localStorage.setItem("intentSelected", "buy");
     handleCloseOnboarding();
+  };
+
+  const handleSellClick = () => {
+    localStorage.setItem("intentSelected", "sell");
+    localStorage.setItem("onboardingSeen", "true");
+    navigate("/login");
   };
 
   // ================= UI =================
@@ -103,14 +67,14 @@ function Home() {
       {/* FILTER */}
       <PropertyFilter />
 
-      {/* MAIN WRAPPER */}
+      {/* MAIN */}
       <div className="home-wrapper">
         {/* SIDEBAR */}
         <div className="sidebar-container">
           <FilterSidebar />
         </div>
 
-        {/* PROPERTY GRID */}
+        {/* GRID */}
         <div className="grid-container">
           <div className="property-grid">
             {loading ? (
@@ -130,15 +94,10 @@ function Home() {
         </div>
       </div>
 
-<<<<<<< HEAD
-      {/* 🔥 PREMIUM ONBOARDING CARD */}
+      {/* ONBOARDING */}
       {showOnboarding && (
         <div className="onboarding-card">
-
-          <button
-            className="onboarding-close"
-            onClick={handleCloseOnboarding}
-          >
+          <button className="onboarding-close" onClick={handleCloseOnboarding}>
             ✕
           </button>
 
@@ -153,29 +112,7 @@ function Home() {
             <button className="sell-btn" onClick={handleSellClick}>
               Sell
             </button>
-=======
-      {/* BUY / SELL POPUP */}
-      {showPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>What do you want to do?</h2>
-            <button onClick={handleBuy}>Buy Property</button>
-            <button onClick={handleSell}>Sell Property</button>
->>>>>>> f717a4b9edc06de0eefd6c685bb552bd74a5c856
           </div>
-
-<<<<<<< HEAD
-=======
-      {/* ROLE POPUP */}
-      {showRolePopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>Select Your Role</h2>
-            <button onClick={() => selectRole("seller")}>Seller</button>
-            <button onClick={() => selectRole("agent")}>Agent</button>
-            <button onClick={() => selectRole("builder")}>Builder</button>
-          </div>
->>>>>>> f717a4b9edc06de0eefd6c685bb552bd74a5c856
         </div>
       )}
     </div>
