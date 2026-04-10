@@ -1,40 +1,169 @@
 const User = require("../models/User");
 const Otp = require("../models/Otp");
-const generateOtp = require("../utils/generateOtp");
+const Token = require("../models/Token");
+
 const jwt = require("jsonwebtoken");
 
-// SEND OTP
-exports.sendOtp = async (req, res) => {
-  try {
-    const { name, mobile } = req.body;
+const {
+  hashPassword,
+  comparePassword,
+} = require("../utils/authUtils");
 
-    if (!name || !mobile) {
-      return res.status(400).json({ message: "Name and Mobile required" });
+const {
+  hashOtp,
+  compareOtp,
+} = require("../utils/otpUtils");
+
+
+// =============================
+// ✅ SIGNUP (UNCHANGED)
+// =============================
+exports.signup = async (req, res) => {
+  try {
+    let { name, email, password, role } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
     }
 
-    const otp = generateOtp();
+    email = email.toLowerCase();
 
-    const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 min
+    const exists = await User.findOne({ email });
+    if (exists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const hashed = await hashPassword(password);
+
+    const allowedRoles = ["buyer", "seller"];
+    const finalRole = allowedRoles.includes(role) ? role : "buyer";
+
+    const user = await User.create({
+      name,
+      email,
+      password: hashed,
+      role: finalRole,
+      isVerified: true,
+    });
+
+    user.password = undefined;
+
+    res.status(201).json({
+      message: "Signup successful",
+      user,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// =============================
+// ✅ LOGIN (FIXED 🔥)
+// =============================
+exports.login = async (req, res) => {
+  try {
+    let { email, password, role } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email & password required" });
+    }
+
+    email = email.toLowerCase();
+
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const match = await comparePassword(password, user.password);
+
+    if (!match) {
+      return res.status(400).json({ message: "Invalid password" });
+    }
+
+    if (role && user.role !== role) {
+      return res.status(403).json({ message: "Unauthorized role access" });
+    }
+
+    const payload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
+      expiresIn: "7d",
+    });
+
+    await Token.create({
+      userId: user._id,
+      token: refreshToken,
+    });
+
+    user.password = undefined;
+
+    res.json({
+      accessToken,        // ✅ FIXED
+      refreshToken,
+      user,
+    });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// =============================
+// ✅ SEND OTP (UNCHANGED)
+// =============================
+exports.sendOtp = async (req, res) => {
+  try {
+    const { mobile } = req.body;
+
+    if (!mobile) {
+      return res.status(400).json({ message: "Mobile number required" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const hashedOtp = await hashOtp(otp);
 
     await Otp.findOneAndUpdate(
       { mobile },
-      { otp, expiresAt: expires },
+      {
+        otp: hashedOtp,
+        attempts: 0,
+        expiresAt: new Date(Date.now() + 5 * 60 * 1000),
+      },
       { upsert: true, new: true }
     );
 
-    console.log("OTP for", mobile, ":", otp);
+    console.log("OTP:", otp);
 
     res.json({ message: "OTP sent successfully" });
 
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 };
 
-// VERIFY OTP
+
+// =============================
+// ✅ VERIFY OTP (FIXED 🔥)
+// =============================
 exports.verifyOtp = async (req, res) => {
   try {
-    const { mobile, otp } = req.body;
+    const { mobile, otp, name } = req.body;
+
+    if (!mobile || !otp) {
+      return res.status(400).json({ message: "Mobile & OTP required" });
+    }
 
     const record = await Otp.findOne({ mobile });
 
@@ -42,46 +171,96 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "OTP not found" });
     }
 
-    if (record.otp !== otp) {
-      return res.status(400).json({ message: "Invalid OTP" });
+    if (record.attempts >= 5) {
+      return res.status(429).json({
+        message: "Too many attempts. Try again later",
+      });
     }
 
-    if (record.expiresAt < new Date()) {
-      return res.status(400).json({ message: "OTP expired" });
-    }
+    const valid = await compareOtp(otp, record.otp);
 
-    // ADMIN MOBILE NUMBER
-    const ADMIN_MOBILE = "6261764560";  // change this
+    if (!valid || record.expiresAt < Date.now()) {
+      record.attempts += 1;
+      await record.save();
+
+      return res.status(400).json({
+        message: "Invalid or expired OTP",
+      });
+    }
 
     let user = await User.findOne({ mobile });
 
     if (!user) {
-      const role = mobile === ADMIN_MOBILE ? "admin" : "buyer";
-
       user = await User.create({
-        name: "User",
+        name: name || "User",
         mobile,
-        role,
-        isVerified: true
+        role: "buyer",
+        isVerified: true,
       });
     }
 
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const payload = {
+      id: user._id,
+      role: user.role,
+    };
+
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: "15m",
+    });
+
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_SECRET, {
+      expiresIn: "7d",
+    });
+
+    await Token.create({
+      userId: user._id,
+      token: refreshToken,
+    });
+
+    user.password = undefined;
 
     await Otp.deleteOne({ mobile });
 
     res.json({
-      message: "Login successful",
-      token,
-      role: user.role
+      accessToken,       // ✅ FIXED
+      refreshToken,
+      user,
     });
 
   } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// =============================
+// ✅ REFRESH TOKEN API (NEW 🔥)
+// =============================
+exports.refreshToken = async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(401).json({ message: "No token provided" });
+    }
+
+    const stored = await Token.findOne({ token });
+
+    if (!stored) {
+      return res.status(403).json({ message: "Invalid refresh token" });
+    }
+
+    const decoded = jwt.verify(token, process.env.REFRESH_SECRET);
+
+    const accessToken = jwt.sign(
+      { id: decoded.id, role: decoded.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.json({ accessToken });
+
+  } catch (err) {
+    res.status(500).json({ message: "Token refresh failed" });
   }
 };

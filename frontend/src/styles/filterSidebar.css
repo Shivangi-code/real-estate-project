@@ -1,44 +1,111 @@
-/* SIDEBAR */
+/* ================= SIDEBAR ================= */
 .filter-sidebar {
   padding: 20px;
-  background: #ffffff;
-  height: 100%;
-  border-right: 1px solid #e5e7eb;
+
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(18px);
+
+  height: 100vh;
+  overflow-y: auto;
+
+  border-right: 1px solid rgba(255,255,255,0.3);
+
+  position: sticky;
+  top: 90px;
+
+  box-shadow: 4px 0 20px rgba(0,0,0,0.05);
+
+  transition: all 0.3s ease;
 }
 
+/* HOVER FLOAT */
+.filter-sidebar:hover {
+  transform: translateX(2px);
+}
+
+/* ================= TITLE ================= */
 .filter-title {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 22px;
+
   color: #1e3a8a;
+  letter-spacing: -0.3px;
 }
 
-/* SECTION */
+/* ================= SECTION ================= */
 .filter-section {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  border-radius: 10px;
+
+  padding: 6px 0;
+
+  transition: all 0.25s ease;
 }
 
+/* ================= HEADER ================= */
 .section-header {
   font-weight: 600;
   cursor: pointer;
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
+
+  padding: 12px 0;
+
   color: #111827;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: all 0.25s ease;
 }
 
+/* 🔥 HOVER */
+.section-header:hover {
+  color: #2563eb;
+  transform: translateX(3px);
+}
+
+/* ================= BODY ================= */
 .section-body {
   padding: 10px 0;
+
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+
+  animation: fadeIn 0.25s ease;
 }
 
+/* LABELS */
 .section-body label {
   font-size: 14px;
   color: #374151;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 6px 8px;
+  border-radius: 6px;
+
+  transition: all 0.2s ease;
+}
+
+/* 🔥 LABEL HOVER */
+.section-body label:hover {
+  background: rgba(37,99,235,0.1);
+  color: #1e3a8a;
+}
+
+/* CHECKBOX */
+.section-body input[type="checkbox"] {
+  accent-color: #2563eb;
   cursor: pointer;
 }
 
+/* ================= INPUT ROW ================= */
 .row-inputs {
   display: flex;
   gap: 10px;
@@ -46,7 +113,62 @@
 
 .row-inputs input {
   flex: 1;
-  padding: 6px;
+  padding: 8px;
+
   border: 1px solid #ddd;
-  border-radius: 4px;
+  border-radius: 8px;
+
+  font-size: 13px;
+  outline: none;
+
+  transition: all 0.2s ease;
+}
+
+.row-inputs input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
+}
+
+/* ================= SCROLLBAR ================= */
+.filter-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.filter-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(100,116,139,0.4);
+  border-radius: 10px;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= MOBILE DRAWER ================= */
+@media (max-width: 768px) {
+  .filter-sidebar {
+    position: fixed;
+    left: -100%;
+    top: 0;
+
+    width: 80%;
+    height: 100vh;
+
+    z-index: 3000;
+
+    transition: left 0.3s ease;
+
+    border-radius: 0 14px 14px 0;
+  }
+
+  .filter-sidebar.active {
+    left: 0;
+  }
 }

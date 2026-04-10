@@ -1,62 +1,122 @@
-.login-page{
-height:100vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:linear-gradient(135deg,#1e3a8a,#2563eb);
+/* ================= PAGE ================= */
+.login-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
 }
 
-.login-card{
-background:white;
-padding:40px;
-border-radius:12px;
-width:360px;
-box-shadow:0 10px 30px rgba(0,0,0,0.15);
-text-align:center;
+/* ================= CARD ================= */
+.login-card {
+  background: white;
+  padding: 35px;
+  border-radius: 14px;
+  width: 380px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+  text-align: center;
 }
 
-.login-logo{
-height: 128px;
-margin-bottom: -39px;
+.login-logo {
+  height: 100px;
+  margin-bottom: -10px;
 }
 
-.login-card h2{
-margin-bottom:20px;
-color:#1e3a8a;
+.login-card h2 {
+  margin-bottom: 20px;
+  color: #1e3a8a;
 }
 
-.login-input{
-width:100%;
-padding:12px;
-margin-bottom:15px;
-border:1px solid #ddd;
-border-radius:6px;
-font-size:14px;
-outline:none;
+/* ================= INPUT ================= */
+.login-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
-.login-input:focus{
-border-color:#2563eb;
-box-shadow:0 0 0 2px rgba(37,99,235,0.2);
+.login-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
 }
 
-.login-btn-main{
-width:100%;
-padding:12px;
-background:#1e3a8a;
-color:white;
-border:none;
-border-radius:6px;
-font-size:15px;
-cursor:pointer;
+/* Disabled input */
+.login-input:disabled {
+  background: #f3f4f6;
+  cursor: not-allowed;
 }
 
-.login-btn-main:hover{
-background:#16306d;
+/* ================= MOBILE ROW ================= */
+.mobile-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
 }
 
-.otp-info{
-font-size:13px;
-color:gray;
-margin-bottom:10px;
+.mobile-row .login-input {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+/* ================= OTP BUTTON ================= */
+.otp-btn {
+  height: 44px;
+  padding: 0 14px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover */
+.otp-btn:hover {
+  background: #1e40af;
+}
+
+/* Disabled state */
+.otp-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* ================= SUBMIT BUTTON ================= */
+.login-submit {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+/* Hover */
+.login-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(37,99,235,0.4);
+}
+
+/* Disabled */
+.login-submit:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
 }

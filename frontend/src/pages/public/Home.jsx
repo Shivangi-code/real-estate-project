@@ -9,60 +9,53 @@ import "../../styles/home.css";
 function Home() {
 
   const [properties, setProperties] = useState([]);
-  const [showPopup, setShowPopup] = useState(false);
-  const [showRolePopup, setShowRolePopup] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const navigate = useNavigate();
 
+  // ================= INIT =================
   useEffect(() => {
-
     fetchProperties();
 
-    const intentSelected = localStorage.getItem("intentSelected");
+    const seen = localStorage.getItem("onboardingSeen");
 
-    if (!intentSelected) {
-      const timer = setTimeout(() => {
-        setShowPopup(true);
-      }, 10000);
-
-      return () => clearTimeout(timer);
+    if (!seen) {
+      setTimeout(() => {
+        setShowOnboarding(true);
+      }, 2500);
     }
 
   }, []);
 
+  // ================= FETCH =================
   const fetchProperties = async () => {
     try {
-
-      const res = await fetch("http://localhost:5000/property/approved");
-
+      const res = await fetch("http://localhost:5000/api/property/approved");
       const data = await res.json();
-
       setProperties(data);
-
     } catch (error) {
       console.log("Error fetching properties", error);
     }
   };
 
-  const handleBuy = () => {
-    localStorage.setItem("intentSelected", "buy");
-    setShowPopup(false);
+  // ================= ONBOARDING ACTIONS =================
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem("onboardingSeen", "true");
   };
 
-  const handleSell = () => {
-    setShowPopup(false);
-    setShowRolePopup(true);
-  };
-
-  const selectRole = (role) => {
-
-    localStorage.setItem("role", role);
+  const handleSellClick = () => {
     localStorage.setItem("intentSelected", "sell");
-
+    localStorage.setItem("onboardingSeen", "true");
     navigate("/login");
-
   };
 
+  const handleBuyClick = () => {
+    localStorage.setItem("intentSelected", "buy");
+    handleCloseOnboarding();
+  };
+
+  // ================= UI =================
   return (
     <div>
 
@@ -105,31 +98,30 @@ function Home() {
 
       </div>
 
-      {/* BUY / SELL POPUP */}
-      {showPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>What do you want to do?</h2>
+      {/* 🔥 PREMIUM ONBOARDING CARD */}
+      {showOnboarding && (
+        <div className="onboarding-card">
 
-            <button onClick={handleBuy}>Buy Property</button>
+          <button
+            className="onboarding-close"
+            onClick={handleCloseOnboarding}
+          >
+            ✕
+          </button>
 
-            <button onClick={handleSell}>Sell Property</button>
+          <h4>Welcome 👋</h4>
+          <p>What would you like to do today?</p>
+
+          <div className="onboarding-actions">
+            <button className="buy-btn" onClick={handleBuyClick}>
+              Buy
+            </button>
+
+            <button className="sell-btn" onClick={handleSellClick}>
+              Sell
+            </button>
           </div>
-        </div>
-      )}
 
-      {/* ROLE POPUP */}
-      {showRolePopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
-            <h2>Select Your Role</h2>
-
-            <button onClick={() => selectRole("seller")}>Seller</button>
-
-            <button onClick={() => selectRole("agent")}>Agent</button>
-
-            <button onClick={() => selectRole("builder")}>Builder</button>
-          </div>
         </div>
       )}
 

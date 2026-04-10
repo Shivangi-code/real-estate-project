@@ -1,19 +1,31 @@
+/* ================= PROPERTY CARD ================= */
 .property-card {
-  background: #ffffff;
-  border-radius: 14px;
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(16px);
+
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  transition: all 0.3s ease;
+
+  border: 1px solid rgba(255,255,255,0.4);
+
+  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+
+  transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+
   display: flex;
   flex-direction: column;
   height: 100%;
+
+  cursor: pointer;
 }
 
+/* 🔥 HOVER EFFECT */
 .property-card:hover {
-  box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
 }
 
-/* IMAGE SECTION */
+/* ================= IMAGE SECTION ================= */
 .card-image {
   position: relative;
   height: 220px;
@@ -22,13 +34,35 @@
   background: #f3f4f6;
 }
 
+/* IMAGE */
 .card-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+
+  transition: transform 0.4s ease;
 }
 
-/* PLACEHOLDER */
+/* IMAGE ZOOM */
+.property-card:hover .card-img {
+  transform: scale(1.08);
+}
+
+/* OVERLAY GRADIENT */
+.card-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+  opacity: 0;
+  transition: 0.3s;
+}
+
+.property-card:hover .card-image::after {
+  opacity: 1;
+}
+
+/* ================= PLACEHOLDER ================= */
 .card-placeholder {
   height: 100%;
   display: flex;
@@ -38,43 +72,70 @@
   color: #666;
 }
 
-/* BADGE */
+/* ================= BADGE ================= */
 .badge {
   position: absolute;
   top: 12px;
   left: 12px;
-  background: #1e3a8a;
+
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
   color: white;
+
   padding: 5px 10px;
   font-size: 12px;
   border-radius: 6px;
+
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-/* HEART */
+/* ================= HEART ================= */
 .heart-btn {
   position: absolute;
   top: 12px;
   right: 12px;
-  background: white;
+
+  background: rgba(255,255,255,0.9);
   border: none;
   border-radius: 50%;
+
   padding: 6px;
   cursor: pointer;
+
+  transition: 0.2s;
 }
 
-/* VIEW BUTTON */
+.heart-btn:hover {
+  transform: scale(1.15);
+  background: white;
+}
+
+/* ================= VIEW BUTTON ================= */
 .view-btn {
   position: absolute;
   bottom: 12px;
   right: 12px;
-  background: #1e3a8a;
+
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
   color: white;
-  padding: 5px 12px;
+
+  padding: 6px 14px;
   font-size: 12px;
+
   border-radius: 20px;
+
+  opacity: 0;
+  transform: translateY(10px);
+
+  transition: 0.3s ease;
 }
 
-/* BODY */
+/* SHOW ON HOVER */
+.property-card:hover .view-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ================= BODY ================= */
 .card-body {
   padding: 16px;
   display: flex;
@@ -82,41 +143,50 @@
   flex: 1;
 }
 
+/* TITLE */
 .card-body h3 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
 
+/* LOCATION */
 .location {
   color: #6b7280;
   font-size: 14px;
   margin: 6px 0;
 }
 
+/* TYPE TAG */
 .type {
-  background: #e0e7ff;
+  background: rgba(37,99,235,0.1);
   color: #1e3a8a;
+
   padding: 4px 10px;
   border-radius: 20px;
   font-size: 12px;
+
   display: inline-block;
   margin-bottom: 10px;
 }
 
+/* DETAILS */
 .details {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
+
   margin-top: auto;
 }
 
+/* BOTTOM */
 .bottom {
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
+/* PRICE */
 .price {
-  font-size: 18px;
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
   color: #1e3a8a;
 }
