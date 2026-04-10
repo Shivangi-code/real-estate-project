@@ -20,6 +20,9 @@ const userSchema = new mongoose.Schema(
       sparse: true,
       trim: true,
       lowercase: true,
+      required: function () {
+        return this.authProvider === "email";
+      },
     },
 
     password: {
@@ -42,7 +45,7 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["buyer", "seller", "admin"],
+      enum: ["buyer", "seller", "agent", "builder", "admin"],
       default: "buyer",
     },
 
@@ -56,8 +59,12 @@ const userSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
+
+
 
 
 module.exports = mongoose.model("User", userSchema);

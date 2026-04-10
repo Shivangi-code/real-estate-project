@@ -11,11 +11,12 @@ import ChatPopup from "./components/ChatPopup";
 // Public Pages
 import Home from "./pages/public/Home";
 import Properties from "./pages/public/Properties";
-import About from "./pages/public/About";
+import About from "./pages/public/About.jsx";
+
 import Chat from "./components/Chat";
 import Contact from "./components/Contact";
 import SelectRole from "./pages/public/SelectRole";
-import Login from "./pages/public/Login";
+import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Otp from "./pages/Otp";
 import Onboarding from "./pages/public/Onboarding";
