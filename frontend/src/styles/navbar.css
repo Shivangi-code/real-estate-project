@@ -24,16 +24,38 @@ body.dark {
   border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
+/* ================= FLEX LAYOUT FIX ================= */
+.nav-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.nav-center {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+}
+
+.nav-right {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 16px;
+}
+
 /* LOGO */
 .nav-logo {
   height: 90px;
   object-fit: contain;
+  cursor: pointer;
 }
 
 /* ================= SEARCH ================= */
 .search-box {
-  width: 45%;
-  max-width: 500px;
+  width: 100%;
+  max-width: 550px;
 
   display: flex;
   align-items: center;
@@ -54,6 +76,7 @@ body.dark {
   outline: none;
   background: transparent;
   font-size: 14px;
+  padding: 4px;
 }
 
 .search-box:hover {
@@ -61,11 +84,6 @@ body.dark {
 }
 
 /* ================= RIGHT ================= */
-.nav-right {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
 
 /* ICON BUTTON */
 .icon-btn {

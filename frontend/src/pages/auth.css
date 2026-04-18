@@ -1,0 +1,93 @@
+.auth-container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #e0e7ff, #f1f5f9);
+}
+
+.auth-card {
+  width: 400px;
+  padding: 30px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.auth-card input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+}
+
+.tabs button {
+  flex: 1;
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.otp-btn {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.link {
+  margin-top: 10px;
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.otp-input-wrapper {
+  position: relative;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.otp-input-wrapper input {
+  width: 100%;
+  padding: 12px;
+  padding-right: 100px; /* space for button */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.otp-input-wrapper button {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+
+  background: #2563eb;
+  color: white;
+  font-size: 12px;
+  cursor: pointer;
+}

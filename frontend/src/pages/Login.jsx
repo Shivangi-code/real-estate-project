@@ -1,63 +1,140 @@
-import { useState } from "react";
-import API from "../utils/api"; // ✅ use API instance
+import { useState, useEffect } from "react";
+import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const [isOtp, setIsOtp] = useState(true);
-  const [loading, setLoading] = useState(false);
+  const [mode, setMode] = useState("email-password");
 
   const [data, setData] = useState({
-    mobile: "",
     email: "",
+    mobile: "",
     password: "",
+    otp: "",
   });
+
+  const [loading, setLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [timer, setTimer] = useState(0);
 
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  // ================= RESET ON MODE CHANGE =================
+  useEffect(() => {
+    setData({
+      email: "",
+      mobile: "",
+      password: "",
+      otp: "",
+    });
+    setOtpSent(false);
+    setTimer(0);
+  }, [mode]);
+
+  // ================= TIMER =================
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleChange = (e) => {
+    setData({ ...data, [e.target.name]: e.target.value });
+  };
+
+  // ================= SEND OTP =================
+  const sendOtp = async () => {
     try {
-      // ✅ Validation
-      if (isOtp && !data.mobile) {
+      if (mode.includes("email") && !data.email) {
+        return alert("Enter email");
+      }
+
+      if (mode.includes("mobile") && !data.mobile) {
         return alert("Enter mobile number");
       }
 
-      if (!isOtp && (!data.email || !data.password)) {
-        return alert("Enter email and password");
+      await API.post("/user-auth/send-otp", {
+        email: data.email || undefined,
+        mobile: data.mobile || undefined,
+      });
+
+      setOtpSent(true);
+      setTimer(30);
+
+      alert("OTP sent ✅");
+
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to send OTP");
+    }
+  };
+
+  // ================= LOGIN =================
+  const handleLogin = async () => {
+    try {
+      // 🔥 VALIDATION FIRST
+      if (mode === "email-password") {
+        if (!data.email || !data.password)
+          return alert("Email & password required");
+      }
+
+      if (mode === "mobile-password") {
+        if (!data.mobile || !data.password)
+          return alert("Mobile & password required");
+      }
+
+      if (mode === "email-otp") {
+        if (!data.email || !data.otp)
+          return alert("Email & OTP required");
+      }
+
+      if (mode === "mobile-otp") {
+        if (!data.mobile || !data.otp)
+          return alert("Mobile & OTP required");
       }
 
       setLoading(true);
 
-      if (isOtp) {
-        // ✅ OTP FLOW (use API)
-        await API.post("/user-auth/send-otp", {
-          mobile: data.mobile,
-        });
+      let payload = { mode };
 
-        localStorage.setItem("mobile", data.mobile);
-        navigate("/otp");
-      } else {
-        // ✅ EMAIL LOGIN (use API)
-        const res = await API.post("/auth/login", {
-          email: data.email,
-          password: data.password,
-        });
-
-        // ✅ FIXED: store correct tokens
-        localStorage.setItem("token", res.data.accessToken);
-        localStorage.setItem("refreshToken", res.data.refreshToken);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-
-        const role = res.data.user.role;
-
-        // ✅ Role-based redirect
-        if (role === "admin") navigate("/admin");
-        else if (role === "seller") navigate("/seller");
-        else if (role === "agent") navigate("/agent");
-        else if (role === "builder") navigate("/builder");
-        else navigate("/");
+      if (mode === "email-password") {
+        payload.email = data.email;
+        payload.password = data.password;
       }
+
+      if (mode === "mobile-password") {
+        payload.mobile = data.mobile;
+        payload.password = data.password;
+      }
+
+      if (mode === "email-otp") {
+        payload.email = data.email;
+        payload.otp = data.otp;
+      }
+
+      if (mode === "mobile-otp") {
+        payload.mobile = data.mobile;
+        payload.otp = data.otp;
+      }
+
+      const res = await API.post("/user-auth/login", payload);
+
+      const { token, user } = res.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // 🔄 Redirect
+      if (user.role === "admin") navigate("/admin");
+      else if (user.role === "seller") navigate("/seller");
+      else if (user.role === "agent") navigate("/agent");
+      else if (user.role === "builder") navigate("/builder");
+      else navigate("/");
+
     } catch (err) {
-      alert(err.response?.data?.message || "Error");
+      alert(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -68,85 +145,117 @@ export default function Login() {
       <div className="backdrop-blur-lg bg-white/10 border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
 
         <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Welcome Back
+          Login
         </h2>
 
-        {/* Toggle */}
-        <div className="flex justify-center gap-4 mb-6">
-          <button
-            onClick={() => {
-              setIsOtp(true);
-              setData({ mobile: "", email: "", password: "" });
-            }}
-            className={`px-4 py-2 rounded-full ${
-              isOtp ? "bg-white text-black" : "text-white border"
-            }`}
-          >
-            OTP
-          </button>
-
-          <button
-            onClick={() => {
-              setIsOtp(false);
-              setData({ mobile: "", email: "", password: "" });
-            }}
-            className={`px-4 py-2 rounded-full ${
-              !isOtp ? "bg-white text-black" : "text-white border"
-            }`}
-          >
-            Email
-          </button>
+        {/* MODE SWITCH */}
+        <div className="grid grid-cols-2 gap-2 mb-4">
+          {[
+            ["email-password", "Email"],
+            ["mobile-password", "Mobile"],
+            ["email-otp", "Email OTP"],
+            ["mobile-otp", "Mobile OTP"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setMode(key)}
+              className={`p-2 rounded text-white ${
+                mode === key ? "bg-blue-600" : "bg-white/20"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
-        {/* Inputs */}
-        {isOtp ? (
+        {/* EMAIL */}
+        {mode.includes("email") && (
           <input
-            className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white outline-none"
-            placeholder="Enter mobile number"
-            value={data.mobile}
-            onChange={(e) =>
-              setData({ ...data, mobile: e.target.value })
-            }
+            name="email"
+            placeholder="Enter Email"
+            value={data.email}
+            onChange={handleChange}
+            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
-        ) : (
-          <>
-            <input
-              className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
-              placeholder="Email"
-              value={data.email}
-              onChange={(e) =>
-                setData({ ...data, email: e.target.value })
-              }
-            />
-            <input
-              type="password"
-              className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white outline-none"
-              placeholder="Password"
-              value={data.password}
-              onChange={(e) =>
-                setData({ ...data, password: e.target.value })
-              }
-            />
-          </>
         )}
 
+        {/* MOBILE */}
+        {mode.includes("mobile") && (
+          <input
+            name="mobile"
+            placeholder="Enter Mobile"
+            value={data.mobile}
+            onChange={handleChange}
+            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+          />
+        )}
+
+        {/* PASSWORD */}
+        {mode.includes("password") && (
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter Password"
+            value={data.password}
+            onChange={handleChange}
+            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+          />
+        )}
+
+        {/* OTP */}
+        {mode.includes("otp") && (
+          <div className="relative mb-4">
+            <input
+              name="otp"
+              placeholder="Enter OTP"
+              value={data.otp}
+              onChange={handleChange}
+              className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+            />
+
+            <button
+              onClick={sendOtp}
+              disabled={timer > 0}
+              className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm ${
+                timer > 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              } text-white`}
+            >
+              {timer > 0
+                ? `Resend ${timer}s`
+                : otpSent
+                ? "Resend OTP"
+                : "Send OTP"}
+            </button>
+          </div>
+        )}
+
+        {/* LOGIN */}
         <button
-          onClick={handleSubmit}
+          onClick={handleLogin}
           disabled={loading}
           className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
         >
-          {loading ? "Please wait..." : "Continue"}
+          {loading ? "Logging in..." : "Login"}
         </button>
 
-        <p className="text-center text-white text-sm mt-4">
-          No account?{" "}
-          <span
+        {/* LINKS */}
+        <div className="text-center mt-4 text-white text-sm space-y-2">
+          <p
+            className="cursor-pointer underline"
             onClick={() => navigate("/signup")}
-            className="underline cursor-pointer"
           >
-            Sign up
-          </span>
-        </p>
+            Create Account
+          </p>
+
+          <p
+            className="cursor-pointer underline"
+            onClick={() => navigate("/forgot-password")}
+          >
+            Forgot Password
+          </p>
+        </div>
 
       </div>
     </div>

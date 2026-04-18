@@ -2,31 +2,28 @@ import { useState, useEffect } from "react";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
-export default function Signup() {
+export default function ForgotPassword() {
   const [data, setData] = useState({
-    name: "",
     email: "",
     mobile: "",
-    password: "",
     otp: "",
+    newPassword: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [otpSent, setOtpSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
-  // ================= TIMER =================
+  // TIMER
   useEffect(() => {
     let interval;
-
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => prev - 1);
       }, 1000);
     }
-
     return () => clearInterval(interval);
   }, [timer]);
 
@@ -34,7 +31,7 @@ export default function Signup() {
     setData({ ...data, [e.target.name]: e.target.value });
   };
 
-  // ================= SEND OTP =================
+  // SEND OTP
   const sendOtp = async () => {
     try {
       if (!data.email && !data.mobile) {
@@ -56,52 +53,35 @@ export default function Signup() {
     }
   };
 
-  // ================= REGISTER =================
-  const handleSignup = async () => {
+  // RESET PASSWORD
+  const handleReset = async () => {
     try {
-      if (!data.name || !data.password) {
-        return alert("Name & password required");
-      }
-
-      if (!data.email && !data.mobile) {
-        return alert("Email or mobile required");
-      }
-
-      if (!data.otp) {
-        return alert("Enter OTP");
+      if (!data.otp || !data.newPassword) {
+        return alert("OTP & new password required");
       }
 
       setLoading(true);
 
-      await API.post("/user-auth/register", data);
+      await API.post("/user-auth/reset-password", data);
 
-      alert("Signup successful 🎉");
+      alert("Password updated 🎉");
 
       navigate("/login");
 
     } catch (err) {
-      alert(err.response?.data?.message || "Signup failed");
+      alert(err.response?.data?.message || "Reset failed");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-purple-600">
-      <div className="backdrop-blur-lg bg-white/10 border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-red-500 via-pink-500 to-purple-600">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
 
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Create Account
+        <h2 className="text-2xl font-bold text-white text-center mb-6">
+          Reset Password
         </h2>
-
-        {/* NAME */}
-        <input
-          name="name"
-          placeholder="Full Name"
-          value={data.name}
-          onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
-        />
 
         {/* EMAIL */}
         <input
@@ -121,18 +101,8 @@ export default function Signup() {
           className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
-        {/* PASSWORD */}
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={data.password}
-          onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
-        />
-
         {/* OTP */}
-        <div className="relative mb-4">
+        <div className="relative mb-3">
           <input
             name="otp"
             placeholder="Enter OTP"
@@ -147,7 +117,7 @@ export default function Signup() {
             className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm ${
               timer > 0
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
+                : "bg-red-600 hover:bg-red-700"
             } text-white`}
           >
             {timer > 0
@@ -158,18 +128,27 @@ export default function Signup() {
           </button>
         </div>
 
-        {/* SIGNUP BUTTON */}
+        {/* NEW PASSWORD */}
+        <input
+          type="password"
+          name="newPassword"
+          placeholder="New Password"
+          value={data.newPassword}
+          onChange={handleChange}
+          className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+        />
+
+        {/* RESET BUTTON */}
         <button
-          onClick={handleSignup}
+          onClick={handleReset}
           disabled={loading}
           className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
         >
-          {loading ? "Creating..." : "Create Account"}
+          {loading ? "Updating..." : "Reset Password"}
         </button>
 
-        {/* LINKS */}
         <p className="text-center text-white text-sm mt-4">
-          Already have an account?{" "}
+          Back to{" "}
           <span
             onClick={() => navigate("/login")}
             className="underline cursor-pointer"

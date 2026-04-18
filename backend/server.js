@@ -3,20 +3,18 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const path = require("path");
 
 const app = express();
 
 // ================= ROUTES =================
 const propertyRoutes = require("./routes/propertyRoutes");
-const authRoutes = require("./routes/authRoutes");        // seller/admin
 const adminRoutes = require("./routes/adminRoutes");
-const userAuthRoutes = require("./routes/userAuthRoutes"); // buyer
-const contactRoutes = require("./routes/contactRoutes");   // contact
-
+const userAuthRoutes = require("./routes/userAuthRoutes");
+const contactRoutes = require("./routes/contactRoutes");
 
 // ================= MIDDLEWARE =================
 
-// ✅ CORS (keep open for now, restrict later)
 app.use(cors({
   origin: "*",
   credentials: true,
@@ -25,17 +23,16 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ Static uploads
-app.use("/uploads", express.static("uploads"));
+// ✅ VERY IMPORTANT: STATIC FIRST
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 
 // ================= API ROUTES =================
 app.use("/api/property", propertyRoutes);
-app.use("/api/auth", authRoutes);          // seller/admin
-app.use("/api/admin", adminRoutes);        // admin
-app.use("/api/user-auth", userAuthRoutes); // buyer
-app.use("/api/contact", contactRoutes);    // contact
-
+app.use("/api/admin", adminRoutes);
+app.use("/api/user-auth", userAuthRoutes);
+app.use("/api/contact", contactRoutes);
+app.get("/favicon.ico", (req, res) => res.sendStatus(204));
 
 // ================= ROOT =================
 app.get("/", (req, res) => {
@@ -43,7 +40,7 @@ app.get("/", (req, res) => {
 });
 
 
-// ================= 404 HANDLER =================
+// ================= 404 (MUST BE LAST) =================
 app.use((req, res) => {
   console.log("❌ Route not found:", req.originalUrl);
 
@@ -54,7 +51,7 @@ app.use((req, res) => {
 });
 
 
-// ================= GLOBAL ERROR HANDLER =================
+// ================= ERROR HANDLER =================
 app.use((err, req, res, next) => {
   console.error("🔥 ERROR:", err.stack);
 
@@ -64,13 +61,11 @@ app.use((err, req, res, next) => {
 });
 
 
-// ================= DATABASE CONNECTION =================
+// ================= DB =================
 const connectDB = async () => {
   try {
     mongoose.set("strictQuery", true);
-
     await mongoose.connect(process.env.MONGO_URI);
-
     console.log("MongoDB Connected ✅");
   } catch (error) {
     console.error("MongoDB Error ❌", error.message);
@@ -79,7 +74,7 @@ const connectDB = async () => {
 };
 
 
-// ================= START SERVER =================
+// ================= START =================
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
@@ -87,7 +82,6 @@ const startServer = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT} 🚀`);
-    console.log(`User Auth API: http://localhost:${PORT}/api/user-auth`);
   });
 };
 

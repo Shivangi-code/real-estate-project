@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Menu, X, Search, User,
-  Home, Building, Briefcase, Heart, Moon, Sun
+  Home, Building, Heart, Moon, Sun
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
@@ -10,26 +10,27 @@ import "../styles/navbar.css";
 
 function Navbar() {
   const [open, setOpen] = useState(false);
-  const [subMenu, setSubMenu] = useState(false);
   const [dark, setDark] = useState(false);
   const [search, setSearch] = useState("");
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  let user = null;
+  try {
+    user = JSON.parse(localStorage.getItem("user"));
+  } catch {
+    user = null;
+  }
+
   const token = localStorage.getItem("token");
   const role = user?.role;
 
-  // 🌙 DARK MODE
   useEffect(() => {
     document.body.classList.toggle("dark", dark);
   }, [dark]);
 
-  const closeAll = () => {
-    setOpen(false);
-    setSubMenu(false);
-  };
+  const closeAll = () => setOpen(false);
 
   const goTo = (path) => {
     closeAll();
@@ -39,23 +40,9 @@ function Navbar() {
   const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    localStorage.clear();
     closeAll();
     navigate("/login");
-  };
-
-  const handleSellClick = () => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    if (["seller", "agent", "builder"].includes(role)) {
-      navigate("/add-property");
-    } else {
-      alert("Login as seller, agent or builder to add property.");
-    }
   };
 
   return (
@@ -63,16 +50,17 @@ function Navbar() {
       {/* NAVBAR */}
       <div className="navbar god-nav">
 
-        {/* LOGO */}
-        <img
-          src={logo}
-          className="nav-logo"
-          alt="logo"
-          onClick={() => navigate("/")}
-          style={{ cursor: "pointer" }}
-        />
+        {/* LEFT LOGO */}
+        <div className="nav-left">
+          <img
+            src={logo}
+            className="nav-logo"
+            alt="logo"
+            onClick={() => navigate("/")}
+          />
+        </div>
 
-        {/* SEARCH */}
+        {/* CENTER SEARCH */}
         <div className="nav-center">
           <div className="search-box">
             <input
@@ -92,18 +80,29 @@ function Navbar() {
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <Link to="/about" className="login-btn">About</Link>
-          <Link to="/chat" className="login-btn">Chat</Link>
-          <Link to="/contact" className="login-btn">Contact</Link>
+          <Link to="/about" className={isActive("/about") ? "active" : ""}>
+            About
+          </Link>
 
+          <Link to="/contact" className={isActive("/contact") ? "active" : ""}>
+            Contact
+          </Link>
+
+          {/* LOGIN / LOGOUT */}
           {!token ? (
-            <Link to="/login" className="login-btn">Login</Link>
+            <button
+              className="login-btn"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
           ) : (
-            <button className="login-btn god-btn" onClick={handleLogout}>
+            <button className="login-btn" onClick={handleLogout}>
               Logout
             </button>
           )}
 
+          {/* MENU */}
           <button className="menu-btn" onClick={() => setOpen(true)}>
             <Menu size={26} />
           </button>
@@ -136,7 +135,7 @@ function Navbar() {
                 <div className="drawer-profile">
                   <User size={32} />
                   <div>
-                    <p>{user?.name}</p>
+                    <p>{user?.name || "User"}</p>
                     <span>{role}</span>
                   </div>
                 </div>
@@ -146,28 +145,8 @@ function Navbar() {
                 <Home size={18} /> Home
               </div>
 
-              <button className="nav-item" onClick={handleSellClick}>
-                <Building size={18} /> Sell Property
-              </button>
-
-              <div className="nav-item" onClick={() => goTo("/saved")}>
-                <Heart size={18} /> Saved
-              </div>
-
-              <div className="nav-item" onClick={() => goTo("/agent")}>
-                <User size={18} /> Agents
-              </div>
-
-              <div className="nav-item" onClick={() => goTo("/builder")}>
-                <Building size={18} /> Builders
-              </div>
-
               <div className="nav-item" onClick={() => goTo("/about")}>
                 About
-              </div>
-
-              <div className="nav-item" onClick={() => goTo("/chat")}>
-                Chat
               </div>
 
               <div className="nav-item" onClick={() => goTo("/contact")}>
