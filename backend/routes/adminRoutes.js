@@ -1,253 +1,197 @@
 const express = require("express");
 const router = express.Router();
-
 const mongoose = require("mongoose");
+
 const Property = require("../models/Property");
 
-const { protect, authorizeRoles } = require("../middleware/authMiddleware");
+const {
+  protect,
+  authorizeRoles,
+} = require("../middleware/authMiddleware");
 
+// ================= VALIDATE ID =================
+const isValidId = (id) =>
+  mongoose.Types.ObjectId.isValid(id);
 
-// ================= HELPER: VALIDATE ID =================
-const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
+// ================= CHANGE STATUS =================
+const updatePropertyStatus = async (
+  id,
+  newStatus,
+  adminId
+) => {
+  const property = await Property.findById(id);
 
-const syncPrimaryApprovedImage = (property) => {
-  const approvedImage = (property.images || []).find(
-    (image) => image.status === "approved"
-  );
+  if (!property) return null;
 
-  property.image = approvedImage ? approvedImage.filename : null;
+  property.status = newStatus;
+  property.verifiedBy = adminId;
+  property.verifiedAt = new Date();
+  property.lastStatusChangedAt = new Date();
+
+  property.statusHistory.push({
+    status: newStatus,
+    changedAt: new Date(),
+    changedBy: adminId,
+  });
+
+  await property.save();
+
+  return property;
 };
 
+// ================= GET ALL =================
+router.get(
+  "/properties/all",
+  protect,
+  authorizeRoles("admin"),
+  async (req, res) => {
+    try {
+      const properties = await Property.find()
+        .populate("createdBy", "name role")
+        .populate("verifiedBy", "name")
+        .sort({ createdAt: -1 });
 
-// ================= GET PENDING PROPERTIES =================
+      res.json(properties);
+    } catch (err) {
+      res.status(500).json({
+        message: "Server error",
+      });
+    }
+  }
+);
+
+// ================= GET PENDING =================
 router.get(
   "/properties/pending",
   protect,
   authorizeRoles("admin"),
   async (req, res) => {
-    try {
-      const properties = await Property.find({ status: "pending" })
-        .populate("createdBy", "name role")
-        .sort({ createdAt: -1 });
+    const data = await Property.find({
+      status: "pending",
+    })
+      .populate("createdBy", "name role")
+      .sort({ createdAt: -1 });
 
-      res.json(properties);
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
-    }
+    res.json(data);
   }
 );
 
-
-// ================= GET PENDING IMAGES =================
+// ================= GET APPROVED =================
 router.get(
-  "/properties/pending-images",
+  "/properties/approved",
   protect,
   authorizeRoles("admin"),
   async (req, res) => {
-    try {
-      const properties = await Property.find({
-        "images.status": "pending",
-      })
-        .populate("createdBy", "name role")
-        .sort({ createdAt: -1 });
+    const data = await Property.find({
+      status: "approved",
+    })
+      .populate("createdBy", "name role")
+      .populate("verifiedBy", "name")
+      .sort({ createdAt: -1 });
 
-      res.json(
-        properties.filter((property) =>
-          (property.images || []).some((image) => image.status === "pending")
-        )
-      );
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
-    }
+    res.json(data);
   }
 );
 
+// ================= GET REJECTED =================
+router.get(
+  "/properties/rejected",
+  protect,
+  authorizeRoles("admin"),
+  async (req, res) => {
+    const data = await Property.find({
+      status: "rejected",
+    })
+      .populate("createdBy", "name role")
+      .populate("verifiedBy", "name")
+      .sort({ createdAt: -1 });
 
-// ================= APPROVE PROPERTY =================
+    res.json(data);
+  }
+);
+
+// ================= APPROVE =================
 router.put(
   "/property/:id/approve",
   protect,
   authorizeRoles("admin"),
   async (req, res) => {
     try {
-      const { id } = req.params;
-
-      if (!isValidId(id)) {
-        return res.status(400).json({ message: "Invalid property ID" });
+      if (!isValidId(req.params.id)) {
+        return res
+          .status(400)
+          .json({ message: "Invalid ID" });
       }
 
-      const property = await Property.findByIdAndUpdate(
-        id,
-        { status: "approved" },
-        { new: true }
-      );
-
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
+      const property =
+        await updatePropertyStatus(
+          req.params.id,
+          "approved",
+          req.user._id
+        );
 
       res.json({
-        message: "Property approved",
+        message: "Approved",
         property,
       });
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+    } catch {
+      res.status(500).json({
+        message: "Server error",
+      });
     }
   }
 );
 
-
-// ================= APPROVE PROPERTY IMAGE =================
-router.put(
-  "/property/:propertyId/image/:imageId/approve",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-    try {
-      const { propertyId, imageId } = req.params;
-
-      if (!isValidId(propertyId) || !isValidId(imageId)) {
-        return res.status(400).json({ message: "Invalid property or image ID" });
-      }
-
-      const property = await Property.findById(propertyId);
-
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
-
-      const image = property.images.id(imageId);
-
-      if (!image) {
-        return res.status(404).json({ message: "Image not found" });
-      }
-
-      image.status = "approved";
-      image.verifiedBy = req.user._id;
-      image.verifiedAt = new Date();
-
-      syncPrimaryApprovedImage(property);
-      await property.save();
-
-      res.json({
-        message: "Image approved",
-        property,
-      });
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-);
-
-
-// ================= REJECT PROPERTY =================
+// ================= REJECT =================
 router.put(
   "/property/:id/reject",
   protect,
   authorizeRoles("admin"),
   async (req, res) => {
     try {
-      const { id } = req.params;
-
-      if (!isValidId(id)) {
-        return res.status(400).json({ message: "Invalid property ID" });
-      }
-
-      const property = await Property.findByIdAndUpdate(
-        id,
-        { status: "rejected" },
-        { new: true }
-      );
-
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
+      const property =
+        await updatePropertyStatus(
+          req.params.id,
+          "rejected",
+          req.user._id
+        );
 
       res.json({
-        message: "Property rejected",
+        message: "Rejected",
         property,
       });
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+    } catch {
+      res.status(500).json({
+        message: "Server error",
+      });
     }
   }
 );
 
-
-// ================= REJECT PROPERTY IMAGE =================
+// ================= BACK TO PENDING =================
 router.put(
-  "/property/:propertyId/image/:imageId/reject",
+  "/property/:id/pending",
   protect,
   authorizeRoles("admin"),
   async (req, res) => {
     try {
-      const { propertyId, imageId } = req.params;
-
-      if (!isValidId(propertyId) || !isValidId(imageId)) {
-        return res.status(400).json({ message: "Invalid property or image ID" });
-      }
-
-      const property = await Property.findById(propertyId);
-
-      if (!property) {
-        return res.status(404).json({ message: "Property not found" });
-      }
-
-      const image = property.images.id(imageId);
-
-      if (!image) {
-        return res.status(404).json({ message: "Image not found" });
-      }
-
-      image.status = "rejected";
-      image.verifiedBy = req.user._id;
-      image.verifiedAt = new Date();
-
-      syncPrimaryApprovedImage(property);
-      await property.save();
+      const property =
+        await updatePropertyStatus(
+          req.params.id,
+          "pending",
+          req.user._id
+        );
 
       res.json({
-        message: "Image rejected",
+        message: "Moved to pending",
         property,
       });
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
+    } catch {
+      res.status(500).json({
+        message: "Server error",
+      });
     }
   }
 );
-
-
-// ================= GET APPROVED PROPERTIES =================
-router.get(
-  "/properties/approved",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-    try {
-      const properties = await Property.find({ status: "approved" })
-        .populate("createdBy", "name role")
-        .sort({ createdAt: -1 });
-
-      res.json(properties);
-
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-);
-
 
 module.exports = router;

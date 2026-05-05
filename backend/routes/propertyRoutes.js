@@ -13,23 +13,19 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 const getApprovedImages = (property) =>
   (property.images || []).filter((image) => image.status === "approved");
 
-// ✅ Map image properly
+// ✅ Map approved images (Cloudinary URL)
 const mapApprovedImages = (property) => {
   const doc = property.toObject ? property.toObject() : property;
   const approvedImages = getApprovedImages(doc);
 
   return {
     ...doc,
-    image: approvedImages[0]?.filename
-      ? `uploads/${approvedImages[0].filename}`
-      : doc.image
-      ? `uploads/${doc.image}`
-      : null,
+    image: approvedImages[0]?.url
+      ? approvedImages[0].url
+      : doc.image || null,
     images: approvedImages,
   };
 };
-
-
 
 // ================= ADD PROPERTY =================
 router.post(
@@ -43,6 +39,7 @@ router.post(
         ? [
             {
               filename: req.file.filename,
+              url: req.file.path,
               uploadedBy: req.user._id,
               status: "pending",
             },
@@ -58,10 +55,10 @@ router.post(
         constructionStatus: req.body.constructionStatus,
         description: req.body.description,
 
-        // ✅ FIXED IMAGE PATH
-        image: req.file ? `uploads/${req.file.filename}` : null,
+        // ✅ Cloudinary URL
+        image: req.file ? req.file.path : null,
 
-        images, // ✅ SAVE IMAGES ARRAY
+        images,
 
         status: "pending",
         createdBy: req.user._id,
@@ -81,8 +78,6 @@ router.post(
   }
 );
 
-
-
 // ================= GET APPROVED =================
 router.get("/approved", async (req, res) => {
   try {
@@ -90,7 +85,6 @@ router.get("/approved", async (req, res) => {
       .populate("createdBy", "name role")
       .sort({ createdAt: -1 });
 
-    // ✅ APPLY IMAGE FIX
     const updated = properties.map(mapApprovedImages);
 
     res.json(updated);
@@ -99,14 +93,13 @@ router.get("/approved", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 // ================= MY PROPERTIES =================
 router.get("/my-properties", protect, async (req, res) => {
   try {
-    const properties = await Property.find({ createdBy: req.user._id })
-      .sort({ createdAt: -1 });
+    const properties = await Property.find({
+      createdBy: req.user._id,
+    }).sort({ createdAt: -1 });
 
     const updated = properties.map(mapApprovedImages);
 
@@ -116,6 +109,5 @@ router.get("/my-properties", protect, async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;

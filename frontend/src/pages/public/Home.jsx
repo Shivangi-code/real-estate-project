@@ -1,122 +1,199 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PropertyFilter from "../../components/PropertyFilter";
-import FilterSidebar from "../../components/FilterSidebar";
-import PropertyCard from "../../components/PropertyCard";
-import "../../styles/home.css";
+import {
+  Search,
+  ShieldCheck,
+  Building2,
+  Users,
+  ArrowRight,
+} from "lucide-react";
 
-function Home() {
+import PropertyCard from "../../components/PropertyCard";
+
+export default function Home() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const navigate = useNavigate();
 
-  // ================= FETCH =================
+  useEffect(() => {
+    fetchProperties();
+  }, []);
+
   const fetchProperties = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/property/approved");
+      const res = await fetch(
+        "http://localhost:5000/api/property/approved"
+      );
+
       const data = await res.json();
-      setProperties(data);
-    } catch (error) {
-      console.log("Error fetching properties", error);
+      setProperties(Array.isArray(data) ? data : []);
+    } catch {
+      setProperties([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // ================= INIT =================
-  useEffect(() => {
-    fetchProperties();
-
-    const seen = localStorage.getItem("onboardingSeen");
-
-    if (!seen) {
-      setTimeout(() => {
-        setShowOnboarding(true);
-      }, 2000);
-    }
-  }, []);
-
-  // ================= ONBOARDING =================
-  const handleCloseOnboarding = () => {
-    setShowOnboarding(false);
-    localStorage.setItem("onboardingSeen", "true");
-  };
-
-  const handleBuyClick = () => {
-    localStorage.setItem("intentSelected", "buy");
-    handleCloseOnboarding();
-  };
-
-  const handleSellClick = () => {
-    localStorage.setItem("intentSelected", "sell");
-    localStorage.setItem("onboardingSeen", "true");
-    navigate("/login");
-  };
-
-  // ================= UI =================
   return (
-    <div>
+    <div className="bg-slate-50 min-h-screen">
       {/* HERO */}
-      <div className="hero-section">
-        <h1>Find Your Dream Property</h1>
-        <p>Explore verified homes, flats and commercial properties</p>
-      </div>
+      <section className="bg-gradient-to-r from-slate-900 to-slate-700 text-white px-6 md:px-12 py-20">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
+          <div>
+            <p className="uppercase tracking-widest text-slate-300 text-sm mb-3">
+              Verified Real Estate Platform
+            </p>
 
-      {/* FILTER */}
-      <PropertyFilter />
+            <h1 className="text-5xl font-bold leading-tight">
+              Find Your Dream Property With Confidence
+            </h1>
 
-      {/* MAIN */}
-      <div className="home-wrapper">
-        {/* SIDEBAR */}
-        <div className="sidebar-container">
-          <FilterSidebar />
-        </div>
+            <p className="mt-5 text-slate-300 text-lg">
+              Verified homes, flats, plots and commercial spaces
+              from trusted sellers, agents and builders.
+            </p>
 
-        {/* GRID */}
-        <div className="grid-container">
-          <div className="property-grid">
-            {loading ? (
-              <p>Loading properties...</p>
-            ) : properties.length === 0 ? (
-              <p>No properties found</p>
-            ) : (
-              properties.map((property, index) => (
-                <PropertyCard
-                  key={property._id}
-                  data={property}
-                  index={index}
-                />
-              ))
-            )}
+            {/* Search */}
+            <div className="mt-8 bg-white rounded-2xl p-3 flex items-center gap-3 shadow-lg">
+              <Search className="text-slate-500" />
+
+              <input
+                type="text"
+                placeholder="Search city, area or property..."
+                className="flex-1 outline-none text-slate-800"
+              />
+
+              <button
+                onClick={() => navigate("/properties")}
+                className="bg-slate-900 text-white px-5 py-3 rounded-xl"
+              >
+                Search
+              </button>
+            </div>
+
+            {/* CTA */}
+            <div className="flex gap-4 mt-6 flex-wrap">
+              <button
+                onClick={() => navigate("/properties")}
+                className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold"
+              >
+                Browse Properties
+              </button>
+
+              <button
+                onClick={() => navigate("/signup")}
+                className="border border-white px-6 py-3 rounded-xl"
+              >
+                List Property
+              </button>
+            </div>
+          </div>
+
+          {/* Hero Right */}
+          <div className="bg-white/10 rounded-3xl p-8 backdrop-blur">
+            <div className="grid grid-cols-2 gap-5">
+              <div className="bg-white rounded-2xl p-5 text-slate-900">
+                <Building2 className="mb-3" />
+                <h3 className="font-bold text-2xl">
+                  {properties.length}+
+                </h3>
+                <p>Verified Listings</p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 text-slate-900">
+                <Users className="mb-3" />
+                <h3 className="font-bold text-2xl">
+                  1K+
+                </h3>
+                <p>Happy Users</p>
+              </div>
+
+              <div className="bg-white rounded-2xl p-5 text-slate-900 col-span-2">
+                <ShieldCheck className="mb-3 text-green-600" />
+                <h3 className="font-bold text-xl">
+                  100% Moderated Listings
+                </h3>
+                <p className="text-slate-500">
+                  Fraud-resistant approval workflow
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* ONBOARDING */}
-      {showOnboarding && (
-        <div className="onboarding-card">
-          <button className="onboarding-close" onClick={handleCloseOnboarding}>
-            ✕
+      {/* FEATURED */}
+      <section className="max-w-7xl mx-auto px-6 md:px-10 py-16">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <p className="text-slate-500 uppercase text-sm">
+              Featured Listings
+            </p>
+            <h2 className="text-4xl font-bold">
+              Explore Latest Properties
+            </h2>
+          </div>
+
+          <button
+            onClick={() => navigate("/properties")}
+            className="flex items-center gap-2 text-slate-700 font-semibold"
+          >
+            View All <ArrowRight size={18} />
           </button>
+        </div>
 
-          <h4>Welcome 👋</h4>
-          <p>What would you like to do today?</p>
+        {loading ? (
+          <p>Loading properties...</p>
+        ) : properties.length === 0 ? (
+          <p>No properties available.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {properties.slice(0, 6).map((property, index) => (
+              <PropertyCard
+                key={property._id}
+                data={property}
+                index={index}
+              />
+            ))}
+          </div>
+        )}
+      </section>
 
-          <div className="onboarding-actions">
-            <button className="buy-btn" onClick={handleBuyClick}>
-              Buy
-            </button>
+      {/* WHY US */}
+      <section className="bg-white py-16">
+        <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-6">
+          <div className="p-6 rounded-3xl bg-slate-50">
+            <ShieldCheck className="text-green-600 mb-4" />
+            <h3 className="text-xl font-bold">
+              Verified Properties
+            </h3>
+            <p className="text-slate-500 mt-2">
+              Every listing goes through moderation checks.
+            </p>
+          </div>
 
-            <button className="sell-btn" onClick={handleSellClick}>
-              Sell
-            </button>
+          <div className="p-6 rounded-3xl bg-slate-50">
+            <Building2 className="text-blue-600 mb-4" />
+            <h3 className="text-xl font-bold">
+              Premium Inventory
+            </h3>
+            <p className="text-slate-500 mt-2">
+              Residential and commercial options available.
+            </p>
+          </div>
+
+          <div className="p-6 rounded-3xl bg-slate-50">
+            <Users className="text-purple-600 mb-4" />
+            <h3 className="text-xl font-bold">
+              Trusted Community
+            </h3>
+            <p className="text-slate-500 mt-2">
+              Buyers, sellers, agents and builders together.
+            </p>
           </div>
         </div>
-      )}
+      </section>
     </div>
   );
 }
-
-export default Home;

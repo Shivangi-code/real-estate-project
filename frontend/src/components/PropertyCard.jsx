@@ -5,24 +5,28 @@ import { useNavigate } from "react-router-dom";
 import "../styles/property.css";
 
 function PropertyCard({ data, index }) {
-
   const [liked, setLiked] = useState(false);
   const navigate = useNavigate();
 
-  // 🔥 FORMAT PRICE (better UX)
   const formatPrice = (price) => {
     if (!price) return "N/A";
 
-    if (price >= 10000000) return `₹ ${(price / 10000000).toFixed(1)} Cr`;
-    if (price >= 100000) return `₹ ${(price / 100000).toFixed(1)} L`;
+    if (price >= 10000000)
+      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
+
+    if (price >= 100000)
+      return `₹ ${(price / 100000).toFixed(1)} L`;
 
     return `₹ ${price}`;
   };
 
-  // 🔥 OPEN PROPERTY (future-ready)
   const openProperty = () => {
     navigate(`/property/${data._id}`);
   };
+
+  const imageUrl =
+    data.image ||
+    "https://via.placeholder.com/600x400?text=Property";
 
   return (
     <motion.div
@@ -32,32 +36,25 @@ function PropertyCard({ data, index }) {
       transition={{
         delay: index * 0.05,
         type: "spring",
-        stiffness: 120
+        stiffness: 120,
       }}
       className="property-card"
       onClick={openProperty}
     >
       {/* IMAGE */}
       <div className="card-image">
+        <motion.img
+          src={imageUrl}
+          alt={data.title}
+          className="card-img"
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.4 }}
+        />
 
-        {data.image ? (
-          <motion.img
-            src={`http://localhost:5000/uploads/${data.image}`}
-            alt={data.title}
-            className="card-img"
-            whileHover={{ scale: 1.1 }}
-            transition={{ duration: 0.4 }}
-          />
-        ) : (
-          <div className="card-placeholder">
-            No Image
-          </div>
-        )}
+        <span className="badge">
+          Verified
+        </span>
 
-        {/* BADGE */}
-        <span className="badge">For Sale</span>
-
-        {/* ❤️ HEART */}
         <motion.button
           className="heart-btn"
           whileTap={{ scale: 0.8 }}
@@ -74,16 +71,13 @@ function PropertyCard({ data, index }) {
           />
         </motion.button>
 
-        {/* VIEW CTA */}
         <div className="view-btn">
           View <ArrowUpRight size={14} />
         </div>
-
       </div>
 
       {/* BODY */}
       <div className="card-body">
-
         <h3>{data.title}</h3>
 
         <p className="location">
@@ -96,10 +90,13 @@ function PropertyCard({ data, index }) {
 
         <div className="details">
           <span>
-            <Maximize2 size={14} /> {data.area || 0} sq ft
+            <Maximize2 size={14} />{" "}
+            {data.area || 0} sq ft
           </span>
 
-          <span>{data.config || "N/A"}</span>
+          <span>
+            {data.config || "Ready"}
+          </span>
         </div>
 
         <div className="bottom">
@@ -107,9 +104,7 @@ function PropertyCard({ data, index }) {
             {formatPrice(data.price)}
           </p>
         </div>
-
       </div>
-
     </motion.div>
   );
 }

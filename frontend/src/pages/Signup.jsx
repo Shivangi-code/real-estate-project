@@ -9,6 +9,7 @@ export default function Signup() {
     mobile: "",
     password: "",
     otp: "",
+    role: "buyer",
   });
 
   const [loading, setLoading] = useState(false);
@@ -17,7 +18,6 @@ export default function Signup() {
 
   const navigate = useNavigate();
 
-  // ================= TIMER =================
   useEffect(() => {
     let interval;
 
@@ -31,40 +31,65 @@ export default function Signup() {
   }, [timer]);
 
   const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    setData({
+      ...data,
+      [e.target.name]: e.target.value,
+    });
   };
 
-  // ================= SEND OTP =================
+  // SEND OTP
   const sendOtp = async () => {
     try {
       if (!data.email && !data.mobile) {
-        return alert("Enter email or mobile");
+        return alert(
+          "Enter email or mobile"
+        );
       }
 
-      await API.post("/user-auth/send-otp", {
-        email: data.email || undefined,
-        mobile: data.mobile || undefined,
-      });
+      await API.post(
+        "/user-auth/send-otp",
+        {
+          email:
+            data.email ||
+            undefined,
+          mobile:
+            data.mobile ||
+            undefined,
+        }
+      );
 
       setOtpSent(true);
       setTimer(30);
 
       alert("OTP sent ✅");
-
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to send OTP");
+      alert(
+        err.response?.data
+          ?.message ||
+          "Failed to send OTP"
+      );
     }
   };
 
-  // ================= REGISTER =================
+  // SIGNUP
   const handleSignup = async () => {
     try {
-      if (!data.name || !data.password) {
-        return alert("Name & password required");
+      if (
+        !data.name ||
+        !data.password
+      ) {
+        return alert(
+          "Name & password required"
+        );
       }
 
-      if (!data.email && !data.mobile) {
-        return alert("Email or mobile required");
+      if (
+        !data.email &&
+        !data.mobile
+      ) {
+        return alert(
+          "Email or mobile required"
+        );
       }
 
       if (!data.otp) {
@@ -73,14 +98,29 @@ export default function Signup() {
 
       setLoading(true);
 
-      await API.post("/user-auth/register", data);
+      await API.post(
+        "/user-auth/register",
+        {
+          name: data.name,
+          email: data.email,
+          mobile: data.mobile,
+          password: data.password,
+          otp: data.otp,
+          role: data.role,
+        }
+      );
 
-      alert("Signup successful 🎉");
+      alert(
+        `Signup successful as ${data.role} 🎉`
+      );
 
       navigate("/login");
-
     } catch (err) {
-      alert(err.response?.data?.message || "Signup failed");
+      alert(
+        err.response?.data
+          ?.message ||
+          "Signup failed"
+      );
     } finally {
       setLoading(false);
     }
@@ -89,7 +129,6 @@ export default function Signup() {
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-purple-600">
       <div className="backdrop-blur-lg bg-white/10 border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
-
         <h2 className="text-3xl font-bold text-white text-center mb-6">
           Create Account
         </h2>
@@ -99,25 +138,31 @@ export default function Signup() {
           name="name"
           placeholder="Full Name"
           value={data.name}
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
           className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
         {/* EMAIL */}
         <input
           name="email"
-          placeholder="Email (optional)"
+          placeholder="Email"
           value={data.email}
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
           className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
         {/* MOBILE */}
         <input
           name="mobile"
-          placeholder="Mobile (optional)"
+          placeholder="Mobile"
           value={data.mobile}
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
           className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
@@ -127,9 +172,46 @@ export default function Signup() {
           name="password"
           placeholder="Password"
           value={data.password}
-          onChange={handleChange}
+          onChange={
+            handleChange
+          }
           className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
+
+        {/* ROLE */}
+        <select
+          name="role"
+          value={data.role}
+          onChange={
+            handleChange
+          }
+          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white outline-none"
+        >
+          <option
+            value="buyer"
+            className="text-black"
+          >
+            Buyer
+          </option>
+          <option
+            value="seller"
+            className="text-black"
+          >
+            Seller
+          </option>
+          <option
+            value="agent"
+            className="text-black"
+          >
+            Agent
+          </option>
+          <option
+            value="builder"
+            className="text-black"
+          >
+            Builder
+          </option>
+        </select>
 
         {/* OTP */}
         <div className="relative mb-4">
@@ -137,7 +219,9 @@ export default function Signup() {
             name="otp"
             placeholder="Enter OTP"
             value={data.otp}
-            onChange={handleChange}
+            onChange={
+              handleChange
+            }
             className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
 
@@ -158,26 +242,29 @@ export default function Signup() {
           </button>
         </div>
 
-        {/* SIGNUP BUTTON */}
+        {/* BUTTON */}
         <button
           onClick={handleSignup}
           disabled={loading}
           className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
         >
-          {loading ? "Creating..." : "Create Account"}
+          {loading
+            ? "Creating..."
+            : "Create Account"}
         </button>
 
-        {/* LINKS */}
         <p className="text-center text-white text-sm mt-4">
-          Already have an account?{" "}
+          Already have an
+          account?{" "}
           <span
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              navigate("/login")
+            }
             className="underline cursor-pointer"
           >
             Login
           </span>
         </p>
-
       </div>
     </div>
   );

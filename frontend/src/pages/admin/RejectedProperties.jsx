@@ -1,26 +1,26 @@
 import { useEffect, useState } from "react";
 import {
+  XCircle,
   CheckCircle,
   Clock3,
-  XCircle,
   MapPin,
   IndianRupee,
 } from "lucide-react";
 
-export default function ApprovedProperties() {
+export default function RejectedProperties() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchApproved();
+    fetchRejected();
   }, []);
 
-  const fetchApproved = async () => {
+  const fetchRejected = async () => {
     try {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/admin/properties/approved",
+        "http://localhost:5000/api/admin/properties/rejected",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -50,19 +50,19 @@ export default function ApprovedProperties() {
       }
     );
 
-    fetchApproved();
+    fetchRejected();
   };
 
   return (
     <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
       <h1 className="text-3xl font-bold mb-6">
-        Approved Properties
+        Rejected Properties
       </h1>
 
       {loading ? (
         <p>Loading...</p>
       ) : properties.length === 0 ? (
-        <p>No approved properties.</p>
+        <p>No rejected properties.</p>
       ) : (
         <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
           {properties.map((item) => (
@@ -89,7 +89,7 @@ export default function ApprovedProperties() {
                   {item.location}
                 </div>
 
-                <div className="flex items-center gap-2 mt-2 text-green-600 font-semibold">
+                <div className="flex items-center gap-2 mt-2 text-red-600 font-semibold">
                   <IndianRupee size={16} />
                   {item.price}
                 </div>
@@ -100,13 +100,13 @@ export default function ApprovedProperties() {
                   {item.createdBy?.role})
                 </p>
 
-                <div className="mt-4 inline-flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                  <CheckCircle size={14} />
-                  Approved
+                <div className="mt-4 inline-flex items-center gap-2 bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                  <XCircle size={14} />
+                  Rejected
                 </div>
 
                 <p className="mt-3 text-xs text-slate-500">
-                  Approved:{" "}
+                  Rejected:{" "}
                   {item.verifiedAt
                     ? new Date(
                         item.verifiedAt
@@ -119,6 +119,19 @@ export default function ApprovedProperties() {
                     onClick={() =>
                       updateStatus(
                         item._id,
+                        "approve"
+                      )
+                    }
+                    className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex justify-center items-center gap-2"
+                  >
+                    <CheckCircle size={16} />
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      updateStatus(
+                        item._id,
                         "pending"
                       )
                     }
@@ -126,19 +139,6 @@ export default function ApprovedProperties() {
                   >
                     <Clock3 size={16} />
                     Pending
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "reject"
-                      )
-                    }
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl flex justify-center items-center gap-2"
-                  >
-                    <XCircle size={16} />
-                    Reject
                   </button>
                 </div>
               </div>

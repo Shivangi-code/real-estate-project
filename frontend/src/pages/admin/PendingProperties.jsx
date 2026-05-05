@@ -1,109 +1,149 @@
 import { useEffect, useState } from "react";
+import {
+  CheckCircle,
+  XCircle,
+  Clock3,
+  MapPin,
+  IndianRupee,
+} from "lucide-react";
 
-const PendingProperties = () => {
+export default function PendingProperties() {
   const [properties, setProperties] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchPending();
   }, []);
 
   const fetchPending = async () => {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch("http://localhost:5000/admin/properties/pending", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+      const res = await fetch(
+        "http://localhost:5000/api/admin/properties/pending",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    const data = await res.json();
-    setProperties(data);
+      const data = await res.json();
+      setProperties(Array.isArray(data) ? data : []);
+    } catch {
+      setProperties([]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleApprove = async (id) => {
+  const updateStatus = async (id, type) => {
     const token = localStorage.getItem("token");
 
-    await fetch(`http://localhost:5000/admin/property/${id}/approve`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await fetch(
+      `http://localhost:5000/api/admin/property/${id}/${type}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    fetchPending(); // refresh
-  };
-
-  const handleReject = async (id) => {
-    const token = localStorage.getItem("token");
-
-    await fetch(`http://localhost:5000/admin/property/${id}/reject`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    fetchPending(); // refresh
+    fetchPending();
   };
 
   return (
-    <div>
-      <h2>Pending Properties</h2>
+    <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
+      <h1 className="text-3xl font-bold mb-6">
+        Pending Properties
+      </h1>
 
-      <div style={{ display: "grid", gap: "20px", marginTop: "20px" }}>
-        {properties.map((property) => (
-          <div key={property._id} style={styles.card}>
-            <h3>{property.title}</h3>
-            <p>₹ {property.price}</p>
-            <p>{property.location}</p>
-            <p>
-              Added By: <b>{property.createdBy?.name}</b> ({property.createdBy?.role})
-            </p>
+      {loading ? (
+        <p>Loading...</p>
+      ) : properties.length === 0 ? (
+        <p>No pending properties.</p>
+      ) : (
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {properties.map((item) => (
+            <div
+              key={item._id}
+              className="bg-white rounded-3xl shadow-sm overflow-hidden"
+            >
+              <img
+                src={
+                  item.image ||
+                  "https://via.placeholder.com/400x250"
+                }
+                alt={item.title}
+                className="w-full h-52 object-cover"
+              />
 
-            <div style={{ marginTop: "10px" }}>
-              <button
-                style={styles.approve}
-                onClick={() => handleApprove(property._id)}
-              >
-                Approve
-              </button>
+              <div className="p-5">
+                <h2 className="text-xl font-bold">
+                  {item.title}
+                </h2>
 
-              <button
-                style={styles.reject}
-                onClick={() => handleReject(property._id)}
-              >
-                Reject
-              </button>
+                <div className="flex items-center gap-2 mt-2 text-slate-500">
+                  <MapPin size={16} />
+                  {item.location}
+                </div>
+
+                <div className="flex items-center gap-2 mt-2 text-blue-600 font-semibold">
+                  <IndianRupee size={16} />
+                  {item.price}
+                </div>
+
+                <p className="mt-3 text-sm text-slate-600">
+                  Owner:{" "}
+                  <b>{item.createdBy?.name}</b> (
+                  {item.createdBy?.role})
+                </p>
+
+                <div className="mt-4 inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                  <Clock3 size={14} />
+                  Pending Review
+                </div>
+
+                <p className="mt-3 text-xs text-slate-500">
+                  Added:{" "}
+                  {new Date(
+                    item.createdAt
+                  ).toLocaleString()}
+                </p>
+
+                <div className="grid grid-cols-2 gap-3 mt-5">
+                  <button
+                    onClick={() =>
+                      updateStatus(
+                        item._id,
+                        "approve"
+                      )
+                    }
+                    className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex justify-center items-center gap-2"
+                  >
+                    <CheckCircle size={16} />
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      updateStatus(
+                        item._id,
+                        "reject"
+                      )
+                    }
+                    className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl flex justify-center items-center gap-2"
+                  >
+                    <XCircle size={16} />
+                    Reject
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
-};
-
-const styles = {
-  card: {
-    background: "white",
-    padding: "20px",
-    borderRadius: "10px",
-    boxShadow: "0 5px 15px rgba(0,0,0,0.05)",
-  },
-  approve: {
-    background: "#16a34a",
-    color: "white",
-    padding: "8px 15px",
-    border: "none",
-    marginRight: "10px",
-    cursor: "pointer",
-  },
-  reject: {
-    background: "#dc2626",
-    color: "white",
-    padding: "8px 15px",
-    border: "none",
-    cursor: "pointer",
-  },
-};
-
-export default PendingProperties;
+}

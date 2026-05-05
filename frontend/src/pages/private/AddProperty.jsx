@@ -1,6 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const AddProperty = () => {
+  const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     price: "",
@@ -16,8 +22,9 @@ const AddProperty = () => {
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
-    if (files) {
+    if (files && files[0]) {
       setFormData({ ...formData, [name]: files[0] });
+      setPreview(URL.createObjectURL(files[0]));
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -35,12 +42,15 @@ const AddProperty = () => {
     }
 
     const data = new FormData();
+
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
 
     try {
-      const res = await fetch("http://localhost:5000/property/add", {
+      setLoading(true);
+
+      const res = await fetch("http://localhost:5000/api/property/add", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -52,20 +62,47 @@ const AddProperty = () => {
 
       if (res.ok) {
         alert("Property Added Successfully ✅");
-        console.log(result);
+
+        setFormData({
+          title: "",
+          price: "",
+          location: "",
+          type: "",
+          subType: "",
+          constructionStatus: "",
+          description: "",
+          image: null,
+        });
+
+        setPreview(null);
+
+        navigate(-1);
       } else {
         alert(result.message || "Failed to add property ❌");
       }
     } catch (error) {
       console.error(error);
       alert("Server error ❌");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.heading}>Add Property</h2>
+        {/* TOP BAR */}
+        <div style={styles.topBar}>
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            style={styles.backBtn}
+          >
+            ← Back
+          </button>
+
+          <h2 style={styles.heading}>Add Property</h2>
+        </div>
 
         <form onSubmit={handleSubmit}>
           <div style={styles.grid}>
@@ -75,6 +112,7 @@ const AddProperty = () => {
               <input
                 type="text"
                 name="title"
+                value={formData.title}
                 placeholder="e.g. 3BHK Luxury Flat"
                 onChange={handleChange}
                 required
@@ -88,6 +126,7 @@ const AddProperty = () => {
               <input
                 type="number"
                 name="price"
+                value={formData.price}
                 placeholder="Enter price"
                 onChange={handleChange}
                 required
@@ -101,6 +140,7 @@ const AddProperty = () => {
               <input
                 type="text"
                 name="location"
+                value={formData.location}
                 placeholder="City / Area"
                 onChange={handleChange}
                 required
@@ -113,6 +153,7 @@ const AddProperty = () => {
               <label>Property Type</label>
               <select
                 name="type"
+                value={formData.type}
                 onChange={handleChange}
                 required
                 style={styles.input}
@@ -124,12 +165,13 @@ const AddProperty = () => {
               </select>
             </div>
 
-            {/* Sub Type Dynamic */}
+            {/* Residential */}
             {formData.type === "Residential" && (
               <div>
                 <label>Residential Type</label>
                 <select
                   name="subType"
+                  value={formData.subType}
                   onChange={handleChange}
                   required
                   style={styles.input}
@@ -143,11 +185,13 @@ const AddProperty = () => {
               </div>
             )}
 
+            {/* Commercial */}
             {formData.type === "Commercial" && (
               <div>
                 <label>Commercial Type</label>
                 <select
                   name="subType"
+                  value={formData.subType}
                   onChange={handleChange}
                   required
                   style={styles.input}
@@ -160,23 +204,30 @@ const AddProperty = () => {
               </div>
             )}
 
-            {/* Construction Status */}
+            {/* Construction */}
             <div>
               <label>Construction Status</label>
               <select
                 name="constructionStatus"
+                value={formData.constructionStatus}
                 onChange={handleChange}
                 required
                 style={styles.input}
               >
                 <option value="">Select Status</option>
-                <option value="Under Construction">Under Construction</option>
-                <option value="Ready to Move">Ready to Move</option>
-                <option value="New Launch">New Launch</option>
+                <option value="Under Construction">
+                  Under Construction
+                </option>
+                <option value="Ready to Move">
+                  Ready to Move
+                </option>
+                <option value="New Launch">
+                  New Launch
+                </option>
               </select>
             </div>
 
-            {/* Image Upload */}
+            {/* Image */}
             <div>
               <label>Upload Image</label>
               <input
@@ -189,12 +240,25 @@ const AddProperty = () => {
               />
             </div>
 
+            {/* Preview */}
+            {preview && (
+              <div>
+                <label>Preview</label>
+                <img
+                  src={preview}
+                  alt="preview"
+                  style={styles.preview}
+                />
+              </div>
+            )}
+
             {/* Description */}
             <div style={{ gridColumn: "1 / -1" }}>
               <label>Description</label>
               <textarea
                 name="description"
                 rows="4"
+                value={formData.description}
                 placeholder="Property details..."
                 onChange={handleChange}
                 required
@@ -203,8 +267,16 @@ const AddProperty = () => {
             </div>
           </div>
 
-          <button type="submit" style={styles.button}>
-            Submit Property
+          <button
+            type="submit"
+            style={{
+              ...styles.button,
+              opacity: loading ? 0.7 : 1,
+              cursor: loading ? "not-allowed" : "pointer",
+            }}
+            disabled={loading}
+          >
+            {loading ? "Uploading..." : "Submit Property"}
           </button>
         </form>
       </div>
@@ -220,21 +292,41 @@ const styles = {
     background: "#f4f6f9",
     minHeight: "100vh",
   },
+
   card: {
     background: "#fff",
     padding: "30px",
-    borderRadius: "10px",
-    width: "750px",
-    boxShadow: "0 5px 20px rgba(0,0,0,0.08)",
+    borderRadius: "12px",
+    width: "760px",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
   },
-  heading: {
+
+  topBar: {
+    display: "flex",
+    alignItems: "center",
+    gap: "15px",
     marginBottom: "20px",
   },
+
+  backBtn: {
+    padding: "10px 16px",
+    border: "none",
+    borderRadius: "8px",
+    background: "#e5e7eb",
+    cursor: "pointer",
+    fontWeight: "600",
+  },
+
+  heading: {
+    margin: 0,
+  },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "15px",
   },
+
   input: {
     width: "100%",
     padding: "10px",
@@ -242,6 +334,16 @@ const styles = {
     borderRadius: "6px",
     border: "1px solid #ddd",
   },
+
+  preview: {
+    width: "100%",
+    height: "140px",
+    objectFit: "cover",
+    borderRadius: "8px",
+    marginTop: "5px",
+    border: "1px solid #ddd",
+  },
+
   button: {
     marginTop: "20px",
     width: "100%",
@@ -250,7 +352,6 @@ const styles = {
     color: "white",
     border: "none",
     borderRadius: "6px",
-    cursor: "pointer",
     fontWeight: "bold",
   },
 };

@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import {
-  Menu, X, Search, User,
-  Home, Building, Heart, Moon, Sun
+  Menu,
+  X,
+  Search,
+  User,
+  Home,
+  LayoutDashboard,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "../assets/logo.png";
@@ -17,6 +23,7 @@ function Navbar() {
   const location = useLocation();
 
   let user = null;
+
   try {
     user = JSON.parse(localStorage.getItem("user"));
   } catch {
@@ -42,15 +49,22 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.clear();
     closeAll();
-    navigate("/login");
+    navigate("/");
+  };
+
+  const getDashboardRoute = () => {
+    if (role === "admin") return "/admin";
+    if (role === "seller") return "/seller";
+    if (role === "agent") return "/agent";
+    if (role === "builder") return "/builder";
+    return "/";
   };
 
   return (
     <>
       {/* NAVBAR */}
       <div className="navbar god-nav">
-
-        {/* LEFT LOGO */}
+        {/* LEFT */}
         <div className="nav-left">
           <img
             src={logo}
@@ -74,19 +88,34 @@ function Navbar() {
 
         {/* RIGHT */}
         <div className="nav-right">
-
           {/* DARK MODE */}
           <button className="icon-btn" onClick={() => setDark(!dark)}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <Link to="/about" className={isActive("/about") ? "active" : ""}>
+          <Link
+            to="/about"
+            className={isActive("/about") ? "active" : ""}
+          >
             About
           </Link>
 
-          <Link to="/contact" className={isActive("/contact") ? "active" : ""}>
+          <Link
+            to="/contact"
+            className={isActive("/contact") ? "active" : ""}
+          >
             Contact
           </Link>
+
+          {/* DASHBOARD BUTTON */}
+          {token && role !== "buyer" && (
+            <button
+              className="login-btn"
+              onClick={() => navigate(getDashboardRoute())}
+            >
+              Dashboard
+            </button>
+          )}
 
           {/* LOGIN / LOGOUT */}
           {!token ? (
@@ -97,13 +126,19 @@ function Navbar() {
               Login
             </button>
           ) : (
-            <button className="login-btn" onClick={handleLogout}>
+            <button
+              className="login-btn"
+              onClick={handleLogout}
+            >
               Logout
             </button>
           )}
 
           {/* MENU */}
-          <button className="menu-btn" onClick={() => setOpen(true)}>
+          <button
+            className="menu-btn"
+            onClick={() => setOpen(true)}
+          >
             <Menu size={26} />
           </button>
         </div>
@@ -128,9 +163,14 @@ function Navbar() {
               exit={{ x: "100%" }}
             >
               <div className="drawer-header">
-                <X size={26} onClick={closeAll} />
+                <X
+                  size={26}
+                  onClick={closeAll}
+                  style={{ cursor: "pointer" }}
+                />
               </div>
 
+              {/* PROFILE */}
               {token && (
                 <div className="drawer-profile">
                   <User size={32} />
@@ -141,30 +181,54 @@ function Navbar() {
                 </div>
               )}
 
-              <div className="nav-item" onClick={() => goTo("/")}>
+              {/* HOME */}
+              <div
+                className="nav-item"
+                onClick={() => goTo("/")}
+              >
                 <Home size={18} /> Home
               </div>
 
-              <div className="nav-item" onClick={() => goTo("/about")}>
-                About
-              </div>
-
-              <div className="nav-item" onClick={() => goTo("/contact")}>
-                Contact
-              </div>
-
-              {role === "admin" && (
-                <div className="nav-item" onClick={() => goTo("/admin")}>
-                  Admin Dashboard
+              {/* DASHBOARD */}
+              {token && role !== "buyer" && (
+                <div
+                  className="nav-item"
+                  onClick={() => goTo(getDashboardRoute())}
+                >
+                  <LayoutDashboard size={18} />
+                  Dashboard
                 </div>
               )}
 
+              {/* ABOUT */}
+              <div
+                className="nav-item"
+                onClick={() => goTo("/about")}
+              >
+                About
+              </div>
+
+              {/* CONTACT */}
+              <div
+                className="nav-item"
+                onClick={() => goTo("/contact")}
+              >
+                Contact
+              </div>
+
+              {/* LOGIN / LOGOUT */}
               {!token ? (
-                <div className="nav-item" onClick={() => goTo("/login")}>
+                <div
+                  className="nav-item"
+                  onClick={() => goTo("/login")}
+                >
                   Login
                 </div>
               ) : (
-                <button className="drawer-btn logout-btn" onClick={handleLogout}>
+                <button
+                  className="drawer-btn logout-btn"
+                  onClick={handleLogout}
+                >
                   Logout
                 </button>
               )}

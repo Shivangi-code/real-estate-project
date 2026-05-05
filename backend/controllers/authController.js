@@ -9,7 +9,7 @@ const bcrypt = require("bcryptjs");
 // ================= SIGNUP =================
 exports.signup = async (req, res) => {
   try {
-    let { name, email, mobile, password } = req.body;
+    let { name, email, mobile, password, role } = req.body;
 
     if (!name || !email || !mobile || !password) {
       return res.status(400).json({ message: "All fields required" });
@@ -32,7 +32,9 @@ exports.signup = async (req, res) => {
       email,
       mobile,
       password: hashed,
-      role: "buyer",
+      role: ["buyer", "seller", "agent", "builder"].includes(role)
+        ? role
+        : "buyer",
       isVerified: true,
     });
 
