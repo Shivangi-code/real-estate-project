@@ -19,19 +19,37 @@ function Navbar() {
   const [dark, setDark] = useState(false);
   const [search, setSearch] = useState("");
 
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+
   const navigate = useNavigate();
   const location = useLocation();
 
-  let user = null;
-
-  try {
-    user = JSON.parse(localStorage.getItem("user"));
-  } catch {
-    user = null;
-  }
-
-  const token = localStorage.getItem("token");
   const role = user?.role;
+
+  // ✅ FIX: sync auth properly (no refresh needed)
+  useEffect(() => {
+    const syncAuth = () => {
+      try {
+        const storedUser = localStorage.getItem("user");
+        const storedToken = localStorage.getItem("token");
+
+        setUser(storedUser ? JSON.parse(storedUser) : null);
+        setToken(storedToken || null);
+      } catch {
+        setUser(null);
+        setToken(null);
+      }
+    };
+
+    syncAuth();
+
+    window.addEventListener("storage", syncAuth);
+
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.classList.toggle("dark", dark);
@@ -46,8 +64,15 @@ function Navbar() {
 
   const isActive = (path) => location.pathname === path;
 
+  // ✅ FIXED LOGOUT (no reload)
   const handleLogout = () => {
     localStorage.clear();
+
+    setUser(null);
+    setToken(null);
+
+    window.dispatchEvent(new Event("storage"));
+
     closeAll();
     navigate("/");
   };
@@ -55,14 +80,12 @@ function Navbar() {
   const getDashboardRoute = () => {
     if (role === "admin") return "/admin";
     if (role === "seller") return "/seller";
-    if (role === "agent") return "/agent";
     if (role === "builder") return "/builder";
     return "/";
   };
 
   return (
     <>
-      {/* NAVBAR */}
       <div className="navbar god-nav">
         {/* LEFT */}
         <div className="nav-left">
@@ -88,26 +111,19 @@ function Navbar() {
 
         {/* RIGHT */}
         <div className="nav-right">
-          {/* DARK MODE */}
           <button className="icon-btn" onClick={() => setDark(!dark)}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
-          <Link
-            to="/about"
-            className={isActive("/about") ? "active" : ""}
-          >
+          <Link to="/about" className={isActive("/about") ? "active" : ""}>
             About
           </Link>
 
-          <Link
-            to="/contact"
-            className={isActive("/contact") ? "active" : ""}
-          >
+          <Link to="/contact" className={isActive("/contact") ? "active" : ""}>
             Contact
           </Link>
 
-          {/* DASHBOARD BUTTON */}
+          {/* DASHBOARD */}
           {token && role !== "buyer" && (
             <button
               className="login-btn"
@@ -119,26 +135,17 @@ function Navbar() {
 
           {/* LOGIN / LOGOUT */}
           {!token ? (
-            <button
-              className="login-btn"
-              onClick={() => navigate("/login")}
-            >
+            <button className="login-btn" onClick={() => navigate("/login")}>
               Login
             </button>
           ) : (
-            <button
-              className="login-btn"
-              onClick={handleLogout}
-            >
+            <button className="login-btn" onClick={handleLogout}>
               Logout
             </button>
           )}
 
           {/* MENU */}
-          <button
-            className="menu-btn"
-            onClick={() => setOpen(true)}
-          >
+          <button className="menu-btn" onClick={() => setOpen(true)}>
             <Menu size={26} />
           </button>
         </div>
@@ -163,14 +170,9 @@ function Navbar() {
               exit={{ x: "100%" }}
             >
               <div className="drawer-header">
-                <X
-                  size={26}
-                  onClick={closeAll}
-                  style={{ cursor: "pointer" }}
-                />
+                <X size={26} onClick={closeAll} />
               </div>
 
-              {/* PROFILE */}
               {token && (
                 <div className="drawer-profile">
                   <User size={32} />
@@ -181,15 +183,10 @@ function Navbar() {
                 </div>
               )}
 
-              {/* HOME */}
-              <div
-                className="nav-item"
-                onClick={() => goTo("/")}
-              >
+              <div className="nav-item" onClick={() => goTo("/")}>
                 <Home size={18} /> Home
               </div>
 
-              {/* DASHBOARD */}
               {token && role !== "buyer" && (
                 <div
                   className="nav-item"
@@ -200,28 +197,16 @@ function Navbar() {
                 </div>
               )}
 
-              {/* ABOUT */}
-              <div
-                className="nav-item"
-                onClick={() => goTo("/about")}
-              >
+              <div className="nav-item" onClick={() => goTo("/about")}>
                 About
               </div>
 
-              {/* CONTACT */}
-              <div
-                className="nav-item"
-                onClick={() => goTo("/contact")}
-              >
+              <div className="nav-item" onClick={() => goTo("/contact")}>
                 Contact
               </div>
 
-              {/* LOGIN / LOGOUT */}
               {!token ? (
-                <div
-                  className="nav-item"
-                  onClick={() => goTo("/login")}
-                >
+                <div className="nav-item" onClick={() => goTo("/login")}>
                   Login
                 </div>
               ) : (

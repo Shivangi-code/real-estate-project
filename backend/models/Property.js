@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
 
+// ================= STATUS HISTORY =================
 const statusHistorySchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "deleted"], // ✅ added deleted
       required: true,
     },
     changedAt: {
@@ -20,6 +21,7 @@ const statusHistorySchema = new mongoose.Schema(
   { _id: false }
 );
 
+// ================= IMAGE SCHEMA =================
 const propertyImageSchema = new mongoose.Schema(
   {
     filename: {
@@ -36,7 +38,7 @@ const propertyImageSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected"], // (images don't need deleted)
       default: "pending",
     },
 
@@ -59,6 +61,7 @@ const propertyImageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// ================= PROPERTY SCHEMA =================
 const propertySchema = new mongoose.Schema(
   {
     title: String,
@@ -69,16 +72,19 @@ const propertySchema = new mongoose.Schema(
     constructionStatus: String,
     description: String,
 
+    // Main image
     image: String,
 
+    // Multiple images
     images: {
       type: [propertyImageSchema],
       default: [],
     },
 
+    // ================= STATUS =================
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
+      enum: ["pending", "approved", "rejected", "deleted"], // ✅ added deleted
       default: "pending",
     },
 
@@ -87,6 +93,7 @@ const propertySchema = new mongoose.Schema(
       ref: "User",
     },
 
+    // ================= VERIFICATION =================
     verifiedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -98,6 +105,7 @@ const propertySchema = new mongoose.Schema(
       default: null,
     },
 
+    // ================= TRACKING =================
     lastStatusChangedAt: {
       type: Date,
       default: Date.now,

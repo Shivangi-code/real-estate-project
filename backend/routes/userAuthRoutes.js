@@ -5,93 +5,42 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 const User = require("../models/User");
-const Otp = require("../models/Otp");
-
-// ================= SEND OTP =================
-router.post("/send-otp", async (req, res) => {
-  try {
-    const { email, mobile } = req.body;
-
-    console.log("OTP Request:", req.body);
-
-    if (!email && !mobile) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Email or mobile required",
-        });
-    }
-
-    const otp = Math.floor(
-      100000 +
-        Math.random() * 900000
-    ).toString();
-
-    await Otp.create({
-      email: email || null,
-      mobile: mobile || null,
-      otp,
-    });
-
-    console.log(
-      "OTP Generated:",
-      otp
-    );
-
-    res.json({
-      message:
-        "OTP sent successfully",
-      otp, // debug only
-    });
-  } catch (error) {
-    console.log(
-      "SEND OTP ERROR:",
-      error
-    );
-
-    res.status(500).json({
-      message:
-        "Failed to send OTP",
-    });
-  }
-});
 
 // ================= LOGIN =================
 router.post("/login", async (req, res) => {
   try {
-    const { email, mobile, password, otp, mode } = req.body;
+    const { email, mobile, password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({
+        message: "Password is required",
+      });
+    }
 
     let user;
 
-    if (mode === "email-password") {
+    if (email) {
       user = await User.findOne({ email }).select("+password");
-      if (!user) return res.status(400).json({ message: "User not found" });
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    if (mode === "mobile-password") {
+    } else if (mobile) {
       user = await User.findOne({ mobile }).select("+password");
-      if (!user) return res.status(400).json({ message: "User not found" });
-
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) return res.status(400).json({ message: "Invalid credentials" });
+    } else {
+      return res.status(400).json({
+        message: "Email or mobile required",
+      });
     }
 
-    if (mode === "email-otp") {
-      const otpRecord = await Otp.findOne({ email, otp });
-      if (!otpRecord) return res.status(400).json({ message: "Invalid OTP" });
-
-      user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
     }
 
-    if (mode === "mobile-otp") {
-      const otpRecord = await Otp.findOne({ mobile, otp });
-      if (!otpRecord) return res.status(400).json({ message: "Invalid OTP" });
+    const match = await bcrypt.compare(password, user.password);
 
-      user = await User.findOne({ mobile });
+    if (!match) {
+      return res.status(400).json({
+        message: "Invalid credentials",
+      });
     }
 
     const token = jwt.sign(
@@ -106,23 +55,29 @@ router.post("/login", async (req, res) => {
     user.password = undefined;
 
     res.json({ token, user });
-  } catch {
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.log("LOGIN ERROR:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 });
 
 // ================= REGISTER =================
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, mobile, password, otp, role } = req.body;
+    const { name, email, mobile, password, role } = req.body;
 
-    const otpRecord = await Otp.findOne({
-      $or: [{ email }, { mobile }],
-      otp,
-    });
+    if (!name || !password) {
+      return res.status(400).json({
+        message: "Name and password required",
+      });
+    }
 
-    if (!otpRecord) {
-      return res.status(400).json({ message: "Invalid OTP" });
+    if (!email && !mobile) {
+      return res.status(400).json({
+        message: "Email or mobile required",
+      });
     }
 
     const existing = await User.findOne({
@@ -130,7 +85,9 @@ router.post("/register", async (req, res) => {
     });
 
     if (existing) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({
+        message: "User already exists",
+      });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -138,8 +95,7 @@ router.post("/register", async (req, res) => {
     const allowedRoles = [
       "buyer",
       "seller",
-      "agent",
-      "builder",
+      "builder", // ✅ agent removed
     ];
 
     const finalRole = allowedRoles.includes(role)
@@ -155,11 +111,14 @@ router.post("/register", async (req, res) => {
     });
 
     res.json({
-      message: "User created",
+      message: "User created successfully",
       user,
     });
-  } catch {
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.log("REGISTER ERROR:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 });
 

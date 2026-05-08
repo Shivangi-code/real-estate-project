@@ -1,151 +1,138 @@
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import {
-  CheckCircle,
   Clock3,
   XCircle,
   MapPin,
   IndianRupee,
+  Trash2,
 } from "lucide-react";
 
 export default function ApprovedProperties() {
   const [properties, setProperties] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchApproved();
   }, []);
 
   const fetchApproved = async () => {
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5000/api/admin/properties/approved", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setProperties(Array.isArray(data) ? data : []);
+  };
+
+  const updateStatus = async (id, type) => {
     try {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/admin/properties/approved",
+        `http://localhost:5000/api/admin/property/${id}/${type}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      const data = await res.json();
-      setProperties(Array.isArray(data) ? data : []);
+      if (!res.ok) throw new Error();
+
+      toast.success(`Moved to ${type}`);
+      fetchApproved();
     } catch {
-      setProperties([]);
-    } finally {
-      setLoading(false);
+      toast.error("Action failed");
     }
   };
 
-  const updateStatus = async (id, type) => {
-    const token = localStorage.getItem("token");
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete property?")) return;
 
-    await fetch(
-      `http://localhost:5000/api/admin/property/${id}/${type}`,
-      {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    try {
+      const token = localStorage.getItem("token");
 
-    fetchApproved();
+      const res = await fetch(
+        `http://localhost:5000/api/admin/property/${id}/delete`,
+        {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) throw new Error();
+
+      toast.success("Deleted");
+      fetchApproved();
+    } catch {
+      toast.error("Delete failed");
+    }
   };
 
   return (
     <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">
-        Approved Properties
-      </h1>
+      <h1 className="text-3xl font-bold mb-6">Approved Properties</h1>
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : properties.length === 0 ? (
-        <p>No approved properties.</p>
-      ) : (
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {properties.map((item) => (
-            <div
-              key={item._id}
-              className="bg-white rounded-3xl shadow-sm overflow-hidden"
-            >
-              <img
-                src={
-                  item.image ||
-                  "https://via.placeholder.com/400x250"
-                }
-                alt={item.title}
-                className="w-full h-52 object-cover"
-              />
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {properties.map((item) => (
+          <div
+            key={item._id}
+            className="bg-white rounded-3xl shadow-sm hover:shadow-lg transition duration-300 overflow-hidden"
+          >
+            <img
+              src={item.image || "https://via.placeholder.com/400x250"}
+              alt={item.title}
+              className="w-full h-52 object-cover"
+            />
 
-              <div className="p-5">
-                <h2 className="text-xl font-bold">
-                  {item.title}
-                </h2>
+            <div className="p-5">
+              <h2 className="text-lg font-bold">{item.title}</h2>
 
-                <div className="flex items-center gap-2 mt-2 text-slate-500">
-                  <MapPin size={16} />
-                  {item.location}
-                </div>
+              <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm">
+                <MapPin size={14} />
+                {item.location}
+              </div>
 
-                <div className="flex items-center gap-2 mt-2 text-green-600 font-semibold">
-                  <IndianRupee size={16} />
-                  {item.price}
-                </div>
+              <div className="flex items-center gap-2 mt-2 font-semibold text-green-600">
+                <IndianRupee size={14} />
+                {item.price}
+              </div>
 
-                <p className="mt-3 text-sm text-slate-600">
-                  Owner:{" "}
-                  <b>{item.createdBy?.name}</b> (
-                  {item.createdBy?.role})
-                </p>
+              <p className="mt-2 text-xs text-slate-500">
+                Owner: <b>{item.createdBy?.name}</b>
+              </p>
 
-                <div className="mt-4 inline-flex items-center gap-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                  <CheckCircle size={14} />
-                  Approved
-                </div>
+              <div className="grid grid-cols-3 gap-3 mt-4">
+                <button
+                  title="Move to Pending"
+                  onClick={() => updateStatus(item._id, "pending")}
+                  className="bg-yellow-500 text-white py-2 rounded-xl"
+                >
+                  <Clock3 size={16} />
+                  Pending
+                </button>
 
-                <p className="mt-3 text-xs text-slate-500">
-                  Approved:{" "}
-                  {item.verifiedAt
-                    ? new Date(
-                        item.verifiedAt
-                      ).toLocaleString()
-                    : "-"}
-                </p>
+                <button
+                  title="Reject"
+                  onClick={() => updateStatus(item._id, "reject")}
+                  className="bg-red-600 text-white py-2 rounded-xl"
+                >
+                  <XCircle size={16} />
+                  Reject
+                </button>
 
-                <div className="grid grid-cols-2 gap-3 mt-5">
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "pending"
-                      )
-                    }
-                    className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-xl flex justify-center items-center gap-2"
-                  >
-                    <Clock3 size={16} />
-                    Pending
-                  </button>
-
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "reject"
-                      )
-                    }
-                    className="bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl flex justify-center items-center gap-2"
-                  >
-                    <XCircle size={16} />
-                    Reject
-                  </button>
-                </div>
+                <button
+                  title="Delete"
+                  onClick={() => handleDelete(item._id)}
+                  className="bg-black text-white py-2 rounded-xl"
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

@@ -65,7 +65,6 @@ export default function Login() {
       setTimer(30);
 
       alert("OTP sent ✅");
-
     } catch (err) {
       alert(err.response?.data?.message || "Failed to send OTP");
     }
@@ -74,7 +73,7 @@ export default function Login() {
   // ================= LOGIN =================
   const handleLogin = async () => {
     try {
-      // 🔥 VALIDATION FIRST
+      // VALIDATION
       if (mode === "email-password") {
         if (!data.email || !data.password)
           return alert("Email & password required");
@@ -123,10 +122,14 @@ export default function Login() {
 
       const { token, user } = res.data;
 
+      // ✅ STORE AUTH
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // 🔄 Redirect
+      // 🔥 CRITICAL FIX (THIS WAS MISSING)
+      window.dispatchEvent(new Event("storage"));
+
+      // REDIRECT (no UI change)
       if (user.role === "admin") navigate("/admin");
       else if (user.role === "seller") navigate("/seller");
       else if (user.role === "agent") navigate("/agent");
