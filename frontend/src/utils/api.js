@@ -6,10 +6,13 @@ const API = axios.create({
 
 // ================= REQUEST =================
 API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
+
+  const token =
+    localStorage.getItem("token");
 
   if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
+    req.headers.Authorization =
+      `Bearer ${token}`;
   }
 
   return req;
@@ -17,36 +20,66 @@ API.interceptors.request.use((req) => {
 
 // ================= RESPONSE =================
 API.interceptors.response.use(
-  (res) => res,
-  async (err) => {
-    const originalRequest = err.config;
 
-    if (err.response?.status === 401 && !originalRequest._retry) {
+  (res) => res,
+
+  async (err) => {
+
+    const originalRequest =
+      err.config;
+
+    // ================= TOKEN EXPIRED =================
+    if (
+      err.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+
       originalRequest._retry = true;
 
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken =
+        localStorage.getItem(
+          "refreshToken"
+        );
 
+      // ❌ NO REFRESH TOKEN
       if (!refreshToken) {
+
         logout();
+
         return Promise.reject(err);
       }
 
       try {
-        const res = await axios.post(
-          "http://localhost:5000/api/user-auth/refresh-token",
-          { token: refreshToken }
+
+        // 🔄 GET NEW ACCESS TOKEN
+        const res =
+          await axios.post(
+            "http://localhost:5000/api/user-auth/refresh-token",
+            {
+              token: refreshToken,
+            }
+          );
+
+        const newAccessToken =
+          res.data.accessToken;
+
+        // ✅ SAVE NEW TOKEN
+        localStorage.setItem(
+          "token",
+          newAccessToken
         );
 
-        const newAccessToken = res.data.accessToken;
-
-        localStorage.setItem("token", newAccessToken);
-
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        // ✅ RETRY REQUEST
+        originalRequest.headers.Authorization =
+          `Bearer ${newAccessToken}`;
 
         return API(originalRequest);
-      } catch {
+
+      } catch (error) {
+
         logout();
-        return Promise.reject(err);
+
+        return Promise.reject(error);
       }
     }
 
@@ -56,12 +89,19 @@ API.interceptors.response.use(
 
 // ================= LOGOUT =================
 const logout = () => {
+
+  // ✅ CLEAR STORAGE ONLY
   localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
+
+  localStorage.removeItem(
+    "refreshToken"
+  );
+
   localStorage.removeItem("user");
 
-  // 🔥 FIX
-  window.location.reload();
+  // ❌ NO:
+  // window.location.reload()
+  // window.location.href
 };
 
 export default API;

@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import React, {
+  useState,
+  useEffect,
+} from "react";
+
+import {
+  useNavigate,
+  useLocation,
+  Link,
+} from "react-router-dom";
+
 import {
   Menu,
   X,
@@ -10,209 +19,348 @@ import {
   Moon,
   Sun,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
+import {
+  motion,
+  AnimatePresence,
+} from "framer-motion";
+
 import logo from "../assets/logo.png";
+
 import "../styles/navbar.css";
 
-function Navbar() {
-  const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(false);
-  const [search, setSearch] = useState("");
+// ✅ AUTH CONTEXT
+import { useAuth } from "../context/AuthContext";
 
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
+function Navbar() {
+
+  const [open, setOpen] =
+    useState(false);
+
+  const [dark, setDark] =
+    useState(false);
+
+  const [search, setSearch] =
+    useState("");
 
   const navigate = useNavigate();
+
   const location = useLocation();
+
+  // ✅ GLOBAL AUTH
+  const {
+    user,
+    logout,
+    isAuthenticated,
+  } = useAuth();
 
   const role = user?.role;
 
-  // ✅ FIX: sync auth properly (no refresh needed)
+  // ================= DARK MODE =================
   useEffect(() => {
-    const syncAuth = () => {
-      try {
-        const storedUser = localStorage.getItem("user");
-        const storedToken = localStorage.getItem("token");
 
-        setUser(storedUser ? JSON.parse(storedUser) : null);
-        setToken(storedToken || null);
-      } catch {
-        setUser(null);
-        setToken(null);
-      }
-    };
+    document.body.classList.toggle(
+      "dark",
+      dark
+    );
 
-    syncAuth();
-
-    window.addEventListener("storage", syncAuth);
-
-    return () => {
-      window.removeEventListener("storage", syncAuth);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle("dark", dark);
   }, [dark]);
 
-  const closeAll = () => setOpen(false);
+  // ================= HELPERS =================
+  const closeAll = () =>
+    setOpen(false);
 
   const goTo = (path) => {
+
     closeAll();
+
     navigate(path);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) =>
+    location.pathname === path;
 
-  // ✅ FIXED LOGOUT (no reload)
+  // ✅ FIXED LOGOUT
   const handleLogout = () => {
-    localStorage.clear();
 
-    setUser(null);
-    setToken(null);
+    // clear auth instantly
+    logout();
 
-    window.dispatchEvent(new Event("storage"));
-
+    // close mobile drawer
     closeAll();
+
+    // ✅ redirect to homepage
     navigate("/");
   };
 
+  // ================= DASHBOARD ROUTE =================
   const getDashboardRoute = () => {
-    if (role === "admin") return "/admin";
-    if (role === "seller") return "/seller";
-    if (role === "builder") return "/builder";
+
+    if (role === "admin") {
+      return "/admin";
+    }
+
+    if (role === "seller") {
+      return "/seller";
+    }
+
+    if (role === "builder") {
+      return "/builder";
+    }
+
     return "/";
   };
 
   return (
     <>
       <div className="navbar god-nav">
+
         {/* LEFT */}
         <div className="nav-left">
+
           <img
             src={logo}
             className="nav-logo"
             alt="logo"
-            onClick={() => navigate("/")}
+            onClick={() =>
+              navigate("/")
+            }
           />
         </div>
 
         {/* CENTER SEARCH */}
         <div className="nav-center">
+
           <div className="search-box">
+
             <input
               placeholder="Search properties..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) =>
+                setSearch(
+                  e.target.value
+                )
+              }
             />
+
             <Search size={18} />
           </div>
         </div>
 
         {/* RIGHT */}
         <div className="nav-right">
-          <button className="icon-btn" onClick={() => setDark(!dark)}>
-            {dark ? <Sun size={18} /> : <Moon size={18} />}
+
+          {/* DARK MODE */}
+          <button
+            className="icon-btn"
+            onClick={() =>
+              setDark(!dark)
+            }
+          >
+            {dark ? (
+              <Sun size={18} />
+            ) : (
+              <Moon size={18} />
+            )}
           </button>
 
-          <Link to="/about" className={isActive("/about") ? "active" : ""}>
+          {/* ABOUT */}
+          <Link
+            to="/about"
+            className={
+              isActive("/about")
+                ? "active"
+                : ""
+            }
+          >
             About
           </Link>
 
-          <Link to="/contact" className={isActive("/contact") ? "active" : ""}>
+          {/* CONTACT */}
+          <Link
+            to="/contact"
+            className={
+              isActive("/contact")
+                ? "active"
+                : ""
+            }
+          >
             Contact
           </Link>
 
           {/* DASHBOARD */}
-          {token && role !== "buyer" && (
-            <button
-              className="login-btn"
-              onClick={() => navigate(getDashboardRoute())}
-            >
-              Dashboard
-            </button>
-          )}
+          {isAuthenticated &&
+            role !== "buyer" && (
+              <button
+                className="login-btn"
+                onClick={() =>
+                  navigate(
+                    getDashboardRoute()
+                  )
+                }
+              >
+                Dashboard
+              </button>
+            )}
 
           {/* LOGIN / LOGOUT */}
-          {!token ? (
-            <button className="login-btn" onClick={() => navigate("/login")}>
+          {!isAuthenticated ? (
+            <button
+              className="login-btn"
+              onClick={() =>
+                navigate("/login")
+              }
+            >
               Login
             </button>
           ) : (
-            <button className="login-btn" onClick={handleLogout}>
+            <button
+              className="login-btn"
+              onClick={
+                handleLogout
+              }
+            >
               Logout
             </button>
           )}
 
-          {/* MENU */}
-          <button className="menu-btn" onClick={() => setOpen(true)}>
+          {/* MOBILE MENU */}
+          <button
+            className="menu-btn"
+            onClick={() =>
+              setOpen(true)
+            }
+          >
             <Menu size={26} />
           </button>
         </div>
       </div>
 
-      {/* DRAWER */}
+      {/* MOBILE DRAWER */}
       <AnimatePresence>
         {open && (
           <>
+            {/* OVERLAY */}
             <motion.div
               className="overlay"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              initial={{
+                opacity: 0,
+              }}
+              animate={{
+                opacity: 1,
+              }}
+              exit={{
+                opacity: 0,
+              }}
               onClick={closeAll}
             />
 
+            {/* DRAWER */}
             <motion.div
               className="drawer"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
+              initial={{
+                x: "100%",
+              }}
+              animate={{
+                x: 0,
+              }}
+              exit={{
+                x: "100%",
+              }}
             >
+              {/* HEADER */}
               <div className="drawer-header">
-                <X size={26} onClick={closeAll} />
+
+                <X
+                  size={26}
+                  onClick={closeAll}
+                />
               </div>
 
-              {token && (
+              {/* PROFILE */}
+              {isAuthenticated && (
                 <div className="drawer-profile">
+
                   <User size={32} />
+
                   <div>
-                    <p>{user?.name || "User"}</p>
-                    <span>{role}</span>
+                    <p>
+                      {user?.name ||
+                        "User"}
+                    </p>
+
+                    <span>
+                      {role}
+                    </span>
                   </div>
                 </div>
               )}
 
-              <div className="nav-item" onClick={() => goTo("/")}>
-                <Home size={18} /> Home
+              {/* HOME */}
+              <div
+                className="nav-item"
+                onClick={() =>
+                  goTo("/")
+                }
+              >
+                <Home size={18} />
+                Home
               </div>
 
-              {token && role !== "buyer" && (
-                <div
-                  className="nav-item"
-                  onClick={() => goTo(getDashboardRoute())}
-                >
-                  <LayoutDashboard size={18} />
-                  Dashboard
-                </div>
-              )}
+              {/* DASHBOARD */}
+              {isAuthenticated &&
+                role !== "buyer" && (
+                  <div
+                    className="nav-item"
+                    onClick={() =>
+                      goTo(
+                        getDashboardRoute()
+                      )
+                    }
+                  >
+                    <LayoutDashboard
+                      size={18}
+                    />
+                    Dashboard
+                  </div>
+                )}
 
-              <div className="nav-item" onClick={() => goTo("/about")}>
+              {/* ABOUT */}
+              <div
+                className="nav-item"
+                onClick={() =>
+                  goTo("/about")
+                }
+              >
                 About
               </div>
 
-              <div className="nav-item" onClick={() => goTo("/contact")}>
+              {/* CONTACT */}
+              <div
+                className="nav-item"
+                onClick={() =>
+                  goTo("/contact")
+                }
+              >
                 Contact
               </div>
 
-              {!token ? (
-                <div className="nav-item" onClick={() => goTo("/login")}>
+              {/* LOGIN / LOGOUT */}
+              {!isAuthenticated ? (
+                <div
+                  className="nav-item"
+                  onClick={() =>
+                    goTo("/login")
+                  }
+                >
                   Login
                 </div>
               ) : (
                 <button
                   className="drawer-btn logout-btn"
-                  onClick={handleLogout}
+                  onClick={
+                    handleLogout
+                  }
                 >
                   Logout
                 </button>

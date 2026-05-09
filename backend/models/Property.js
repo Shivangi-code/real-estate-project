@@ -5,13 +5,15 @@ const statusHistorySchema = new mongoose.Schema(
   {
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "deleted"], // ✅ added deleted
+      enum: ["pending", "approved", "rejected", "deleted"],
       required: true,
     },
+
     changedAt: {
       type: Date,
       default: Date.now,
     },
+
     changedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -38,7 +40,7 @@ const propertyImageSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"], // (images don't need deleted)
+      enum: ["pending", "approved", "rejected"],
       default: "pending",
     },
 
@@ -65,17 +67,24 @@ const propertyImageSchema = new mongoose.Schema(
 const propertySchema = new mongoose.Schema(
   {
     title: String,
+
     price: Number,
+
     location: String,
+
+    // 🔥 Residential / Commercial / Agriculture
     type: String,
+
     subType: String,
+
     constructionStatus: String,
+
     description: String,
 
-    // Main image
+    // ================= MAIN IMAGE =================
     image: String,
 
-    // Multiple images
+    // ================= MULTIPLE IMAGES =================
     images: {
       type: [propertyImageSchema],
       default: [],
@@ -84,13 +93,26 @@ const propertySchema = new mongoose.Schema(
     // ================= STATUS =================
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected", "deleted"], // ✅ added deleted
-      default: "pending",
+      enum: ["pending", "approved", "rejected", "deleted"],
+
+      // ✅ AUTO APPROVE ADMIN LISTINGS
+      default: function () {
+        return this.createdByRole === "admin"
+          ? "approved"
+          : "pending";
+      },
     },
 
+    // ================= OWNER =================
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+    },
+
+    // ✅ NEW FIELD
+    createdByRole: {
+      type: String,
+      default: "seller",
     },
 
     // ================= VERIFICATION =================
@@ -113,12 +135,19 @@ const propertySchema = new mongoose.Schema(
 
     statusHistory: {
       type: [statusHistorySchema],
-      default: [
-        {
-          status: "pending",
-          changedAt: new Date(),
-        },
-      ],
+
+      default: function () {
+        return [
+          {
+            status:
+              this.createdByRole === "admin"
+                ? "approved"
+                : "pending",
+
+            changedAt: new Date(),
+          },
+        ];
+      },
     },
   },
   { timestamps: true }

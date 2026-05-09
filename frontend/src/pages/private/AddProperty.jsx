@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const AddProperty = () => {
@@ -6,6 +6,19 @@ const AddProperty = () => {
 
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
+
+  // ✅ USER
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // ✅ ROLE CHECK
+  useEffect(() => {
+    if (
+      !user ||
+      !["seller", "builder", "admin"].includes(user.role)
+    ) {
+      navigate("/login");
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -18,26 +31,37 @@ const AddProperty = () => {
     image: null,
   });
 
-  // Handle Input Change
+  // ================= HANDLE CHANGE =================
   const handleChange = (e) => {
     const { name, value, files } = e.target;
 
     if (files && files[0]) {
-      setFormData({ ...formData, [name]: files[0] });
-      setPreview(URL.createObjectURL(files[0]));
+      setFormData({
+        ...formData,
+        [name]: files[0],
+      });
+
+      setPreview(
+        URL.createObjectURL(files[0])
+      );
     } else {
-      setFormData({ ...formData, [name]: value });
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
     }
   };
 
-  // Handle Submit
+  // ================= HANDLE SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token");
 
     if (!token) {
       alert("Please login first ❌");
+      navigate("/login");
       return;
     }
 
@@ -50,19 +74,35 @@ const AddProperty = () => {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/api/property/add", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/property/add",
+        {
+          method: "POST",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: data,
+        }
+      );
 
       const result = await res.json();
 
       if (res.ok) {
-        alert("Property Added Successfully ✅");
 
+        // ✅ ADMIN MESSAGE
+        if (user?.role === "admin") {
+          alert(
+            "Property published instantly 🚀"
+          );
+        } else {
+          alert(
+            "Property submitted for review ✅"
+          );
+        }
+
+        // RESET
         setFormData({
           title: "",
           price: "",
@@ -76,13 +116,26 @@ const AddProperty = () => {
 
         setPreview(null);
 
-        navigate(-1);
+        // ✅ ADMIN REDIRECT
+        if (user?.role === "admin") {
+          navigate("/admin/properties/approved");
+        } else {
+          navigate(-1);
+        }
+
       } else {
-        alert(result.message || "Failed to add property ❌");
+        alert(
+          result.message ||
+            "Failed to add property ❌"
+        );
       }
+
     } catch (error) {
+
       console.error(error);
+
       alert("Server error ❌");
+
     } finally {
       setLoading(false);
     }
@@ -91,6 +144,7 @@ const AddProperty = () => {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
+
         {/* TOP BAR */}
         <div style={styles.topBar}>
           <button
@@ -101,14 +155,20 @@ const AddProperty = () => {
             ← Back
           </button>
 
-          <h2 style={styles.heading}>Add Property</h2>
+          <h2 style={styles.heading}>
+            Add Property
+          </h2>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div style={styles.grid}>
-            {/* Title */}
+
+            {/* TITLE */}
             <div>
-              <label>Property Title</label>
+              <label>
+                Property Title
+              </label>
+
               <input
                 type="text"
                 name="title"
@@ -120,9 +180,12 @@ const AddProperty = () => {
               />
             </div>
 
-            {/* Price */}
+            {/* PRICE */}
             <div>
-              <label>Price (₹)</label>
+              <label>
+                Price (₹)
+              </label>
+
               <input
                 type="number"
                 name="price"
@@ -134,9 +197,12 @@ const AddProperty = () => {
               />
             </div>
 
-            {/* Location */}
+            {/* LOCATION */}
             <div>
-              <label>Location</label>
+              <label>
+                Location
+              </label>
+
               <input
                 type="text"
                 name="location"
@@ -148,9 +214,12 @@ const AddProperty = () => {
               />
             </div>
 
-            {/* Property Type */}
+            {/* PROPERTY TYPE */}
             <div>
-              <label>Property Type</label>
+              <label>
+                Property Type
+              </label>
+
               <select
                 name="type"
                 value={formData.type}
@@ -158,17 +227,32 @@ const AddProperty = () => {
                 required
                 style={styles.input}
               >
-                <option value="">Select Type</option>
-                <option value="Residential">Residential</option>
-                <option value="Commercial">Commercial</option>
-                <option value="Farmland">Farmland</option>
+                <option value="">
+                  Select Type
+                </option>
+
+                <option value="Residential">
+                  Residential
+                </option>
+
+                <option value="Commercial">
+                  Commercial
+                </option>
+
+                <option value="Agriculture">
+                  Agriculture
+                </option>
               </select>
             </div>
 
-            {/* Residential */}
-            {formData.type === "Residential" && (
+            {/* RESIDENTIAL */}
+            {formData.type ===
+              "Residential" && (
               <div>
-                <label>Residential Type</label>
+                <label>
+                  Residential Type
+                </label>
+
                 <select
                   name="subType"
                   value={formData.subType}
@@ -176,19 +260,37 @@ const AddProperty = () => {
                   required
                   style={styles.input}
                 >
-                  <option value="">Select</option>
-                  <option value="1BHK">1BHK</option>
-                  <option value="2BHK">2BHK</option>
-                  <option value="3BHK">3BHK</option>
-                  <option value="Villa">Villa</option>
+                  <option value="">
+                    Select
+                  </option>
+
+                  <option value="1BHK">
+                    1BHK
+                  </option>
+
+                  <option value="2BHK">
+                    2BHK
+                  </option>
+
+                  <option value="3BHK">
+                    3BHK
+                  </option>
+
+                  <option value="Villa">
+                    Villa
+                  </option>
                 </select>
               </div>
             )}
 
-            {/* Commercial */}
-            {formData.type === "Commercial" && (
+            {/* COMMERCIAL */}
+            {formData.type ===
+              "Commercial" && (
               <div>
-                <label>Commercial Type</label>
+                <label>
+                  Commercial Type
+                </label>
+
                 <select
                   name="subType"
                   value={formData.subType}
@@ -196,40 +298,94 @@ const AddProperty = () => {
                   required
                   style={styles.input}
                 >
-                  <option value="">Select</option>
-                  <option value="Office">Office</option>
-                  <option value="Shop">Shop</option>
-                  <option value="Showroom">Showroom</option>
+                  <option value="">
+                    Select
+                  </option>
+
+                  <option value="Office">
+                    Office
+                  </option>
+
+                  <option value="Shop">
+                    Shop
+                  </option>
+
+                  <option value="Showroom">
+                    Showroom
+                  </option>
                 </select>
               </div>
             )}
 
-            {/* Construction */}
+            {/* AGRICULTURE */}
+            {formData.type ===
+              "Agriculture" && (
+              <div>
+                <label>
+                  Agriculture Type
+                </label>
+
+                <select
+                  name="subType"
+                  value={formData.subType}
+                  onChange={handleChange}
+                  required
+                  style={styles.input}
+                >
+                  <option value="">
+                    Select
+                  </option>
+
+                  <option value="Farm Land">
+                    Farm Land
+                  </option>
+
+                  <option value="Agriculture Plot">
+                    Agriculture Plot
+                  </option>
+                </select>
+              </div>
+            )}
+
+            {/* CONSTRUCTION */}
             <div>
-              <label>Construction Status</label>
+              <label>
+                Construction Status
+              </label>
+
               <select
                 name="constructionStatus"
-                value={formData.constructionStatus}
+                value={
+                  formData.constructionStatus
+                }
                 onChange={handleChange}
                 required
                 style={styles.input}
               >
-                <option value="">Select Status</option>
+                <option value="">
+                  Select Status
+                </option>
+
                 <option value="Under Construction">
                   Under Construction
                 </option>
+
                 <option value="Ready to Move">
                   Ready to Move
                 </option>
+
                 <option value="New Launch">
                   New Launch
                 </option>
               </select>
             </div>
 
-            {/* Image */}
+            {/* IMAGE */}
             <div>
-              <label>Upload Image</label>
+              <label>
+                Upload Image
+              </label>
+
               <input
                 type="file"
                 name="image"
@@ -240,10 +396,13 @@ const AddProperty = () => {
               />
             </div>
 
-            {/* Preview */}
+            {/* PREVIEW */}
             {preview && (
               <div>
-                <label>Preview</label>
+                <label>
+                  Preview
+                </label>
+
                 <img
                   src={preview}
                   alt="preview"
@@ -252,9 +411,16 @@ const AddProperty = () => {
               </div>
             )}
 
-            {/* Description */}
-            <div style={{ gridColumn: "1 / -1" }}>
-              <label>Description</label>
+            {/* DESCRIPTION */}
+            <div
+              style={{
+                gridColumn: "1 / -1",
+              }}
+            >
+              <label>
+                Description
+              </label>
+
               <textarea
                 name="description"
                 rows="4"
@@ -271,12 +437,20 @@ const AddProperty = () => {
             type="submit"
             style={{
               ...styles.button,
-              opacity: loading ? 0.7 : 1,
-              cursor: loading ? "not-allowed" : "pointer",
+
+              opacity: loading
+                ? 0.7
+                : 1,
+
+              cursor: loading
+                ? "not-allowed"
+                : "pointer",
             }}
             disabled={loading}
           >
-            {loading ? "Uploading..." : "Submit Property"}
+            {loading
+              ? "Uploading..."
+              : "Submit Property"}
           </button>
         </form>
       </div>
@@ -298,7 +472,8 @@ const styles = {
     padding: "30px",
     borderRadius: "12px",
     width: "760px",
-    boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+    boxShadow:
+      "0 8px 25px rgba(0,0,0,0.08)",
   },
 
   topBar: {
@@ -323,7 +498,8 @@ const styles = {
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "1fr 1fr",
+    gridTemplateColumns:
+      "1fr 1fr",
     gap: "15px",
   },
 
