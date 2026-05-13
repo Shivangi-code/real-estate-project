@@ -16,17 +16,60 @@ const {
 const isValidId = (id) =>
   mongoose.Types.ObjectId.isValid(id);
 
-// Get only approved images
-const getApprovedImages = (property) =>
+// ================= SAFE STATUS QUERY =================
+const statusQuery = (
+  status
+) => ({
+  $expr: {
+    $eq: [
+      {
+        $toLower: {
+          $trim: {
+            input: "$status",
+          },
+        },
+      },
+      status.toLowerCase(),
+    ],
+  },
+});
+
+// ================= REALTIME EMIT =================
+const emitRealtimeUpdate = (
+  req,
+  property
+) => {
+
+  const io = req.app.get("io");
+
+  if (io) {
+    io.emit("propertyUpdated", {
+      propertyId: property._id,
+      status: property.status,
+      property,
+    });
+  }
+};
+
+// ================= APPROVED IMAGES =================
+const getApprovedImages = (
+  property
+) =>
   (property.images || []).filter(
-    (image) => image.status === "approved"
+    (image) =>
+      image.status ===
+      "approved"
   );
 
-// Map approved images
-const mapApprovedImages = (property) => {
-  const doc = property.toObject
-    ? property.toObject()
-    : property;
+// ================= MAP APPROVED IMAGES =================
+const mapApprovedImages = (
+  property
+) => {
+
+  const doc =
+    property.toObject
+      ? property.toObject()
+      : property;
 
   const approvedImages =
     getApprovedImages(doc);
@@ -34,9 +77,11 @@ const mapApprovedImages = (property) => {
   return {
     ...doc,
 
-    image: approvedImages[0]?.url
-      ? approvedImages[0].url
-      : doc.image || null,
+    image:
+      approvedImages[0]?.url
+        ? approvedImages[0]
+            .url
+        : doc.image || null,
 
     images: approvedImages,
   };
@@ -48,7 +93,6 @@ router.post(
   "/add",
   protect,
 
-  // ✅ ADMIN ADDED
   authorizeRoles(
     "seller",
     "builder",
@@ -58,52 +102,60 @@ router.post(
   upload.single("image"),
 
   async (req, res) => {
+
     try {
 
-      // ✅ AUTO APPROVE FOR ADMIN
       const isAdmin =
-        req.user.role === "admin";
+        req.user.role ===
+        "admin";
 
-      // ================= IMAGES =================
-      const images = req.file
-        ? [
-            {
-              filename:
-                req.file.filename,
+      const images =
+        req.file
+          ? [
+              {
+                filename:
+                  req.file
+                    .filename,
 
-              url: req.file.path,
+                url: req.file
+                  .path,
 
-              uploadedBy:
-                req.user._id,
+                uploadedBy:
+                  req.user
+                    ._id,
 
-              // ✅ ADMIN IMAGE AUTO APPROVED
-              status: isAdmin
-                ? "approved"
-                : "pending",
+                status:
+                  isAdmin
+                    ? "approved"
+                    : "pending",
 
-              verifiedBy: isAdmin
-                ? req.user._id
-                : null,
+                verifiedBy:
+                  isAdmin
+                    ? req.user
+                        ._id
+                    : null,
 
-              verifiedAt: isAdmin
-                ? new Date()
-                : null,
-            },
-          ]
-        : [];
+                verifiedAt:
+                  isAdmin
+                    ? new Date()
+                    : null,
+              },
+            ]
+          : [];
 
-      // ================= PROPERTY =================
       const property =
         new Property({
-          title: req.body.title,
+          title:
+            req.body.title,
 
-          price: req.body.price,
+          price:
+            req.body.price,
 
           location:
             req.body.location,
 
-          // ✅ Residential / Commercial / Agriculture
-          type: req.body.type,
+          type:
+            req.body.type,
 
           subType:
             req.body.subType,
@@ -113,56 +165,70 @@ router.post(
               .constructionStatus,
 
           description:
-            req.body.description,
+            req.body
+              .description,
 
-          // Main image
-          image: req.file
-            ? req.file.path
-            : null,
+          image:
+            req.file
+              ? req.file
+                  .path
+              : null,
 
           images,
 
-          // ✅ AUTO APPROVE ADMIN PROPERTY
           status: isAdmin
             ? "approved"
-            : "pending",
+                .trim()
+                .toLowerCase()
+            : "pending"
+                .trim()
+                .toLowerCase(),
 
           createdBy:
             req.user._id,
 
-          // ✅ IMPORTANT
           createdByRole:
             req.user.role,
 
-          verifiedBy: isAdmin
-            ? req.user._id
-            : null,
+          verifiedBy:
+            isAdmin
+              ? req.user
+                  ._id
+              : null,
 
-          verifiedAt: isAdmin
-            ? new Date()
-            : null,
+          verifiedAt:
+            isAdmin
+              ? new Date()
+              : null,
 
           lastStatusChangedAt:
             new Date(),
 
           statusHistory: [
             {
-              status: isAdmin
-                ? "approved"
-                : "pending",
+              status:
+                isAdmin
+                  ? "approved"
+                  : "pending",
 
               changedAt:
                 new Date(),
 
               changedBy:
                 isAdmin
-                  ? req.user._id
+                  ? req.user
+                      ._id
                   : null,
             },
           ],
         });
 
       await property.save();
+
+      emitRealtimeUpdate(
+        req,
+        property
+      );
 
       res.status(201).json({
         success: true,
@@ -176,6 +242,7 @@ router.post(
       });
 
     } catch (error) {
+
       console.log(
         "ADD PROPERTY ERROR:",
         error
@@ -183,23 +250,117 @@ router.post(
 
       res.status(500).json({
         success: false,
-        message: "Server error",
+        message:
+          "Server error",
       });
     }
   }
 );
 
-// ================= GET APPROVED =================
+// ================= GET APPROVED + FILTERS =================
 
 router.get(
   "/approved",
+
   async (req, res) => {
+
     try {
 
+      const {
+        search,
+        type,
+        subType,
+        minPrice,
+        maxPrice,
+        location,
+      } = req.query;
+
+      // ================= BASE QUERY =================
+      const query = {
+        $expr: {
+          $eq: [
+            {
+              $toLower: {
+                $trim: {
+                  input: "$status",
+                },
+              },
+            },
+            "approved",
+          ],
+        },
+      };
+
+      // ================= SEARCH =================
+      if (search) {
+
+        query.$or = [
+
+          {
+            title: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+
+          {
+            location: {
+              $regex: search,
+              $options: "i",
+            },
+          },
+        ];
+      }
+
+      // ================= TYPE =================
+      if (type) {
+
+        query.type = {
+          $regex: type,
+          $options: "i",
+        };
+      }
+
+      // ================= SUBTYPE =================
+      if (subType) {
+
+        query.subType = {
+          $regex: subType,
+          $options: "i",
+        };
+      }
+
+      // ================= LOCATION =================
+      if (location) {
+
+        query.location = {
+          $regex: location,
+          $options: "i",
+        };
+      }
+
+      // ================= PRICE =================
+      if (
+        minPrice ||
+        maxPrice
+      ) {
+
+        query.price = {};
+
+        if (minPrice) {
+          query.price.$gte =
+            Number(minPrice);
+        }
+
+        if (maxPrice) {
+          query.price.$lte =
+            Number(maxPrice);
+        }
+      }
+
+      // ================= FETCH =================
       const properties =
-        await Property.find({
-          status: "approved",
-        })
+        await Property.find(query)
           .populate(
             "createdBy",
             "name role"
@@ -223,7 +384,8 @@ router.get(
       );
 
       res.status(500).json({
-        message: "Server error",
+        message:
+          "Server error",
       });
     }
   }
@@ -233,9 +395,11 @@ router.get(
 
 router.get(
   "/my-properties",
+
   protect,
 
   async (req, res) => {
+
     try {
 
       const properties =
@@ -261,7 +425,8 @@ router.get(
       );
 
       res.status(500).json({
-        message: "Server error",
+        message:
+          "Server error",
       });
     }
   }

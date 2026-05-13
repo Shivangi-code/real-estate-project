@@ -90,7 +90,7 @@ function App() {
         />
 
         <Route
-          path="/property/:id"
+          path="/properties/:id"
           element={<PropertyDetails />}
         />
 

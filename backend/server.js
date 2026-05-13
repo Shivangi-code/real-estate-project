@@ -1,100 +1,97 @@
-require("dotenv").config();
-
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const path = require("path");
+const dotenv = require("dotenv");
+
+const http = require("http");
+
+// ✅ SOCKET.IO
+const { Server } = require("socket.io");
+
+dotenv.config();
 
 const app = express();
 
-// ================= ROUTES =================
-const propertyRoutes = require("./routes/propertyRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const userAuthRoutes = require("./routes/userAuthRoutes");
-const contactRoutes = require("./routes/contactRoutes");
-const leadRoutes = require("./routes/leadRoutes");
+// ================= SERVER =================
+const server = http.createServer(app);
+
+// ================= SOCKET =================
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5173",
+    credentials: true,
+  },
+});
+
+// ✅ MAKE SOCKET AVAILABLE EVERYWHERE
+app.set("io", io);
+
+// ================= SOCKET EVENTS =================
+io.on("connection", (socket) => {
+
+  console.log(
+    "⚡ User Connected:",
+    socket.id
+  );
+
+  socket.on("disconnect", () => {
+
+    console.log(
+      "❌ User Disconnected:",
+      socket.id
+    );
+  });
+});
 
 // ================= MIDDLEWARE =================
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
+app.use(cors());
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-// ✅ STATIC FILES
+app.use(express.urlencoded({
+  extended: true,
+}));
+
+// ================= ROUTES =================
 app.use(
-  "/uploads",
-  express.static(path.join(__dirname, "uploads"))
+  "/api/user-auth",
+  require("./routes/userAuthRoutes")
 );
 
-// ================= API ROUTES =================
-app.use("/api/property", propertyRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/user-auth", userAuthRoutes);
-app.use("/api/contact", contactRoutes);
-app.use("/api/lead", leadRoutes);
-
-// ================= SYSTEM ROUTES =================
-app.get("/favicon.ico", (req, res) =>
-  res.sendStatus(204)
+app.use(
+  "/api/properties",
+  require("./routes/propertyRoutes")
 );
 
-// ================= ROOT =================
-app.get("/", (req, res) => {
-  res.send("Backend Running 🚀");
-});
+app.use(
+  "/api/admin",
+  require("./routes/adminRoutes")
+);
 
-// ================= 404 (LAST ROUTE) =================
-app.use((req, res) => {
-  console.log("❌ Route not found:", req.originalUrl);
-
-  res.status(404).json({
-    message: "Route not found",
-    path: req.originalUrl,
-  });
-});
-
-// ================= ERROR HANDLER =================
-app.use((err, req, res, next) => {
-  console.error("🔥 ERROR:", err.stack);
-
-  res.status(err.status || 500).json({
-    message: err.message || "Server Error",
-  });
-});
-
-// ================= DATABASE =================
-const connectDB = async () => {
-  try {
-    mongoose.set("strictQuery", true);
-
-    await mongoose.connect(process.env.MONGO_URI);
+// ================= MONGODB =================
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
 
     console.log("MongoDB Connected ✅");
-  } catch (error) {
-    console.error(
-      "MongoDB Error ❌",
-      error.message
+
+    // ✅ START SERVER
+    server.listen(
+      process.env.PORT || 5000,
+      () => {
+
+        console.log(
+          `Server running on port ${
+            process.env.PORT || 5000
+          } 🚀`
+        );
+      }
     );
-    process.exit(1);
-  }
-};
+  })
+  .catch((err) => {
 
-// ================= START SERVER =================
-const PORT = process.env.PORT || 5000;
-
-const startServer = async () => {
-  await connectDB();
-
-  app.listen(PORT, () => {
     console.log(
-      `Server running on port ${PORT} 🚀`
+      "MongoDB Error:",
+      err
     );
   });
-};
-
-startServer();
