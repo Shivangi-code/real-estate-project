@@ -1,122 +1,67 @@
-/* ================= PAGE ================= */
+/* ================= FULL PAGE BACKGROUND ================= */
+
 .login-page {
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
+
+  background:
+    linear-gradient(rgba(255,255,255,0.6), rgba(240,244,255,0.7)),
+    url("https://images.unsplash.com/photo-1568605114967-8130f3a36994");
+
+  background-size: cover;
+  background-position: center;
+
+  animation: zoomBg 20s infinite alternate;
+
+  font-family: 'Inter', sans-serif;
+
+  overflow: hidden;
 }
 
-/* ================= CARD ================= */
-.login-card {
-  background: white;
-  padding: 35px;
-  border-radius: 14px;
-  width: 380px;
-  box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+/* ================= SMOOTH ZOOM EFFECT ================= */
+
+@keyframes zoomBg {
+
+  from {
+    background-size: 100%;
+  }
+
+  to {
+    background-size: 110%;
+  }
+}
+
+/* ================= HOUSIFY TITLE ANIMATION ================= */
+
+@keyframes glowText {
+
+  0% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(37,99,235,0.3);
+  }
+
+  50% {
+    transform: scale(1.04);
+    text-shadow: 0 0 25px rgba(37,99,235,0.7);
+  }
+
+  100% {
+    transform: scale(1);
+    text-shadow: 0 0 10px rgba(37,99,235,0.3);
+  }
+}
+
+/* ================= TITLE ================= */
+
+.housify-title {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: 6px;
+  color: #1d4ed8;
   text-align: center;
-}
+  margin-bottom: 25px;
 
-.login-logo {
-  height: 100px;
-  margin-bottom: -10px;
-}
-
-.login-card h2 {
-  margin-bottom: 20px;
-  color: #1e3a8a;
-}
-
-/* ================= INPUT ================= */
-.login-input {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  outline: none;
-  transition: all 0.25s ease;
-  box-sizing: border-box;
-}
-
-.login-input:focus {
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37,99,235,0.2);
-}
-
-/* Disabled input */
-.login-input:disabled {
-  background: #f3f4f6;
-  cursor: not-allowed;
-}
-
-/* ================= MOBILE ROW ================= */
-.mobile-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
-}
-
-.mobile-row .login-input {
-  flex: 1;
-  margin-bottom: 0;
-}
-
-/* ================= OTP BUTTON ================= */
-.otp-btn {
-  height: 44px;
-  padding: 0 14px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  white-space: nowrap;
-  transition: all 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Hover */
-.otp-btn:hover {
-  background: #1e40af;
-}
-
-/* Disabled state */
-.otp-btn:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-}
-
-/* ================= SUBMIT BUTTON ================= */
-.login-submit {
-  width: 100%;
-  padding: 13px;
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 10px;
-  transition: all 0.3s ease;
-}
-
-/* Hover */
-.login-submit:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37,99,235,0.4);
-}
-
-/* Disabled */
-.login-submit:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
-  box-shadow: none;
-  transform: none;
+  animation: glowText 3s infinite;
 }

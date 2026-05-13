@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import "../styles/login.css";
 
 // ✅ AUTH CONTEXT
 import { useAuth } from "../context/AuthContext";
@@ -325,13 +326,14 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-indigo-600 via-blue-500 to-purple-600">
 
-      <div className="backdrop-blur-lg bg-white/10 border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
+    <div className="login-page">
+
+      <div className="backdrop-blur-xl bg-white/15 border border-white/30 p-8 rounded-3xl w-96 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
 
         {/* TITLE */}
-        <h2 className="text-3xl font-bold text-white text-center mb-6">
-          Login
+        <h2 className="housify-title">
+          HOUSIFY
         </h2>
 
         {/* MODE SWITCH */}
@@ -440,7 +442,7 @@ export default function Login() {
         <div className="text-center mt-4 text-white text-sm space-y-2">
 
           <p
-            className="cursor-pointer underline"
+            className="cursor-pointer underline hover:text-blue-200 transition"
             onClick={() =>
               navigate("/signup")
             }
@@ -449,7 +451,7 @@ export default function Login() {
           </p>
 
           <p
-            className="cursor-pointer underline"
+            className="cursor-pointer underline hover:text-blue-200 transition"
             onClick={() =>
               navigate(
                 "/forgot-password"

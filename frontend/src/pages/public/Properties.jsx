@@ -101,7 +101,7 @@ export default function Properties() {
           </h1>
 
           <p className="text-slate-300 mt-3">
-            Discover homes, flats, plots and commercial spaces.
+            Discover s, flats, plots and commercial spaces.
           </p>
         </div>
       </section>
