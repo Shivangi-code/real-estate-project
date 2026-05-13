@@ -1,5 +1,12 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import {
   Search,
   ShieldCheck,
@@ -9,6 +16,7 @@ import {
 } from "lucide-react";
 
 import PropertyCard from "../../components/PropertyCard";
+import socket from "../../socket";
 
 export default function Home() {
 
@@ -17,16 +25,13 @@ export default function Home() {
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProperties();
-  }, []);
-
+  // FETCH PROPERTIES
   const fetchProperties = async () => {
 
     try {
 
       const res = await fetch(
-        "http://localhost:5000/api/property/approved"
+        "http://localhost:5000/api/properties/approved"
       );
 
       const data = await res.json();
@@ -46,6 +51,23 @@ export default function Home() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+
+    fetchProperties();
+
+    socket.on(
+      "propertyUpdated",
+      () => {
+        fetchProperties();
+      }
+    );
+
+    return () => {
+      socket.off("propertyUpdated");
+    };
+
+  }, []);
 
   return (
 
@@ -331,8 +353,10 @@ export default function Home() {
                 connected with transparency.
               </p>
             </div>
+
           </div>
         </section>
+
       </div>
     </>
   );

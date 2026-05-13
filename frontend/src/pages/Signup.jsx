@@ -74,7 +74,7 @@ export default function Signup() {
 
         {/* EMAIL */}
         <input
-          name="email"
+          name="email(optional)"
           placeholder="Email"
           value={data.email}
           onChange={handleChange}
@@ -83,7 +83,7 @@ export default function Signup() {
 
         {/* MOBILE */}
         <input
-          name="mobile"
+          name="mobile(required)"
           placeholder="Mobile"
           value={data.mobile}
           onChange={handleChange}

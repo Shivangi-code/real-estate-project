@@ -81,8 +81,75 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
         <Route path="/dashboard-redirect" element={<RoleRedirect />} />
+
+        <Route
+          path="/"
+          element={<Home />}
+        />
+
+        <Route
+          path="/properties"
+          element={<Properties />}
+        />
+
+        <Route
+          path="/properties/:id"
+          element={<PropertyDetails />}
+        />
+
+        <Route
+          path="/about"
+          element={<About />}
+        />
+
+        <Route
+          path="/chat"
+          element={<Chat />}
+        />
+
+        <Route
+          path="/contact"
+          element={<Contact />}
+        />
+
+        <Route
+          path="/select-role"
+          element={<SelectRole />}
+        />
+
+        <Route
+          path="/otp"
+          element={<Otp />}
+        />
+
+        <Route
+          path="/onboarding"
+          element={<Onboarding />}
+        />
+
+        <Route
+          path="/forgot-password"
+          element={<ForgotPassword />}
+        />
+
+        {/* ✅ FIXED LOGIN */}
+        <Route
+          path="/login"
+          element={<Login />}
+        />
+
+        {/* ✅ FIXED SIGNUP */}
+        <Route
+          path="/signup"
+          element={<Signup />}
+        />
+
+        {/* ROLE REDIRECT */}
+        <Route
+          path="/dashboard-redirect"
+          element={<RoleRedirect />}
+        />
 
         {/* SELLER */}
         <Route
