@@ -13,6 +13,7 @@ import {
   Building2,
   Users,
   ArrowRight,
+  BadgeCheck,
 } from "lucide-react";
 
 import PropertyCard from "../../components/PropertyCard";
@@ -92,26 +93,26 @@ export default function Home() {
 
         {/* HERO SECTION */}
         <section
-          className="text-white px-6 md:px-12 py-24 relative overflow-hidden"
+          className="text-white px-6 md:px-12 py-16 relative overflow-hidden"
           style={{
             backgroundImage: `
               linear-gradient(
-                rgba(15, 23, 42, 0.78),
-                rgba(37, 99, 235, 0.45)
+                rgba(15, 23, 42, 0.78), 
+                rgba(15, 23, 42, 0.62)
               ),
-              url("https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=1974&auto=format&fit=crop")
+              url("https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1974&auto=format&fit=crop")
             `,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
-            animation: "zoomBg 20s infinite alternate",
+            animation: "zoomBg 10s infinite alternate",
           }}
         >
 
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-14 items-center">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
 
-            {/* LEFT */}
-            <div>
+            {/* LEFT CONTENT */}
+            <div className="-mt-8">
 
               <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold">
                 VERIFIED REAL ESTATE PLATFORM
@@ -124,14 +125,14 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="mt-6 text-slate-200 text-lg leading-8 max-w-2xl">
+              <p className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
                 Verified flats, plots, villas and commercial
                 spaces from trusted sellers, builders and
                 real estate professionals across India.
               </p>
 
-              {/* SEARCH */}
-              <div className="mt-10 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
+              {/* SEARCH BAR */}
+              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
 
                 <Search
                   className="text-slate-500 ml-2"
@@ -155,7 +156,7 @@ export default function Home() {
               </div>
 
               {/* CTA BUTTONS */}
-              <div className="flex gap-4 mt-8 flex-wrap">
+              <div className="flex gap-4 mt-7 flex-wrap">
 
                 <button
                   onClick={() =>
@@ -178,63 +179,81 @@ export default function Home() {
             </div>
 
             {/* RIGHT STATS */}
-            <div className="bg-white/10 rounded-[32px] p-8 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div className="bg-white/10 rounded-[32px] p-6 backdrop-blur-xl border border-white/20 shadow-2xl">
 
-              <div className="grid grid-cols-2 gap-5">
+              <div className="grid grid-cols-2 gap-4">
 
-                {/* VERIFIED */}
-                <div className="bg-white rounded-3xl p-6 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                {/* VERIFIED LISTINGS */}
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
 
                   <Building2
-                    className="mb-4 text-blue-600"
-                    size={34}
+                    className="mb-3 text-blue-600"
+                    size={30}
                   />
 
                   <h3 className="font-extrabold text-3xl">
                     {properties.length}+
                   </h3>
 
-                  <p className="mt-1 text-slate-500">
+                  <p className="mt-1 text-slate-500 text-base">
                     Verified Listings
                   </p>
                 </div>
 
-                {/* USERS */}
-                <div className="bg-white rounded-3xl p-6 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                {/* HAPPY USERS */}
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
 
                   <Users
-                    className="mb-4 text-purple-600"
-                    size={34}
+                    className="mb-3 text-purple-600"
+                    size={30}
                   />
 
                   <h3 className="font-extrabold text-3xl">
                     1K+
                   </h3>
 
-                  <p className="mt-1 text-slate-500">
+                  <p className="mt-1 text-slate-500 text-base">
                     Happy Users
                   </p>
                 </div>
 
-                {/* SECURITY */}
-                <div className="bg-white rounded-3xl p-6 text-slate-900 col-span-2 shadow-xl hover:scale-[1.02] transition-all duration-300">
+                {/* MODERATED */}
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
 
                   <ShieldCheck
-                    className="mb-4 text-green-600"
-                    size={34}
+                    className="mb-3 text-green-600"
+                    size={30}
                   />
 
-                  <h3 className="font-bold text-2xl">
-                    100% Moderated Listings
+                  <h3 className="font-bold text-3xl">
+                    100%
                   </h3>
 
-                  <p className="text-slate-500 mt-2">
-                    Fraud-resistant approval workflow
-                    ensuring safer property discovery.
+                  <p className="text-slate-500 mt-1 text-base leading-6">
+                    Moderated Listings
                   </p>
                 </div>
+
+                {/* DIRECT DEALS */}
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+
+                  <BadgeCheck
+                    className="mb-3 text-orange-500"
+                    size={30}
+                  />
+
+                  <h3 className="font-bold text-3xl">
+                    Direct Deals
+                  </h3>
+
+                  <p className="text-slate-500 mt-1 text-base leading-6">
+                    No brokerage for buyers
+                  </p>
+                </div>
+
               </div>
             </div>
+
           </div>
         </section>
 

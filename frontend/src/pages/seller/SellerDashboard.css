@@ -1,0 +1,82 @@
+/* ================= PAGE ================= */
+
+body {
+  background: #f1f5f9;
+}
+
+/* ================= HERO GLOW ================= */
+
+.hero-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: floatGlow 8s ease-in-out infinite;
+  z-index: 0;
+}
+
+.hero-glow.blue {
+  background: #3b82f6;
+  top: -100px;
+  right: -100px;
+}
+
+.hero-glow.cyan {
+  background: #06b6d4;
+  bottom: -120px;
+  left: -120px;
+}
+
+@keyframes floatGlow {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(25px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ================= HERO TITLE ================= */
+
+.dashboard-title {
+  animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= CARDS ================= */
+
+.dashboard-card {
+  transition: all 0.4s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-12px) scale(1.02);
+}
+
+/* ICON ANIMATION */
+.icon-box {
+  transition: 0.3s ease;
+}
+
+.dashboard-card:hover .icon-box {
+  transform: rotate(-5deg) scale(1.08);
+}
+
+/* BUTTON EFFECT */
+.dashboard-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-btn:hover {
+  transform: translateY(-2px);
+}
