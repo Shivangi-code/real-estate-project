@@ -1,344 +1,123 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
-// ================= STATUS HISTORY =================
-const statusHistorySchema =
-  new mongoose.Schema(
-    {
-      status: {
-        type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-          "deleted",
-        ],
-
-        required: true,
-      },
-
-      changedAt: {
-        type: Date,
-        default: Date.now,
-      },
-
-      changedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
+// ================= USER SCHEMA =================
+const userSchema = new mongoose.Schema(
+  {
+    // ================= BASIC INFO =================
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    { _id: false }
-  );
-
-// ================= IMAGE SCHEMA =================
-const propertyImageSchema =
-  new mongoose.Schema(
-    {
-      filename: {
-        type: String,
-
-        required: true,
-
-        trim: true,
-      },
-
-      url: {
-        type: String,
-
-        required: true,
-
-        trim: true,
-      },
-
-      status: {
-        type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-        ],
-
-        default: "pending",
-      },
-
-      uploadedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-      },
-
-      verifiedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
-
-      verifiedAt: {
-        type: Date,
-
-        default: null,
-      },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+      lowercase: true,
     },
 
-    {
-      timestamps: true,
-    }
-  );
-
-// ================= PROPERTY SCHEMA =================
-const propertySchema =
-  new mongoose.Schema(
-    {
-      // ================= PROPERTY UNIQUE ID =================
-      propertyUniqueId: {
-        type: String,
-
-        unique: true,
-
-        trim: true,
-      },
-
-      // ================= BASIC INFO =================
-      title: {
-        type: String,
-        trim: true,
-      },
-
-      price: Number,
-
-      location: {
-        type: String,
-        trim: true,
-      },
-
-      // ================= CATEGORY =================
-      type: {
-        type: String,
-        trim: true,
-      },
-
-      subType: {
-        type: String,
-        trim: true,
-      },
-
-      constructionStatus: {
-        type: String,
-        trim: true,
-      },
-
-      description: {
-        type: String,
-        trim: true,
-      },
-
-      // ================= INVENTORY STATUS =================
-      businessStatus: {
-        type: String,
-
-        enum: [
-          "available",
-          "sold",
-        ],
-
-        default: "available",
-      },
-
-      // ================= NEGOTIATION CHIP =================
-      underNegotiation: {
-        type: Boolean,
-
-        default: false,
-      },
-
-      // ================= MAIN IMAGE =================
-      image: {
-        type: String,
-        default: "",
-      },
-
-      // ================= MULTIPLE IMAGES =================
-      images: {
-        type: [
-          propertyImageSchema,
-        ],
-
-        default: [],
-      },
-
-      // ================= ADMIN MODERATION =================
-      status: {
-        type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-          "deleted",
-        ],
-
-        // ✅ AUTO APPROVE ADMIN LISTINGS
-        default:
-          function () {
-
-            return this.createdByRole ===
-              "admin"
-              ? "approved"
-              : "pending";
-          },
-      },
-
-      // ================= OWNER =================
-      createdBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-      },
-
-      createdByRole: {
-        type: String,
-
-        enum: [
-          "seller",
-          "builder",
-          "agent",
-          "admin",
-        ],
-
-        default: "seller",
-      },
-
-      // ================= OWNER SNAPSHOT =================
-      ownerUniqueId: {
-        type: String,
-
-        trim: true,
-
-        default: "",
-      },
-
-      ownerName: {
-        type: String,
-
-        trim: true,
-
-        default: "",
-      },
-
-      // ================= VERIFICATION =================
-      verifiedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
-
-      verifiedAt: {
-        type: Date,
-
-        default: null,
-      },
-
-      // ================= TRACKING =================
-      lastStatusChangedAt: {
-        type: Date,
-
-        default: Date.now,
-      },
-
-      statusHistory: {
-        type: [
-          statusHistorySchema,
-        ],
-
-        default:
-          function () {
-
-            return [
-              {
-                status:
-                  this.createdByRole ===
-                  "admin"
-                    ? "approved"
-                    : "pending",
-
-                changedAt:
-                  new Date(),
-              },
-            ];
-          },
-      },
-
-      // ================= ANALYTICS =================
-      totalViews: {
-        type: Number,
-
-        default: 0,
-      },
-
-      totalInquiries: {
-        type: Number,
-
-        default: 0,
-      },
-
-      // ================= FUTURE READY =================
-      featured: {
-        type: Boolean,
-
-        default: false,
-      },
-
-      premiumListing: {
-        type: Boolean,
-
-        default: false,
-      },
-
-      whatsappEnabled: {
-        type: Boolean,
-
-        default: false,
-      },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
     },
 
-    {
-      timestamps: true,
-    }
-  );
+    // ================= USER ROLE =================
+    role: {
+      type: String,
 
-// ================= AUTO GENERATE PROPERTY ID =================
-propertySchema.pre(
+      enum: [
+        "user",
+        "seller",
+        "builder",
+        "agent",
+        "admin",
+      ],
+
+      default: "user",
+    },
+
+    // ================= UNIQUE USER ID =================
+    userUniqueId: {
+      type: String,
+      unique: true,
+      trim: true,
+    },
+
+    // ================= PROFILE =================
+    profileImage: {
+      type: String,
+      default: "",
+    },
+
+    phone: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    // ================= ACCOUNT STATUS =================
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+
+    // ================= FUTURE FEATURES =================
+    whatsappNumber: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    companyName: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    businessAddress: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+  },
+
+  {
+    timestamps: true,
+  }
+);
+
+// ================= AUTO GENERATE USER ID =================
+userSchema.pre(
   "save",
 
-  async function (
-    next
-  ) {
+  async function (next) {
 
     try {
 
-      // ================= UNIQUE PROPERTY ID =================
-      if (
-        !this.propertyUniqueId
-      ) {
+      // ================= HASH PASSWORD =================
+      if (this.isModified("password")) {
+
+        const salt =
+          await bcrypt.genSalt(10);
+
+        this.password =
+          await bcrypt.hash(
+            this.password,
+            salt
+          );
+      }
+
+      // ================= GENERATE UNIQUE USER ID =================
+      if (!this.userUniqueId) {
 
         const random =
           Math.random()
@@ -346,8 +125,8 @@ propertySchema.pre(
             .substring(2, 8)
             .toUpperCase();
 
-        this.propertyUniqueId =
-          `RE-${random}`;
+        this.userUniqueId =
+          `USR-${random}`;
       }
 
       next();
@@ -359,23 +138,29 @@ propertySchema.pre(
   }
 );
 
+// ================= PASSWORD MATCH =================
+userSchema.methods.matchPassword =
+  async function (
+    enteredPassword
+  ) {
+
+    return await bcrypt.compare(
+      enteredPassword,
+      this.password
+    );
+  };
+
 // ================= INDEXES =================
 
-propertySchema.index({
-  status: 1,
-});
 
-propertySchema.index({
-  businessStatus: 1,
-});
-
-propertySchema.index({
-  underNegotiation: 1,
+userSchema.index({
+  role: 1,
 });
 
 // ================= EXPORT =================
 module.exports =
+  mongoose.models.User ||
   mongoose.model(
-    "Property",
-    propertySchema
+    "User",
+    userSchema
   );

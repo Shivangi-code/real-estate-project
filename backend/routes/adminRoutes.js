@@ -9,162 +9,171 @@ const Property = require("../models/Property");
 const Lead = require("../models/Lead");
 
 const {
-  protect,
-  authorizeRoles,
+protect,
+authorizeRoles,
 } = require("../middleware/authMiddleware");
 
 // ================= VALIDATE ID =================
 const isValidId = (id) =>
-  mongoose.Types.ObjectId.isValid(id);
+mongoose.Types.ObjectId.isValid(id);
 
 // ================= REALTIME EMIT =================
 const emitRealtimeUpdate = (
-  req,
-  property
+req,
+property
 ) => {
 
-  const io =
-    req.app.get("io");
+const io =
+req.app.get("io");
 
-  if (io) {
+if (io) {
 
-    io.emit(
-      "propertyUpdated",
-      {
-        propertyId:
-          property._id,
 
-        status:
-          property.status,
+io.emit(
+  "propertyUpdated",
+  {
+    propertyId:
+      property._id,
 
-        businessStatus:
-          property.businessStatus,
+    status:
+      property.status,
 
-        underNegotiation:
-          property.underNegotiation,
+    businessStatus:
+      property.businessStatus,
 
-        property,
-      }
-    );
+    underNegotiation:
+      property.underNegotiation,
+
+    property,
   }
+);
+
+
+}
 };
 
 // ================= SAFE STATUS QUERY =================
 const statusQuery = (
-  status
+status
 ) => ({
-  $expr: {
-    $eq: [
-      {
-        $toLower: {
-          $trim: {
-            input: "$status",
-          },
-        },
-      },
-      status.toLowerCase(),
-    ],
-  },
+$expr: {
+$eq: [
+{
+$toLower: {
+$trim: {
+input: "$status",
+},
+},
+},
+status.toLowerCase(),
+],
+},
 });
 
 // ================= UPDATE MODERATION STATUS =================
 const updatePropertyStatus =
-  async (
-    id,
-    newStatus,
-    adminId
-  ) => {
+async (
+id,
+newStatus,
+adminId
+) => {
 
-    const property =
-      await Property.findById(
-        id
-      );
 
-    if (!property)
-      return null;
+const property =
+  await Property.findById(
+    id
+  );
 
-    property.status =
+if (!property)
+  return null;
+
+property.status =
+  newStatus
+    .trim()
+    .toLowerCase();
+
+property.verifiedBy =
+  adminId;
+
+property.verifiedAt =
+  new Date();
+
+property.lastStatusChangedAt =
+  new Date();
+
+property.statusHistory.push(
+  {
+    status:
       newStatus
         .trim()
-        .toLowerCase();
+        .toLowerCase(),
 
-    property.verifiedBy =
-      adminId;
+    changedAt:
+      new Date(),
 
-    property.verifiedAt =
-      new Date();
+    changedBy:
+      adminId,
+  }
+);
 
-    property.lastStatusChangedAt =
-      new Date();
+await property.save();
 
-    property.statusHistory.push(
-      {
-        status:
-          newStatus
-            .trim()
-            .toLowerCase(),
+return property;
 
-        changedAt:
-          new Date(),
 
-        changedBy:
-          adminId,
-      }
-    );
-
-    await property.save();
-
-    return property;
-  };
+};
 
 // =====================================================
 // GET ALL PROPERTIES
 // =====================================================
 
 router.get(
-  "/properties/all",
+"/properties/all",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const properties =
-        await Property.find()
-          .populate(
-            "createdBy",
-            "name role uniqueUserId"
-          )
-          .populate(
-            "verifiedBy",
-            "name uniqueUserId"
-          )
-          .sort({
-            createdAt: -1,
-          });
+try {
 
-      res.json(
-        properties
-      );
-
-    } catch (err) {
-
-      console.log(
-        "ALL PROPERTIES ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
+  const properties =
+    await Property.find()
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
       });
-    }
-  }
+
+  res.json(
+    properties
+  );
+
+} catch (err) {
+
+  console.log(
+    "ALL PROPERTIES ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -172,51 +181,54 @@ router.get(
 // =====================================================
 
 router.get(
-  "/properties/pending",
+"/properties/pending",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const data =
-        await Property.find(
-          statusQuery(
-            "pending"
-          )
-        )
-          .populate(
-            "createdBy",
-            "name role uniqueUserId"
-          )
-          .populate(
-            "verifiedBy",
-            "name uniqueUserId"
-          )
-          .sort({
-            createdAt: -1,
-          });
+try {
 
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "PENDING FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
+  const data =
+    await Property.find(
+      statusQuery(
+        "pending"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
       });
-    }
-  }
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "PENDING FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -224,51 +236,54 @@ router.get(
 // =====================================================
 
 router.get(
-  "/properties/approved",
+"/properties/approved",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const data =
-        await Property.find(
-          statusQuery(
-            "approved"
-          )
-        )
-          .populate(
-            "createdBy",
-            "name role uniqueUserId"
-          )
-          .populate(
-            "verifiedBy",
-            "name uniqueUserId"
-          )
-          .sort({
-            createdAt: -1,
-          });
+try {
 
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "APPROVED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
+  const data =
+    await Property.find(
+      statusQuery(
+        "approved"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
       });
-    }
-  }
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "APPROVED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -276,51 +291,54 @@ router.get(
 // =====================================================
 
 router.get(
-  "/properties/rejected",
+"/properties/rejected",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const data =
-        await Property.find(
-          statusQuery(
-            "rejected"
-          )
-        )
-          .populate(
-            "createdBy",
-            "name role uniqueUserId"
-          )
-          .populate(
-            "verifiedBy",
-            "name uniqueUserId"
-          )
-          .sort({
-            createdAt: -1,
-          });
+try {
 
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "REJECTED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
+  const data =
+    await Property.find(
+      statusQuery(
+        "rejected"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
       });
-    }
-  }
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "REJECTED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -328,51 +346,54 @@ router.get(
 // =====================================================
 
 router.get(
-  "/properties/deleted",
+"/properties/deleted",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const data =
-        await Property.find(
-          statusQuery(
-            "deleted"
-          )
-        )
-          .populate(
-            "createdBy",
-            "name role uniqueUserId"
-          )
-          .populate(
-            "verifiedBy",
-            "name uniqueUserId"
-          )
-          .sort({
-            createdAt: -1,
-          });
+try {
 
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "DELETED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
+  const data =
+    await Property.find(
+      statusQuery(
+        "deleted"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
       });
-    }
-  }
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "DELETED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -380,64 +401,60 @@ router.get(
 // =====================================================
 
 router.put(
-  "/property/:id/approve",
+"/properties/:id/approve",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      if (
-        !isValidId(
-          req.params.id
-        )
-      ) {
+try {
 
-        return res
-          .status(400)
-          .json({
-            message:
-              "Invalid ID",
-          });
-      }
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "approved",
+      req.user._id
+    );
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "approved",
-          req.user._id
-        );
+  if (!property) {
 
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          "Approved",
-
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "APPROVE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
   }
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property approved successfully",
+  });
+
+} catch (err) {
+
+  console.log(
+    "APPROVE ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
@@ -445,101 +462,60 @@ router.put(
 // =====================================================
 
 router.put(
-  "/property/:id/reject",
+"/properties/:id/reject",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "rejected",
-          req.user._id
-        );
+try {
 
-      emitRealtimeUpdate(
-        req,
-        property
-      );
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "rejected",
+      req.user._id
+    );
 
-      res.json({
-        message:
-          "Rejected",
+  if (!property) {
 
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "REJECT ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
   }
-);
 
-// =====================================================
-// MOVE TO PENDING
-// =====================================================
+  emitRealtimeUpdate(
+    req,
+    property
+  );
 
-router.put(
-  "/property/:id/pending",
+  res.json({
+    success: true,
+    message:
+      "Property rejected successfully",
+  });
 
-  protect,
+} catch (err) {
 
-  authorizeRoles(
-    "admin"
-  ),
+  console.log(
+    "REJECT ERROR:",
+    err
+  );
 
-  async (req, res) => {
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
 
-    try {
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "pending",
-          req.user._id
-        );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          "Moved to pending",
-
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "PENDING UPDATE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
+}
 );
 
 // =====================================================
@@ -547,407 +523,344 @@ router.put(
 // =====================================================
 
 router.put(
-  "/property/:id/delete",
+"/properties/:id/delete",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "deleted",
-          req.user._id
-        );
+try {
 
-      emitRealtimeUpdate(
-        req,
-        property
-      );
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "deleted",
+      req.user._id
+    );
 
-      res.json({
-        message:
-          "Property moved to deleted",
+  if (!property) {
 
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "DELETE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
   }
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property deleted successfully",
+  });
+
+} catch (err) {
+
+  console.log(
+    "DELETE ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
-// UPDATE BUSINESS STATUS
+// BUSINESS STATUS SYSTEM
 // =====================================================
 
 router.put(
-  "/property/:id/business-status",
+"/properties/:id/business-status",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const {
-        businessStatus,
-        underNegotiation,
-      } = req.body;
+try {
 
-      const property =
-        await Property.findById(
-          req.params.id
-        );
+  const {
+    businessStatus,
+    underNegotiation,
+  } = req.body;
 
-      if (!property) {
+  const property =
+    await Property.findById(
+      req.params.id
+    );
 
-        return res
-          .status(404)
-          .json({
-            message:
-              "Property not found",
-          });
-      }
+  if (!property) {
 
-      // ================= BUSINESS STATUS =================
-      if (
-        businessStatus
-      ) {
-
-        const allowed =
-          [
-            "available",
-            "sold",
-          ];
-
-        if (
-          !allowed.includes(
-            businessStatus
-          )
-        ) {
-
-          return res
-            .status(400)
-            .json({
-              message:
-                "Invalid business status",
-            });
-        }
-
-        property.businessStatus =
-          businessStatus;
-      }
-
-      // ================= NEGOTIATION =================
-      if (
-        typeof underNegotiation ===
-        "boolean"
-      ) {
-
-        property.underNegotiation =
-          underNegotiation;
-      }
-
-      await property.save();
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          "Business status updated successfully",
-
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "BUSINESS STATUS ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      success: false,
+      message:
+        "Property not found",
+    });
   }
+
+  if (
+    businessStatus
+  ) {
+
+    property.businessStatus =
+      businessStatus;
+  }
+
+  if (
+    typeof underNegotiation ===
+    "boolean"
+  ) {
+
+    property.underNegotiation =
+      underNegotiation;
+  }
+
+  await property.save();
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Business status updated successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "BUSINESS STATUS ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
-// GENERIC STATUS
+// IMAGE MODERATION SYSTEM
 // =====================================================
 
 router.put(
-  "/property/:id/status",
+"/property-image/:propertyId/:imageId/approve",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles("admin"),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const {
-        status,
-      } = req.body;
+try {
 
-      const allowed =
-        [
-          "pending",
-          "approved",
-          "rejected",
-          "deleted",
-        ];
+  const { propertyId, imageId } = req.params;
 
-      if (
-        !allowed.includes(
-          status
-        )
-      ) {
+  if (!isValidId(propertyId)) {
 
-        return res
-          .status(400)
-          .json({
-            message:
-              "Invalid status",
-          });
-      }
-
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          status,
-          req.user._id
-        );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          `Property moved to ${status}`,
-
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "STATUS ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(400).json({
+      success: false,
+      message: "Invalid property ID",
+    });
   }
+
+  const property =
+    await Property.findById(propertyId);
+
+  if (!property) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Property not found",
+    });
+  }
+
+  const image =
+    property.images.id(imageId);
+
+  if (!image) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Image not found",
+    });
+  }
+
+  image.status = "approved";
+
+  image.verifiedBy = req.user._id;
+
+  image.verifiedAt = new Date();
+
+  await property.save();
+
+  emitRealtimeUpdate(req, property);
+
+  res.json({
+    success: true,
+    message: "Image approved successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "IMAGE APPROVE ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
+);
+
+router.put(
+"/property-image/:propertyId/:imageId/reject",
+
+protect,
+
+authorizeRoles("admin"),
+
+async (req, res) => {
+
+
+try {
+
+  const { propertyId, imageId } = req.params;
+
+  if (!isValidId(propertyId)) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Invalid property ID",
+    });
+  }
+
+  const property =
+    await Property.findById(propertyId);
+
+  if (!property) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Property not found",
+    });
+  }
+
+  const image =
+    property.images.id(imageId);
+
+  if (!image) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Image not found",
+    });
+  }
+
+  image.status = "rejected";
+
+  image.verifiedBy = req.user._id;
+
+  image.verifiedAt = new Date();
+
+  await property.save();
+
+  emitRealtimeUpdate(req, property);
+
+  res.json({
+    success: true,
+    message: "Image rejected successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "IMAGE REJECT ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
 // =====================================================
-// DASHBOARD STATS
+// LEADS DASHBOARD
 // =====================================================
 
 router.get(
-  "/stats",
+"/leads/all",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "admin"
-  ),
+authorizeRoles(
+"admin"
+),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      // ================= PROPERTY STATS =================
-      const total =
-        await Property.countDocuments();
+try {
 
-      const pending =
-        await Property.countDocuments(
-          statusQuery(
-            "pending"
-          )
-        );
-
-      const approved =
-        await Property.countDocuments(
-          statusQuery(
-            "approved"
-          )
-        );
-
-      const rejected =
-        await Property.countDocuments(
-          statusQuery(
-            "rejected"
-          )
-        );
-
-      const deleted =
-        await Property.countDocuments(
-          statusQuery(
-            "deleted"
-          )
-        );
-
-      // ================= BUSINESS STATS =================
-      const available =
-        await Property.countDocuments(
-          {
-            businessStatus:
-              "available",
-          }
-        );
-
-      const sold =
-        await Property.countDocuments(
-          {
-            businessStatus:
-              "sold",
-          }
-        );
-
-      const underNegotiation =
-        await Property.countDocuments(
-          {
-            underNegotiation:
-              true,
-          }
-        );
-
-      // ================= LEAD STATS =================
-      const totalLeads =
-        await Lead.countDocuments();
-
-      const inquiryLeads =
-        await Lead.countDocuments(
-          {
-            leadType:
-              "property-inquiry",
-          }
-        );
-
-      const contactLeads =
-        await Lead.countDocuments(
-          {
-            leadType:
-              "contact-us",
-          }
-        );
-
-      const newLeads =
-        await Lead.countDocuments(
-          {
-            status:
-              "new",
-          }
-        );
-
-      const inProgressLeads =
-        await Lead.countDocuments(
-          {
-            status:
-              "in-progress",
-          }
-        );
-
-      const contactedLeads =
-        await Lead.countDocuments(
-          {
-            status:
-              "contacted",
-          }
-        );
-
-      const closedLeads =
-        await Lead.countDocuments(
-          {
-            status:
-              "closed",
-          }
-        );
-
-      const spamLeads =
-        await Lead.countDocuments(
-          {
-            status:
-              "spam",
-          }
-        );
-
-      // ================= RESPONSE =================
-      res.json({
-        // PROPERTY
-        total,
-        pending,
-        approved,
-        rejected,
-        deleted,
-
-        // BUSINESS
-        available,
-        sold,
-        underNegotiation,
-
-        // LEADS
-        totalLeads,
-        inquiryLeads,
-        contactLeads,
-        newLeads,
-        inProgressLeads,
-        contactedLeads,
-        closedLeads,
-        spamLeads,
+  const leads =
+    await Lead.find()
+      .sort({
+        createdAt: -1,
       });
 
-    } catch (err) {
+  res.json(leads);
 
-      console.log(
-        "STATS ERROR:",
-        err
-      );
+} catch (error) {
 
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
+  console.log(
+    "LEADS ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
-module.exports =
-  router;
+module.exports = router;

@@ -20,6 +20,7 @@ import {
   Sun,
   ShieldCheck,
   Hash,
+  Building2,
 } from "lucide-react";
 
 import {
@@ -31,7 +32,6 @@ import logo from "../assets/logo.png";
 
 import "../styles/navbar.css";
 
-// ✅ AUTH CONTEXT
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
@@ -51,7 +51,6 @@ function Navbar() {
   const location =
     useLocation();
 
-  // ✅ GLOBAL AUTH
   const {
     user,
     logout,
@@ -64,7 +63,10 @@ function Navbar() {
   const uniqueUserId =
     user?.uniqueUserId;
 
-  // ================= DARK MODE =================
+  // ======================================================
+  // ================= DARK MODE ==========================
+  // ======================================================
+
   useEffect(() => {
 
     document.body.classList.toggle(
@@ -74,7 +76,10 @@ function Navbar() {
 
   }, [dark]);
 
-  // ================= HELPERS =================
+  // ======================================================
+  // ================= HELPERS ============================
+  // ======================================================
+
   const closeAll = () =>
     setOpen(false);
 
@@ -88,7 +93,10 @@ function Navbar() {
   const isActive = (path) =>
     location.pathname === path;
 
-  // ================= LOGOUT =================
+  // ======================================================
+  // ================= LOGOUT =============================
+  // ======================================================
+
   const handleLogout = () => {
 
     logout();
@@ -98,7 +106,10 @@ function Navbar() {
     navigate("/");
   };
 
-  // ================= DASHBOARD ROUTE =================
+  // ======================================================
+  // ================= DASHBOARD ROUTE ====================
+  // ======================================================
+
   const getDashboardRoute =
     () => {
 
@@ -113,27 +124,30 @@ function Navbar() {
         role === "seller"
       ) {
 
-        return "/seller";
+        return "/seller-dashboard";
       }
 
       if (
         role === "builder"
       ) {
 
-        return "/builder";
+        return "/builder-dashboard";
       }
 
       if (
         role === "agent"
       ) {
 
-        return "/agent";
+        return "/seller-dashboard";
       }
 
       return "/";
     };
 
-  // ================= ROLE COLOR =================
+  // ======================================================
+  // ================= ROLE COLOR =========================
+  // ======================================================
+
   const roleColor =
     () => {
 
@@ -155,7 +169,7 @@ function Navbar() {
         role === "builder"
       ) {
 
-        return "bg-green-100 text-green-700";
+        return "bg-orange-100 text-orange-700";
       }
 
       if (
@@ -170,7 +184,10 @@ function Navbar() {
 
   return (
     <>
-      {/* ================= NAVBAR ================= */}
+      {/* ====================================================== */}
+      {/* ================= NAVBAR ============================= */}
+      {/* ====================================================== */}
+
       <div className="navbar god-nav">
 
         {/* LEFT */}
@@ -193,7 +210,7 @@ function Navbar() {
 
         </div>
 
-        {/* CENTER SEARCH */}
+        {/* SEARCH */}
         <div className="nav-center">
 
           <div className="search-box">
@@ -211,6 +228,7 @@ function Navbar() {
             <Search size={18} />
 
           </div>
+
         </div>
 
         {/* RIGHT */}
@@ -259,6 +277,26 @@ function Navbar() {
             Contact
 
           </Link>
+
+          {/* MY PROPERTIES */}
+          {isAuthenticated &&
+            role !== "buyer" && (
+
+              <button
+                className="login-btn flex items-center gap-2"
+                onClick={() =>
+                  navigate(
+                    "/my-properties"
+                  )
+                }
+              >
+
+                <Building2 size={16} />
+
+                My Properties
+
+              </button>
+            )}
 
           {/* USER PANEL */}
           {isAuthenticated && (
@@ -312,6 +350,7 @@ function Navbar() {
                   )}
 
                 </div>
+
               </div>
             </motion.div>
           )}
@@ -375,10 +414,15 @@ function Navbar() {
             <Menu size={26} />
 
           </button>
+
         </div>
+
       </div>
 
-      {/* ================= MOBILE DRAWER ================= */}
+      {/* ====================================================== */}
+      {/* ================= MOBILE DRAWER ====================== */}
+      {/* ====================================================== */}
+
       <AnimatePresence>
 
         {open && (
@@ -463,6 +507,7 @@ function Navbar() {
                       )}
 
                     </div>
+
                   </div>
                 </div>
               )}
@@ -480,6 +525,26 @@ function Navbar() {
                 Home
 
               </div>
+
+              {/* MY PROPERTIES */}
+              {isAuthenticated &&
+                role !== "buyer" && (
+
+                  <div
+                    className="nav-item"
+                    onClick={() =>
+                      goTo(
+                        "/my-properties"
+                      )
+                    }
+                  >
+
+                    <Building2 size={18} />
+
+                    My Properties
+
+                  </div>
+                )}
 
               {/* DASHBOARD */}
               {isAuthenticated &&
@@ -567,9 +632,11 @@ function Navbar() {
 
                 </button>
               )}
+
             </motion.div>
           </>
         )}
+
       </AnimatePresence>
     </>
   );

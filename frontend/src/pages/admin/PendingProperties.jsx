@@ -1,16 +1,22 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import toast from "react-hot-toast";
 
 import {
-  CheckCircle,
+  Clock3,
+  CheckCircle2,
   XCircle,
+  Trash2,
   MapPin,
   IndianRupee,
-  Trash2,
+  Hash,
+  ShieldAlert,
+  Eye,
+  Building2,
 } from "lucide-react";
-
-// ✅ SOCKET
-import socket from "../../socket";
 
 export default function PendingProperties() {
 
@@ -20,295 +26,552 @@ export default function PendingProperties() {
   const [loading, setLoading] =
     useState(true);
 
-  // ================= FETCH =================
-  const fetchPending = async () => {
+  // ======================================================
+  // ================= FETCH ==============================
+  // ======================================================
 
-    try {
+  const fetchPending =
+    async () => {
 
-      const token =
-        localStorage.getItem("token");
+      try {
 
-      const res = await fetch(
-        "http://localhost:5000/api/admin/properties/pending",
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await fetch(
+            "http://localhost:5000/api/admin/properties/pending",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await res.json();
+
+        setProperties(
+          Array.isArray(
+            data
+          )
+            ? data
+            : []
+        );
+
+      } catch (error) {
+
+        console.log(
+          error
+        );
+
+        toast.error(
+          "Failed to fetch pending properties"
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  // ======================================================
+  // ================= UPDATE STATUS ======================
+  // ======================================================
+
+  const updateStatus =
+    async (
+      id,
+      action
+    ) => {
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await fetch(
+            `http://localhost:5000/api/admin/properties/${id}/${action}`,
+            {
+              method:
+                "PUT",
+
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (res.ok) {
+
+          toast.success(
+            data.message
+          );
+
+          fetchPending();
+
+        } else {
+
+          toast.error(
+            data.message
+          );
         }
-      );
 
-      const data =
-        await res.json();
+      } catch (error) {
 
-      setProperties(
-        Array.isArray(data)
-          ? data
-          : []
-      );
+        console.log(
+          error
+        );
 
-    } catch {
+        toast.error(
+          "Server error"
+        );
+      }
+    };
 
-      setProperties([]);
+  // ======================================================
+  // ================= LOAD ===============================
+  // ======================================================
 
-    } finally {
-
-      setLoading(false);
-    }
-  };
-
-  // ================= REALTIME =================
   useEffect(() => {
 
     fetchPending();
 
-    // ✅ LIVE SOCKET LISTENER
-    socket.on(
-      "propertyUpdated",
-      () => {
-
-        fetchPending();
-      }
-    );
-
-    return () => {
-
-      socket.off(
-        "propertyUpdated"
-      );
-    };
-
   }, []);
 
-  // ================= UPDATE STATUS =================
-  const updateStatus = async (
-    id,
-    type
+  // ======================================================
+  // ================= FORMAT PRICE =======================
+  // ======================================================
+
+  const formatPrice = (
+    price
   ) => {
 
-    try {
+    if (!price)
+      return "N/A";
 
-      const token =
-        localStorage.getItem("token");
+    if (
+      price >= 10000000
+    ) {
 
-      const res = await fetch(
-        `http://localhost:5000/api/admin/property/${id}/${type}`,
-        {
-          method: "PUT",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok)
-        throw new Error();
-
-      toast.success(
-        `Moved to ${type} ✅`
-      );
-
-    } catch {
-
-      toast.error(
-        "Action failed ❌"
-      );
+      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
     }
-  };
 
-  // ================= DELETE =================
-  const handleDelete = async (
-    id
-  ) => {
+    if (
+      price >= 100000
+    ) {
 
-    const confirmDelete =
-      window.confirm(
-        "Delete this property?"
-      );
-
-    if (!confirmDelete) return;
-
-    try {
-
-      const token =
-        localStorage.getItem("token");
-
-      const res = await fetch(
-        `http://localhost:5000/api/admin/property/${id}/delete`,
-        {
-          method: "PUT",
-
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!res.ok)
-        throw new Error();
-
-      toast.success(
-        "Property deleted 🚀"
-      );
-
-    } catch {
-
-      toast.error(
-        "Delete failed ❌"
-      );
+      return `₹ ${(price / 100000).toFixed(1)} L`;
     }
+
+    return `₹ ${price}`;
   };
 
   return (
-    <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
+    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
 
-      {/* HEADER */}
-      <div className="flex justify-between items-center mb-8">
+      {/* ====================================================== */}
+      {/* ================= HEADER ============================= */}
+      {/* ====================================================== */}
 
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900">
-            Pending Properties
-          </h1>
+      <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-slate-900 rounded-[32px] text-white p-8 shadow-xl mb-8">
 
-          <p className="text-slate-500 mt-1">
-            Live moderation dashboard
-          </p>
+        <div className="flex items-center gap-4">
+
+          <Clock3 size={42} />
+
+          <div>
+
+            <h1 className="text-4xl font-bold">
+
+              Pending Properties
+
+            </h1>
+
+            <p className="text-orange-100 mt-2 text-lg">
+
+              Review and moderate new marketplace submissions
+
+            </p>
+
+          </div>
+
         </div>
 
-        {/* LIVE BADGE */}
-        <div className="bg-green-100 text-green-700 px-4 py-2 rounded-2xl text-sm font-semibold flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
-          Live Sync Active
-        </div>
       </div>
 
-      {/* LOADING */}
-      {loading ? (
+      {/* ====================================================== */}
+      {/* ================= STATS ============================== */}
+      {/* ====================================================== */}
 
-        <div className="text-center py-20 text-slate-500">
-          Loading properties...
-        </div>
+      <div className="grid md:grid-cols-3 gap-6 mb-10">
 
-      ) : properties.length === 0 ? (
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
 
-        <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
-          <h2 className="text-xl font-semibold text-slate-700">
-            No pending properties
+          <div className="text-yellow-500">
+
+            <ShieldAlert size={34} />
+
+          </div>
+
+          <p className="text-slate-500 mt-4">
+
+            Pending Listings
+
+          </p>
+
+          <h2 className="text-4xl font-bold mt-2">
+
+            {properties.length}
+
           </h2>
 
-          <p className="text-slate-500 mt-2">
-            Everything is reviewed.
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+
+          <div className="text-blue-600">
+
+            <Building2 size={34} />
+
+          </div>
+
+          <p className="text-slate-500 mt-4">
+
+            Multi Image Listings
+
           </p>
+
+          <h2 className="text-4xl font-bold mt-2">
+
+            {
+              properties.filter(
+                (
+                  p
+                ) =>
+                  p.images
+                    ?.length >
+                  1
+              ).length
+            }
+
+          </h2>
+
+        </div>
+
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+
+          <div className="text-green-600">
+
+            <Eye size={34} />
+
+          </div>
+
+          <p className="text-slate-500 mt-4">
+
+            Ready For Review
+
+          </p>
+
+          <h2 className="text-4xl font-bold mt-2">
+
+            {properties.length}
+
+          </h2>
+
+        </div>
+
+      </div>
+
+      {/* ====================================================== */}
+      {/* ================= LOADING ============================ */}
+      {/* ====================================================== */}
+
+      {loading ? (
+
+        <div className="text-center text-xl font-semibold py-20">
+
+          Loading pending properties...
+
+        </div>
+
+      ) : properties.length ===
+        0 ? (
+
+        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+
+          <h2 className="text-3xl font-bold">
+
+            No Pending Properties
+
+          </h2>
+
+          <p className="text-slate-500 mt-3">
+
+            New property submissions will appear here.
+
+          </p>
+
         </div>
 
       ) : (
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-2 gap-8">
 
-          {properties.map((item) => (
+          {properties.map(
+            (
+              property
+            ) => (
 
-            <div
-              key={item._id}
-              className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden border border-slate-100"
-            >
-
-              {/* IMAGE */}
-              <img
-                src={
-                  item.image ||
-                  "https://via.placeholder.com/400x250"
+              <div
+                key={
+                  property._id
                 }
-                alt={item.title}
-                className="w-full h-52 object-cover"
-              />
+                className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-200"
+              >
 
-              {/* CONTENT */}
-              <div className="p-5">
+                {/* ====================================================== */}
+                {/* ================= IMAGE ============================== */}
+                {/* ====================================================== */}
 
-                {/* TITLE */}
-                <h2 className="text-xl font-bold text-slate-900">
-                  {item.title}
-                </h2>
+                <div className="relative">
 
-                {/* LOCATION */}
-                <div className="flex items-center gap-2 mt-3 text-slate-500">
-                  <MapPin size={16} />
-                  {item.location}
-                </div>
-
-                {/* PRICE */}
-                <div className="flex items-center gap-2 mt-2 text-blue-600 font-semibold text-lg">
-                  <IndianRupee size={16} />
-                  {item.price}
-                </div>
-
-                {/* OWNER */}
-                <p className="mt-3 text-sm text-slate-600">
-                  Owner:
-                  {" "}
-                  <b>
-                    {item.createdBy?.name}
-                  </b>
-                </p>
-
-                {/* STATUS */}
-                <div className="mt-4 inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-2xl text-sm font-medium">
-                  Pending Review
-                </div>
-
-                {/* ACTIONS */}
-                <div className="grid grid-cols-3 gap-3 mt-6">
-
-                  {/* APPROVE */}
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "approve"
-                      )
+                  <img
+                    src={
+                      property.image ||
+                      "https://via.placeholder.com/800x500?text=Property"
                     }
-                    className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-sm font-semibold transition"
-                  >
-                    <CheckCircle size={16} />
-                    Approve
-                  </button>
-
-                  {/* REJECT */}
-                  <button
-                    onClick={() =>
-                      updateStatus(
-                        item._id,
-                        "reject"
-                      )
+                    alt={
+                      property.title
                     }
-                    className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-sm font-semibold transition"
-                  >
-                    <XCircle size={16} />
-                    Reject
-                  </button>
+                    className="w-full h-72 object-cover"
+                  />
 
-                  {/* DELETE */}
-                  <button
-                    onClick={() =>
-                      handleDelete(
-                        item._id
-                      )
-                    }
-                    className="bg-black hover:bg-slate-800 text-white py-3 rounded-2xl flex items-center justify-center gap-2 text-sm font-semibold transition"
-                  >
-                    <Trash2 size={16} />
-                    Delete
-                  </button>
+                  <div className="absolute top-5 left-5 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-xs font-bold">
+
+                    PENDING REVIEW
+
+                  </div>
 
                 </div>
+
+                {/* ====================================================== */}
+                {/* ================= BODY =============================== */}
+                {/* ====================================================== */}
+
+                <div className="p-6">
+
+                  {/* PROPERTY ID */}
+                  <div className="flex items-center gap-2 text-slate-500 text-sm mb-3">
+
+                    <Hash size={14} />
+
+                    <span className="font-semibold tracking-widest">
+
+                      {
+                        property.propertyUniqueId
+                      }
+
+                    </span>
+
+                  </div>
+
+                  {/* TITLE */}
+                  <h2 className="text-2xl font-bold">
+
+                    {property.title}
+
+                  </h2>
+
+                  {/* LOCATION */}
+                  <div className="flex items-center gap-2 text-slate-500 mt-3">
+
+                    <MapPin size={16} />
+
+                    {property.location}
+
+                  </div>
+
+                  {/* PRICE */}
+                  <div className="flex items-center gap-2 text-orange-600 mt-5">
+
+                    <IndianRupee size={20} />
+
+                    <span className="text-3xl font-bold">
+
+                      {formatPrice(
+                        property.price
+                      )}
+
+                    </span>
+
+                  </div>
+
+                  {/* TYPE */}
+                  <div className="flex flex-wrap gap-3 mt-5">
+
+                    <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
+
+                      {property.type}
+
+                    </div>
+
+                    <div className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold">
+
+                      {property.subType}
+
+                    </div>
+
+                  </div>
+
+                  {/* ====================================================== */}
+                  {/* ================= GALLERY ============================ */}
+                  {/* ====================================================== */}
+
+                  {property.images
+                    ?.length >
+                    1 && (
+
+                    <div className="grid grid-cols-3 gap-3 mt-6">
+
+                      {property.images
+                        .slice(
+                          0,
+                          6
+                        )
+                        .map(
+                          (
+                            img
+                          ) => (
+
+                            <img
+                              key={
+                                img._id
+                              }
+                              src={
+                                img.url
+                              }
+                              alt="gallery"
+                              className="w-full h-24 object-cover rounded-2xl border border-slate-200"
+                            />
+                          )
+                        )}
+
+                    </div>
+                  )}
+
+                  {/* ====================================================== */}
+                  {/* ================= OWNER ============================== */}
+                  {/* ====================================================== */}
+
+                  <div className="mt-6 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+
+                    <p className="text-sm text-slate-500">
+
+                      Submitted By
+
+                    </p>
+
+                    <h3 className="font-bold mt-1">
+
+                      {
+                        property
+                          ?.createdBy
+                          ?.name
+                      }
+
+                    </h3>
+
+                    <p className="text-sm text-slate-500 mt-1">
+
+                      {
+                        property
+                          ?.createdBy
+                          ?.role
+                      }
+
+                    </p>
+
+                  </div>
+
+                  {/* ====================================================== */}
+                  {/* ================= ACTIONS ============================ */}
+                  {/* ====================================================== */}
+
+                  <div className="grid grid-cols-3 gap-3 mt-6">
+
+                    {/* APPROVE */}
+                    <button
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
+                          "approve"
+                        )
+                      }
+                      className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                    >
+
+                      <CheckCircle2 size={18} />
+
+                      Approve
+
+                    </button>
+
+                    {/* REJECT */}
+                    <button
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
+                          "reject"
+                        )
+                      }
+                      className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                    >
+
+                      <XCircle size={18} />
+
+                      Reject
+
+                    </button>
+
+                    {/* DELETE */}
+                    <button
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
+                          "delete"
+                        )
+                      }
+                      className="bg-slate-900 hover:bg-black text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                    >
+
+                      <Trash2 size={18} />
+
+                      Delete
+
+                    </button>
+
+                  </div>
+
+                </div>
+
               </div>
-            </div>
-          ))}
+            )
+          )}
+
         </div>
       )}
+
     </div>
   );
 }

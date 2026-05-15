@@ -1,338 +1,517 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import toast from "react-hot-toast";
 
 import {
-  CheckCircle,
-  Clock3,
-  Trash2,
+  ShieldCheck,
+  CheckCircle2,
   XCircle,
+  Clock3,
+  Image as ImageIcon,
+  MapPin,
+  Hash,
 } from "lucide-react";
-
-import socket from "../../socket";
 
 export default function VerificationBoard() {
 
   const [properties, setProperties] =
     useState([]);
 
-  // ================= FETCH =================
-  const fetchAll = async () => {
+  const [loading, setLoading] =
+    useState(true);
 
-    try {
+  // ======================================================
+  // ================= FETCH ==============================
+  // ======================================================
 
-      const token =
-        localStorage.getItem("token");
+  const fetchAll =
+    async () => {
 
-      const res = await fetch(
-        "http://localhost:5000/api/admin/properties/all",
-        {
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await fetch(
+            "http://localhost:5000/api/admin/properties/all",
+            {
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await res.json();
+
+        setProperties(
+          Array.isArray(
+            data
+          )
+            ? data
+            : []
+        );
+
+      } catch (error) {
+
+        console.log(
+          error
+        );
+
+        toast.error(
+          "Failed to fetch properties"
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
+
+  // ======================================================
+  // ================= IMAGE STATUS =======================
+  // ======================================================
+
+  const updateImageStatus =
+    async (
+      propertyId,
+      imageId,
+      action
+    ) => {
+
+      try {
+
+        const token =
+          localStorage.getItem(
+            "token"
+          );
+
+        const res =
+          await fetch(
+            `http://localhost:5000/api/admin/property-image/${propertyId}/${imageId}/${action}`,
+            {
+              method:
+                "PUT",
+
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (res.ok) {
+
+          toast.success(
+            data.message
+          );
+
+          fetchAll();
+
+        } else {
+
+          toast.error(
+            data.message
+          );
         }
-      );
 
-      const data =
-        await res.json();
+      } catch (error) {
 
-      setProperties(
-        Array.isArray(data)
-          ? data
-          : []
-      );
+        console.log(
+          error
+        );
 
-    } catch (error) {
+        toast.error(
+          "Server error"
+        );
+      }
+    };
 
-      console.log(error);
-    }
-  };
+  // ======================================================
+  // ================= LOAD ===============================
+  // ======================================================
 
-  // ================= REALTIME =================
   useEffect(() => {
 
     fetchAll();
 
-    socket.on(
-      "propertyUpdated",
-      () => {
-        fetchAll();
-      }
-    );
-
-    return () => {
-      socket.off(
-        "propertyUpdated"
-      );
-    };
-
   }, []);
 
-  // ================= UPDATE =================
-  const updateStatus = async (
-    id,
-    type
-  ) => {
+  // ======================================================
+  // ================= STATS ==============================
+  // ======================================================
 
-    try {
+  const totalImages =
+    properties.reduce(
+      (
+        total,
+        property
+      ) =>
+        total +
+        (
+          property
+            .images ||
+          []
+        ).length,
+      0
+    );
 
-      const token =
-        localStorage.getItem("token");
+  const approvedImages =
+    properties.reduce(
+      (
+        total,
+        property
+      ) =>
+        total +
+        (
+          property.images ||
+          []
+        ).filter(
+          (img) =>
+            img.status ===
+            "approved"
+        ).length,
+      0
+    );
 
-      await fetch(
-        `http://localhost:5000/api/admin/property/${id}/${type}`,
-        {
-          method: "PUT",
+  const pendingImages =
+    properties.reduce(
+      (
+        total,
+        property
+      ) =>
+        total +
+        (
+          property.images ||
+          []
+        ).filter(
+          (img) =>
+            img.status ===
+            "pending"
+        ).length,
+      0
+    );
 
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
+  const rejectedImages =
+    properties.reduce(
+      (
+        total,
+        property
+      ) =>
+        total +
+        (
+          property.images ||
+          []
+        ).filter(
+          (img) =>
+            img.status ===
+            "rejected"
+        ).length,
+      0
+    );
 
-    } catch (error) {
+  // ======================================================
+  // ================= CARD ===============================
+  // ======================================================
 
-      console.log(error);
-    }
-  };
+  const StatCard = ({
+    icon,
+    title,
+    value,
+    color,
+  }) => (
 
-  // ================= DELETE =================
-  const handleDelete = async (
-    id
-  ) => {
+    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
 
-    try {
+      <div className={color}>
+        {icon}
+      </div>
 
-      const token =
-        localStorage.getItem("token");
+      <p className="text-slate-500 mt-4">
+        {title}
+      </p>
 
-      await fetch(
-        `http://localhost:5000/api/admin/property/${id}/delete`,
-        {
-          method: "PUT",
+      <h2 className="text-4xl font-bold mt-2">
+        {value}
+      </h2>
 
-          headers: {
-            Authorization:
-              `Bearer ${token}`,
-          },
-        }
-      );
-
-    } catch (error) {
-
-      console.log(error);
-    }
-  };
-
-  // ================= BADGE =================
-  const badge = (status) => {
-
-    if (
-      status === "approved"
-    ) {
-      return "bg-green-100 text-green-700";
-    }
-
-    if (
-      status === "rejected"
-    ) {
-      return "bg-red-100 text-red-700";
-    }
-
-    if (
-      status === "deleted"
-    ) {
-      return "bg-slate-200 text-slate-700";
-    }
-
-    return "bg-yellow-100 text-yellow-700";
-  };
+    </div>
+  );
 
   return (
-    <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
+    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
 
-      <div className="flex justify-between items-center mb-8">
+      {/* ====================================================== */}
+      {/* ================= HEADER ============================= */}
+      {/* ====================================================== */}
 
-        <div>
-          <h1 className="text-3xl font-bold">
-            Verification Status Board
-          </h1>
+      <div className="bg-gradient-to-r from-indigo-700 via-blue-700 to-slate-900 rounded-[32px] text-white p-8 shadow-xl mb-8">
 
-          <p className="text-slate-500 mt-1">
-            Live moderation control center
-          </p>
+        <div className="flex items-center gap-4">
+
+          <ShieldCheck size={42} />
+
+          <div>
+
+            <h1 className="text-4xl font-bold">
+
+              Image Verification Board
+
+            </h1>
+
+            <p className="text-blue-100 mt-2 text-lg">
+
+              Moderate and manage property gallery uploads
+
+            </p>
+
+          </div>
+
         </div>
 
-        <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-2xl text-sm font-semibold flex items-center gap-2">
-          <div className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
-          Live Sync Active
-        </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-3xl shadow-sm">
+      {/* ====================================================== */}
+      {/* ================= STATS ============================== */}
+      {/* ====================================================== */}
 
-        <table className="w-full text-sm">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
 
-          <thead className="bg-slate-50">
+        <StatCard
+          icon={
+            <ImageIcon size={34} />
+          }
+          title="Total Images"
+          value={totalImages}
+          color="text-blue-600"
+        />
 
-            <tr>
+        <StatCard
+          icon={
+            <CheckCircle2 size={34} />
+          }
+          title="Approved"
+          value={approvedImages}
+          color="text-green-600"
+        />
 
-              <th className="p-4 text-left">
-                Property
-              </th>
+        <StatCard
+          icon={
+            <Clock3 size={34} />
+          }
+          title="Pending"
+          value={pendingImages}
+          color="text-yellow-500"
+        />
 
-              <th className="p-4 text-left">
-                Owner
-              </th>
+        <StatCard
+          icon={
+            <XCircle size={34} />
+          }
+          title="Rejected"
+          value={rejectedImages}
+          color="text-red-600"
+        />
 
-              <th className="p-4 text-left">
-                Role
-              </th>
+      </div>
 
-              <th className="p-4 text-left">
-                Status
-              </th>
+      {/* ====================================================== */}
+      {/* ================= LOADING ============================ */}
+      {/* ====================================================== */}
 
-              <th className="p-4 text-left">
-                Added
-              </th>
+      {loading ? (
 
-              <th className="p-4 text-left">
-                Verified
-              </th>
+        <div className="text-center text-xl font-semibold py-20">
 
-              <th className="p-4 text-left">
-                By
-              </th>
+          Loading verification board...
 
-              <th className="p-4 text-left">
-                Actions
-              </th>
+        </div>
 
-            </tr>
-          </thead>
+      ) : properties.length ===
+        0 ? (
 
-          <tbody>
+        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
 
-            {properties.map((item) => (
+          <h2 className="text-3xl font-bold">
 
-              <tr
-                key={item._id}
-                className="border-t hover:bg-slate-50 transition"
+            No Properties Found
+
+          </h2>
+
+          <p className="text-slate-500 mt-3">
+
+            No uploaded properties available for moderation.
+
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="grid lg:grid-cols-2 gap-6">
+
+          {properties.map(
+            (
+              property
+            ) => (
+
+              <div
+                key={
+                  property._id
+                }
+                className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-200"
               >
 
-                <td className="p-4">
+                {/* ====================================================== */}
+                {/* ================= HEADER ============================= */}
+                {/* ====================================================== */}
 
-                  <div className="font-semibold">
-                    {item.title}
-                  </div>
+                <div className="flex items-start justify-between mb-5">
 
-                  <div className="text-slate-500">
-                    ₹ {item.price}
-                  </div>
+                  <div>
 
-                </td>
+                    <div className="flex items-center gap-2 text-slate-500 text-sm mb-2">
 
-                <td className="p-4">
-                  {item.createdBy?.name}
-                </td>
+                      <Hash size={14} />
 
-                <td className="p-4 capitalize">
-                  {item.createdBy?.role}
-                </td>
+                      <span className="font-semibold tracking-widest">
 
-                <td className="p-4">
+                        {property.propertyUniqueId}
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${badge(
-                      item.status
-                    )}`}
-                  >
-                    {item.status}
-                  </span>
+                      </span>
 
-                </td>
+                    </div>
 
-                <td className="p-4">
-                  {new Date(
-                    item.createdAt
-                  ).toLocaleString()}
-                </td>
+                    <h2 className="text-2xl font-bold">
 
-                <td className="p-4">
-                  {item.verifiedAt
-                    ? new Date(
-                        item.verifiedAt
-                      ).toLocaleString()
-                    : "-"}
-                </td>
+                      {property.title}
 
-                <td className="p-4">
-                  {item.verifiedBy?.name || "-"}
-                </td>
+                    </h2>
 
-                <td className="p-4">
+                    <div className="flex items-center gap-2 text-slate-500 mt-2">
 
-                  <div className="flex gap-2 flex-wrap">
+                      <MapPin size={16} />
 
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          item._id,
-                          "approve"
-                        )
-                      }
-                      className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm"
-                    >
-                      <CheckCircle size={14} />
-                      Approve
-                    </button>
+                      {property.location}
 
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          item._id,
-                          "reject"
-                        )
-                      }
-                      className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm"
-                    >
-                      <XCircle size={14} />
-                      Reject
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          item._id,
-                          "pending"
-                        )
-                      }
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm"
-                    >
-                      <Clock3 size={14} />
-                      Pending
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        handleDelete(
-                          item._id
-                        )
-                      }
-                      className="bg-black hover:bg-slate-800 text-white px-3 py-2 rounded-xl flex items-center gap-1 text-sm"
-                    >
-                      <Trash2 size={14} />
-                      Delete
-                    </button>
+                    </div>
 
                   </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+
+                  <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-2xl text-sm font-bold">
+
+                    {property.images
+                      ?.length || 0} Images
+
+                  </div>
+
+                </div>
+
+                {/* ====================================================== */}
+                {/* ================= GALLERY ============================ */}
+                {/* ====================================================== */}
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+                  {property.images?.map(
+                    (
+                      img
+                    ) => (
+
+                      <div
+                        key={
+                          img._id
+                        }
+                        className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50"
+                      >
+
+                        {/* IMAGE */}
+                        <img
+                          src={
+                            img.url
+                          }
+                          alt="property"
+                          className="w-full h-40 object-cover"
+                        />
+
+                        {/* BODY */}
+                        <div className="p-3">
+
+                          {/* STATUS */}
+                          <div className={`w-fit px-3 py-1 rounded-full text-xs font-bold mb-4 ${
+                            img.status ===
+                            "approved"
+                              ? "bg-green-100 text-green-700"
+                              : img.status ===
+                                "rejected"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}>
+
+                            {img.status}
+
+                          </div>
+
+                          {/* BUTTONS */}
+                          <div className="flex gap-2">
+
+                            <button
+                              onClick={() =>
+                                updateImageStatus(
+                                  property._id,
+                                  img._id,
+                                  "approve"
+                                )
+                              }
+                              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl text-xs font-bold transition"
+                            >
+
+                              Approve
+
+                            </button>
+
+                            <button
+                              onClick={() =>
+                                updateImageStatus(
+                                  property._id,
+                                  img._id,
+                                  "reject"
+                                )
+                              }
+                              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl text-xs font-bold transition"
+                            >
+
+                              Reject
+
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
+
+              </div>
+            )
+          )}
+
+        </div>
+      )}
+
     </div>
   );
 }

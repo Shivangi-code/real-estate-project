@@ -19,6 +19,10 @@ import {
   Phone,
   Mail,
   BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Expand,
 } from "lucide-react";
 
 import socket from "../../socket";
@@ -46,6 +50,20 @@ export default function PropertyDetails() {
   const [error, setError] =
     useState("");
 
+  // ======================================================
+  // ================= GALLERY ============================
+  // ======================================================
+
+  const [activeImage, setActiveImage] =
+    useState(0);
+
+  const [fullscreen, setFullscreen] =
+    useState(false);
+
+  // ======================================================
+  // ================= FORM ===============================
+  // ======================================================
+
   const [form, setForm] =
     useState({
       buyerName: "",
@@ -55,28 +73,24 @@ export default function PropertyDetails() {
       message: "",
     });
 
-  // ================= FETCH PROPERTY =================
+  // ======================================================
+  // ================= FETCH PROPERTY =====================
+  // ======================================================
+
   const fetchProperty =
     async () => {
 
       try {
 
-        const res = await fetch(
-          "http://localhost:5000/api/properties/approved"
-        );
+        const res =
+          await fetch(
+            `http://localhost:5000/api/properties/${id}`
+          );
 
         const data =
           await res.json();
 
-        const found =
-          data.find(
-            (item) =>
-              item._id === id
-          );
-
-        setProperty(
-          found || null
-        );
+        setProperty(data);
 
       } catch {
 
@@ -88,7 +102,10 @@ export default function PropertyDetails() {
       }
     };
 
-  // ================= REALTIME =================
+  // ======================================================
+  // ================= REALTIME ===========================
+  // ======================================================
+
   useEffect(() => {
 
     fetchProperty();
@@ -109,7 +126,10 @@ export default function PropertyDetails() {
 
   }, [id]);
 
-  // ================= FORMAT PRICE =================
+  // ======================================================
+  // ================= FORMAT PRICE =======================
+  // ======================================================
+
   const formatPrice = (
     price
   ) => {
@@ -134,14 +154,33 @@ export default function PropertyDetails() {
     return `₹ ${price}`;
   };
 
-  // ================= PROPERTY UNIQUE ID =================
+  // ======================================================
+  // ================= IMAGES =============================
+  // ======================================================
+
+  const images =
+    property?.images?.length >
+    0
+      ? property.images.map(
+          (img) =>
+            img.url
+        )
+      : property?.image
+      ? [property.image]
+      : [
+          "https://via.placeholder.com/1200x700?text=Property",
+        ];
+
+  // ======================================================
+  // ================= STATUS =============================
+  // ======================================================
+
   const propertyUniqueId =
     property?.propertyUniqueId ||
     `RE-${property?._id
       ?.slice(-8)
       ?.toUpperCase()}`;
 
-  // ================= BUSINESS STATUS =================
   const isSold =
     property?.businessStatus ===
     "sold";
@@ -149,7 +188,10 @@ export default function PropertyDetails() {
   const underNegotiation =
     property?.underNegotiation;
 
-  // ================= INPUT CHANGE =================
+  // ======================================================
+  // ================= INPUT CHANGE =======================
+  // ======================================================
+
   const handleChange = (
     e
   ) => {
@@ -161,7 +203,10 @@ export default function PropertyDetails() {
     });
   };
 
-  // ================= SUBMIT LEAD =================
+  // ======================================================
+  // ================= SUBMIT LEAD ========================
+  // ======================================================
+
   const submitLead =
     async (e) => {
 
@@ -184,37 +229,41 @@ export default function PropertyDetails() {
 
       try {
 
-        const res = await fetch(
-          "http://localhost:5000/api/leads/create",
-          {
-            method: "POST",
+        const res =
+          await fetch(
+            "http://localhost:5000/api/leads/create",
+            {
+              method: "POST",
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
 
-            body: JSON.stringify({
-              propertyId:
-                property._id,
+              body: JSON.stringify({
+                propertyId:
+                  property._id,
 
-              buyerName:
-                form.buyerName,
+                propertyTitle:
+                  property.title,
 
-              buyerEmail:
-                form.buyerEmail,
+                buyerName:
+                  form.buyerName,
 
-              buyerMobile:
-                form.buyerMobile,
+                buyerEmail:
+                  form.buyerEmail,
 
-              buyerCity:
-                form.buyerCity,
+                buyerMobile:
+                  form.buyerMobile,
 
-              message:
-                form.message,
-            }),
-          }
-        );
+                buyerCity:
+                  form.buyerCity,
+
+                message:
+                  form.message,
+              }),
+            }
+          );
 
         const data =
           await res.json();
@@ -244,7 +293,7 @@ export default function PropertyDetails() {
       } catch {
 
         setError(
-          "Server error. Please try again."
+          "Server error"
         );
 
       } finally {
@@ -253,11 +302,37 @@ export default function PropertyDetails() {
       }
     };
 
-  // ================= LOADING =================
+  // ======================================================
+  // ================= GALLERY CONTROLS ===================
+  // ======================================================
+
+  const nextImage = () => {
+
+    setActiveImage(
+      (prev) =>
+        (prev + 1) %
+        images.length
+    );
+  };
+
+  const prevImage = () => {
+
+    setActiveImage(
+      (prev) =>
+        prev === 0
+          ? images.length - 1
+          : prev - 1
+    );
+  };
+
+  // ======================================================
+  // ================= LOADING ============================
+  // ======================================================
+
   if (loading) {
 
     return (
-      <div className="min-h-screen flex items-center justify-center text-xl font-semibold">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100 text-xl font-bold">
 
         Loading Property...
 
@@ -265,14 +340,19 @@ export default function PropertyDetails() {
     );
   }
 
-  // ================= NOT FOUND =================
+  // ======================================================
+  // ================= NOT FOUND ==========================
+  // ======================================================
+
   if (!property) {
 
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-6 text-center">
 
-        <h1 className="text-3xl font-bold mb-4">
+        <h1 className="text-4xl font-bold mb-4">
+
           Property Not Found
+
         </h1>
 
         <button
@@ -281,27 +361,92 @@ export default function PropertyDetails() {
               "/properties"
             )
           }
-          className="bg-slate-900 text-white px-6 py-3 rounded-2xl"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl"
         >
 
           Back to Properties
 
         </button>
+
       </div>
     );
   }
 
   return (
-    <div className="bg-slate-50 min-h-screen">
+    <div className="bg-slate-100 min-h-screen">
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      {/* ====================================================== */}
+      {/* ================= FULLSCREEN ========================= */}
+      {/* ====================================================== */}
+
+      {fullscreen && (
+
+        <div className="fixed inset-0 bg-black z-[9999] flex items-center justify-center">
+
+          {/* CLOSE */}
+          <button
+            onClick={() =>
+              setFullscreen(
+                false
+              )
+            }
+            className="absolute top-5 right-5 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full z-20"
+          >
+
+            <X size={28} />
+
+          </button>
+
+          {/* PREV */}
+          <button
+            onClick={
+              prevImage
+            }
+            className="absolute left-5 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full z-20"
+          >
+
+            <ChevronLeft size={32} />
+
+          </button>
+
+          {/* IMAGE */}
+          <img
+            src={
+              images[
+                activeImage
+              ]
+            }
+            alt="property"
+            className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl"
+          />
+
+          {/* NEXT */}
+          <button
+            onClick={
+              nextImage
+            }
+            className="absolute right-5 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full z-20"
+          >
+
+            <ChevronRight size={32} />
+
+          </button>
+
+        </div>
+      )}
+
+      {/* ====================================================== */}
+      {/* ================= HERO GALLERY ======================= */}
+      {/* ====================================================== */}
+
+      <div className="max-w-7xl mx-auto px-4 py-8">
 
         {/* BACK */}
         <button
           onClick={() =>
             navigate(-1)
           }
-          className="flex items-center gap-2 text-slate-700 mb-6 hover:text-slate-900"
+          className="flex items-center gap-2 mb-6 bg-white px-5 py-3 rounded-2xl shadow-sm hover:shadow-md transition"
         >
 
           <ArrowLeft size={18} />
@@ -310,80 +455,160 @@ export default function PropertyDetails() {
 
         </button>
 
-        {/* IMAGE */}
-        <div className="rounded-3xl overflow-hidden shadow-lg bg-white relative">
+        {/* MAIN GRID */}
+        <div className="grid lg:grid-cols-3 gap-6">
 
-          <img
-            src={
-              property.image ||
-              "https://via.placeholder.com/1200x600?text=Property"
-            }
-            alt={
-              property.title
-            }
-            className={`w-full h-[500px] object-cover ${
-              isSold
-                ? "grayscale-[20%]"
-                : ""
-            }`}
-            onError={(e) => {
+          {/* ====================================================== */}
+          {/* ================= LEFT =============================== */}
+          {/* ====================================================== */}
 
-              e.target.src =
-                "https://via.placeholder.com/1200x600?text=Property";
-            }}
-          />
+          <div className="lg:col-span-2">
 
-          {/* SOLD BADGE */}
-          {isSold && (
+            {/* MAIN IMAGE */}
+            <div className="relative rounded-[32px] overflow-hidden shadow-2xl bg-black group">
 
-            <div className="absolute top-6 left-6 bg-red-600 text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl z-20">
+              <img
+                src={
+                  images[
+                    activeImage
+                  ]
+                }
+                alt={
+                  property.title
+                }
+                className="w-full h-[500px] object-cover"
+              />
 
-              SOLD
+              {/* EXPAND */}
+              <button
+                onClick={() =>
+                  setFullscreen(
+                    true
+                  )
+                }
+                className="absolute top-5 right-5 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full transition"
+              >
+
+                <Expand size={22} />
+
+              </button>
+
+              {/* SOLD */}
+              {isSold && (
+
+                <div className="absolute top-5 left-5 bg-red-600 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+
+                  SOLD
+
+                </div>
+              )}
+
+              {/* NEGOTIATION */}
+              {!isSold &&
+                underNegotiation && (
+
+                  <div className="absolute bottom-5 left-5 bg-yellow-400 text-slate-900 px-4 py-2 rounded-full text-sm font-bold shadow-lg flex items-center gap-2">
+
+                    <BadgeCheck size={16} />
+
+                    Under Negotiation
+
+                  </div>
+                )}
+
+              {/* PREV */}
+              {images.length >
+                1 && (
+
+                <button
+                  onClick={
+                    prevImage
+                  }
+                  className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full"
+                >
+
+                  <ChevronLeft size={26} />
+
+                </button>
+              )}
+
+              {/* NEXT */}
+              {images.length >
+                1 && (
+
+                <button
+                  onClick={
+                    nextImage
+                  }
+                  className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full"
+                >
+
+                  <ChevronRight size={26} />
+
+                </button>
+              )}
 
             </div>
-          )}
 
-          {/* NEGOTIATION */}
-          {!isSold &&
-            underNegotiation && (
+            {/* ====================================================== */}
+            {/* ================= THUMBNAILS ========================= */}
+            {/* ====================================================== */}
 
-              <div className="absolute top-6 right-6 bg-yellow-400 text-slate-900 px-5 py-3 rounded-full text-sm font-bold shadow-xl z-20 flex items-center gap-2">
+            {images.length >
+              1 && (
 
-                <BadgeCheck size={18} />
+              <div className="flex gap-4 mt-5 overflow-x-auto pb-2">
 
-                Under Negotiation
+                {images.map(
+                  (
+                    img,
+                    index
+                  ) => (
+
+                    <button
+                      key={
+                        index
+                      }
+                      onClick={() =>
+                        setActiveImage(
+                          index
+                        )
+                      }
+                      className={`min-w-[110px] h-[85px] rounded-2xl overflow-hidden border-4 transition ${
+                        activeImage ===
+                        index
+                          ? "border-blue-600"
+                          : "border-transparent"
+                      }`}
+                    >
+
+                      <img
+                        src={
+                          img
+                        }
+                        alt="thumb"
+                        className="w-full h-full object-cover"
+                      />
+
+                    </button>
+                  )
+                )}
 
               </div>
             )}
 
-        </div>
+            {/* ====================================================== */}
+            {/* ================= DETAILS ============================ */}
+            {/* ====================================================== */}
 
-        {/* CONTENT */}
-        <div className="grid lg:grid-cols-3 gap-8 mt-8">
-
-          {/* LEFT */}
-          <div className="lg:col-span-2 space-y-6">
-
-            {/* PROPERTY INFO */}
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
-
-              {/* VERIFIED */}
-              <div className="flex items-center gap-2 text-green-600 mb-4 font-medium">
-
-                <ShieldCheck size={18} />
-
-                Verified Listing
-
-              </div>
+            <div className="bg-white rounded-[32px] shadow-sm p-8 mt-6">
 
               {/* PROPERTY ID */}
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
 
                 <Hash size={15} />
 
-                Property ID:
-                {" "}
-                <span className="font-bold tracking-wider">
+                <span className="font-semibold tracking-widest">
 
                   {propertyUniqueId}
 
@@ -392,14 +617,14 @@ export default function PropertyDetails() {
               </div>
 
               {/* TITLE */}
-              <h1 className="text-4xl font-bold text-slate-900">
+              <h1 className="text-4xl font-bold">
 
                 {property.title}
 
               </h1>
 
               {/* LOCATION */}
-              <div className="flex items-center gap-2 text-slate-500 mt-4">
+              <div className="flex items-center gap-2 text-slate-500 mt-4 text-lg">
 
                 <MapPin size={18} />
 
@@ -408,229 +633,257 @@ export default function PropertyDetails() {
               </div>
 
               {/* PRICE */}
-              <div className={`flex items-center gap-2 text-3xl font-bold mt-6 ${
-                isSold
-                  ? "text-red-600"
-                  : "text-blue-600"
-              }`}>
+              <div className="flex items-center gap-3 mt-6 text-blue-700">
 
                 <IndianRupee size={28} />
 
-                {formatPrice(
-                  property.price
-                )}
+                <span className="text-4xl font-bold">
+
+                  {formatPrice(
+                    property.price
+                  )}
+
+                </span>
 
               </div>
 
-              {/* TAGS */}
+              {/* TYPE */}
               <div className="flex flex-wrap gap-3 mt-6">
 
-                <div className={`px-4 py-2 rounded-full text-sm capitalize font-semibold ${
-                  isSold
-                    ? "bg-red-100 text-red-700"
-                    : "bg-green-100 text-green-700"
-                }`}>
+                <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full font-semibold">
 
-                  {property.businessStatus ||
-                    "available"}
+                  {property.type}
 
                 </div>
 
-                {property.type && (
+                <div className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full font-semibold">
 
-                  <div className="bg-slate-100 text-slate-700 px-4 py-2 rounded-full text-sm capitalize">
+                  {property.subType}
 
-                    {property.type}
+                </div>
 
-                  </div>
-                )}
+                <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-semibold">
 
-                {property.subType && (
+                  {property.constructionStatus}
 
-                  <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm capitalize">
-
-                    {property.subType}
-
-                  </div>
-                )}
-
-                {property.constructionStatus && (
-
-                  <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm capitalize">
-
-                    {property.constructionStatus}
-
-                  </div>
-                )}
+                </div>
 
               </div>
+
+              {/* VERIFIED */}
+              <div className="flex items-center gap-2 mt-6 text-green-700 font-semibold">
+
+                <ShieldCheck size={18} />
+
+                Verified Listing
+
+              </div>
+
+              {/* DESCRIPTION */}
+              <div className="mt-8">
+
+                <h2 className="text-2xl font-bold mb-4">
+
+                  Description
+
+                </h2>
+
+                <p className="text-slate-600 leading-8 text-lg">
+
+                  {property.description}
+
+                </p>
+
+              </div>
+
             </div>
 
-            {/* DESCRIPTION */}
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
-
-              <h2 className="text-2xl font-bold mb-4">
-                Property Description
-              </h2>
-
-              <p className="text-slate-600 leading-8">
-
-                {property.description ||
-                  "No description available."}
-
-              </p>
-            </div>
           </div>
 
-          {/* RIGHT */}
+          {/* ====================================================== */}
+          {/* ================= RIGHT ============================== */}
+          {/* ====================================================== */}
+
           <div>
 
-            <div className="bg-white rounded-3xl p-6 shadow-sm sticky top-24">
+            {/* CONTACT CARD */}
+            <div className="bg-white rounded-[32px] shadow-sm p-8 sticky top-6">
 
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 mb-6">
 
-                <Building2 className="text-slate-700" />
+                <Building2 className="text-blue-700" />
 
-                <div>
+                <h2 className="text-2xl font-bold">
 
-                  <h2 className="text-2xl font-bold">
+                  Inquiry Form
 
-                    {isSold
-                      ? "Property Sold"
-                      : "Inquiry Form"}
+                </h2>
 
-                  </h2>
-
-                  <p className="text-slate-500 text-sm">
-
-                    {isSold
-                      ? "This property is no longer accepting inquiries"
-                      : "Connect with property owner"}
-
-                  </p>
-
-                </div>
               </div>
 
-              {/* SOLD MESSAGE */}
-              {isSold ? (
+              {/* SUCCESS */}
+              {success && (
 
-                <div className="bg-red-50 border border-red-200 rounded-3xl p-6 text-center">
+                <div className="bg-green-100 text-green-700 px-4 py-3 rounded-2xl mb-5">
 
-                  <div className="text-5xl mb-4">
-                    🏡
-                  </div>
-
-                  <h3 className="text-2xl font-bold text-red-600 mb-3">
-
-                    Property Sold
-
-                  </h3>
-
-                  <p className="text-slate-600 leading-7">
-
-                    This property has already been sold.
-                    New inquiries are currently disabled.
-
-                  </p>
+                  {success}
 
                 </div>
+              )}
 
-              ) : (
+              {/* ERROR */}
+              {error && (
+
+                <div className="bg-red-100 text-red-700 px-4 py-3 rounded-2xl mb-5">
+
+                  {error}
+
+                </div>
+              )}
+
+              {/* SOLD */}
+              {isSold && (
+
+                <div className="bg-red-100 text-red-700 p-5 rounded-2xl mb-6 font-semibold">
+
+                  This property has already been sold.
+
+                </div>
+              )}
+
+              {/* FORM */}
+              {!isSold && (
 
                 <form
                   onSubmit={
                     submitLead
                   }
-                  className="space-y-4"
+                  className="space-y-5"
                 >
 
-                  <input
-                    type="text"
-                    name="buyerName"
-                    value={
-                      form.buyerName
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Full Name"
-                    required
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-slate-900"
-                  />
+                  {/* NAME */}
+                  <div>
 
-                  <input
-                    type="email"
-                    name="buyerEmail"
-                    value={
-                      form.buyerEmail
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Email Address"
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-slate-900"
-                  />
+                    <label className="font-semibold mb-2 block">
 
-                  <input
-                    type="text"
-                    name="buyerMobile"
-                    value={
-                      form.buyerMobile
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Mobile Number"
-                    required
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-slate-900"
-                  />
+                      Full Name
 
-                  <input
-                    type="text"
-                    name="buyerCity"
-                    value={
-                      form.buyerCity
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="Your City"
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-slate-900"
-                  />
+                    </label>
 
-                  <textarea
-                    name="message"
-                    rows="5"
-                    value={
-                      form.message
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    placeholder="I'm interested in this property..."
-                    className="w-full border border-slate-200 rounded-2xl px-4 py-3 outline-none focus:border-slate-900"
-                  />
+                    <input
+                      type="text"
+                      name="buyerName"
+                      value={
+                        form.buyerName
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      required
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                  {/* SUCCESS */}
-                  {success && (
+                  </div>
 
-                    <div className="bg-green-100 text-green-700 px-4 py-3 rounded-2xl text-sm">
+                  {/* EMAIL */}
+                  <div>
 
-                      {success}
+                    <label className="font-semibold mb-2 flex items-center gap-2">
 
-                    </div>
-                  )}
+                      <Mail size={16} />
 
-                  {/* ERROR */}
-                  {error && (
+                      Email
 
-                    <div className="bg-red-100 text-red-700 px-4 py-3 rounded-2xl text-sm">
+                    </label>
 
-                      {error}
+                    <input
+                      type="email"
+                      name="buyerEmail"
+                      value={
+                        form.buyerEmail
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      required
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
 
-                    </div>
-                  )}
+                  </div>
+
+                  {/* MOBILE */}
+                  <div>
+
+                    <label className="font-semibold mb-2 flex items-center gap-2">
+
+                      <Phone size={16} />
+
+                      Mobile Number
+
+                    </label>
+
+                    <input
+                      type="text"
+                      name="buyerMobile"
+                      value={
+                        form.buyerMobile
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      required
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+
+                  </div>
+
+                  {/* CITY */}
+                  <div>
+
+                    <label className="font-semibold mb-2 block">
+
+                      City
+
+                    </label>
+
+                    <input
+                      type="text"
+                      name="buyerCity"
+                      value={
+                        form.buyerCity
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      required
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+
+                  </div>
+
+                  {/* MESSAGE */}
+                  <div>
+
+                    <label className="font-semibold mb-2 block">
+
+                      Message
+
+                    </label>
+
+                    <textarea
+                      rows="5"
+                      name="message"
+                      value={
+                        form.message
+                      }
+                      onChange={
+                        handleChange
+                      }
+                      required
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                    />
+
+                  </div>
 
                   {/* BUTTON */}
                   <button
@@ -638,43 +891,32 @@ export default function PropertyDetails() {
                     disabled={
                       sending
                     }
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition"
+                    className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition ${
+                      sending
+                        ? "bg-slate-400 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700 text-white"
+                    }`}
                   >
 
-                    <Send size={18} />
+                    <Send size={20} />
 
                     {sending
                       ? "Submitting..."
                       : "Submit Inquiry"}
 
                   </button>
+
                 </form>
               )}
 
-              {/* CONTACT INFO */}
-              <div className="mt-8 border-t pt-6 space-y-4">
-
-                <div className="flex items-center gap-3 text-slate-600">
-
-                  <Phone size={18} />
-
-                  Verified Contact Support
-
-                </div>
-
-                <div className="flex items-center gap-3 text-slate-600">
-
-                  <Mail size={18} />
-
-                  CRM Enabled Inquiry System
-
-                </div>
-
-              </div>
             </div>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
   );
 }

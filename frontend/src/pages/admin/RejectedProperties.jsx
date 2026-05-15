@@ -7,6 +7,9 @@ import {
   MapPin,
   IndianRupee,
   Trash2,
+  Hash,
+  BadgeCheck,
+  XCircle,
 } from "lucide-react";
 
 import socket from "../../socket";
@@ -19,7 +22,6 @@ export default function RejectedProperties() {
   const [loading, setLoading] =
     useState(true);
 
-  // ================= FETCH =================
   const fetchRejected = async () => {
 
     try {
@@ -56,7 +58,6 @@ export default function RejectedProperties() {
     }
   };
 
-  // ================= REALTIME =================
   useEffect(() => {
 
     fetchRejected();
@@ -64,11 +65,13 @@ export default function RejectedProperties() {
     socket.on(
       "propertyUpdated",
       () => {
+
         fetchRejected();
       }
     );
 
     return () => {
+
       socket.off(
         "propertyUpdated"
       );
@@ -76,7 +79,6 @@ export default function RejectedProperties() {
 
   }, []);
 
-  // ================= UPDATE =================
   const updateStatus = async (
     id,
     type
@@ -114,7 +116,6 @@ export default function RejectedProperties() {
     }
   };
 
-  // ================= DELETE =================
   const handleDelete = async (
     id
   ) => {
@@ -123,7 +124,8 @@ export default function RejectedProperties() {
       !window.confirm(
         "Delete property?"
       )
-    ) return;
+    )
+      return;
 
     try {
 
@@ -160,34 +162,53 @@ export default function RejectedProperties() {
   return (
     <div className="p-6 md:p-8 bg-slate-100 min-h-screen">
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8">
 
         <div>
+
           <h1 className="text-3xl font-bold">
+
             Rejected Properties
+
           </h1>
 
           <p className="text-slate-500 mt-1">
-            Live rejected listings
+
+            Rejected moderation inventory
+
           </p>
+
         </div>
 
-        <div className="bg-red-100 text-red-700 px-4 py-2 rounded-2xl text-sm font-semibold flex items-center gap-2">
+        <div className="bg-red-100 text-red-700 px-4 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2 w-fit">
+
           <div className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
+
           Live Sync Active
+
         </div>
+
       </div>
 
       {loading ? (
 
-        <div className="text-center py-20">
-          Loading...
+        <div className="text-center py-24 text-lg font-semibold">
+
+          Loading properties...
+
         </div>
 
-      ) : properties.length === 0 ? (
+      ) : properties.length ===
+        0 ? (
 
-        <div className="bg-white rounded-3xl p-10 text-center shadow-sm">
-          No rejected properties
+        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+
+          <h2 className="text-2xl font-bold">
+
+            No rejected properties
+
+          </h2>
+
         </div>
 
       ) : (
@@ -198,43 +219,97 @@ export default function RejectedProperties() {
 
             <div
               key={item._id}
-              className="bg-white rounded-3xl shadow-sm hover:shadow-xl transition overflow-hidden"
+              className="bg-white rounded-3xl shadow-sm hover:shadow-2xl transition overflow-hidden border border-slate-100"
             >
 
-              <img
-                src={
-                  item.image ||
-                  "https://via.placeholder.com/400x250"
-                }
-                alt={item.title}
-                className="w-full h-52 object-cover"
-              />
+              <div className="relative">
+
+                <img
+                  src={
+                    item.image ||
+                    "https://via.placeholder.com/400x250"
+                  }
+                  alt={item.title}
+                  className="w-full h-52 object-cover"
+                />
+
+                <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+
+                  Rejected
+
+                </div>
+
+              </div>
 
               <div className="p-5">
 
+                <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
+
+                  <Hash size={13} />
+
+                  <span className="font-semibold">
+
+                    {item.propertyUniqueId ||
+                      `RE-${item._id.slice(-6).toUpperCase()}`}
+
+                  </span>
+
+                </div>
+
                 <h2 className="text-lg font-bold">
+
                   {item.title}
+
                 </h2>
 
                 <div className="flex items-center gap-2 mt-2 text-slate-500 text-sm">
+
                   <MapPin size={14} />
+
                   {item.location}
+
                 </div>
 
-                <div className="flex items-center gap-2 mt-2 font-semibold text-red-600">
+                <div className="flex items-center gap-2 mt-3 font-bold text-red-600">
+
                   <IndianRupee size={14} />
+
                   {item.price}
+
                 </div>
 
-                <p className="mt-2 text-xs text-slate-500">
+                <p className="mt-3 text-xs text-slate-500">
+
                   Owner:
                   {" "}
                   <b>
                     {item.createdBy?.name}
                   </b>
+
                 </p>
 
-                <div className="grid grid-cols-3 gap-3 mt-4">
+                <div className="flex flex-wrap gap-2 mt-4">
+
+                  <div className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold">
+
+                    Rejected
+
+                  </div>
+
+                  {item.underNegotiation && (
+
+                    <div className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
+
+                      <BadgeCheck size={12} />
+
+                      Negotiation ON
+
+                    </div>
+                  )}
+
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 mt-5">
 
                   <button
                     onClick={() =>
@@ -245,8 +320,11 @@ export default function RejectedProperties() {
                     }
                     className="bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl flex items-center justify-center gap-2 text-sm"
                   >
+
                     <CheckCircle size={16} />
+
                     Approve
+
                   </button>
 
                   <button
@@ -258,8 +336,11 @@ export default function RejectedProperties() {
                     }
                     className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 text-sm"
                   >
+
                     <Clock3 size={16} />
+
                     Pending
+
                   </button>
 
                   <button
@@ -270,11 +351,15 @@ export default function RejectedProperties() {
                     }
                     className="bg-black hover:bg-slate-800 text-white py-2 rounded-xl flex items-center justify-center gap-2 text-sm"
                   >
+
                     <Trash2 size={16} />
+
                     Delete
+
                   </button>
 
                 </div>
+
               </div>
             </div>
           ))}

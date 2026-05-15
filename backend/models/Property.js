@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 
-// ================= STATUS HISTORY =================
+// ======================================================
+// ================= STATUS HISTORY =====================
+// ======================================================
+
 const statusHistorySchema =
   new mongoose.Schema(
     {
@@ -15,10 +18,15 @@ const statusHistorySchema =
         ],
 
         required: true,
+
+        trim: true,
+
+        lowercase: true,
       },
 
       changedAt: {
         type: Date,
+
         default: Date.now,
       },
 
@@ -33,10 +41,15 @@ const statusHistorySchema =
       },
     },
 
-    { _id: false }
+    {
+      _id: false,
+    }
   );
 
-// ================= IMAGE SCHEMA =================
+// ======================================================
+// ================= PROPERTY IMAGE =====================
+// ======================================================
+
 const propertyImageSchema =
   new mongoose.Schema(
     {
@@ -66,6 +79,10 @@ const propertyImageSchema =
         ],
 
         default: "pending",
+
+        trim: true,
+
+        lowercase: true,
       },
 
       uploadedBy: {
@@ -74,6 +91,8 @@ const propertyImageSchema =
             .ObjectId,
 
         ref: "User",
+
+        default: null,
       },
 
       verifiedBy: {
@@ -98,11 +117,14 @@ const propertyImageSchema =
     }
   );
 
-// ================= PROPERTY SCHEMA =================
+// ======================================================
+// ================= PROPERTY SCHEMA ====================
+// ======================================================
+
 const propertySchema =
   new mongoose.Schema(
     {
-      // ================= PROPERTY UNIQUE ID =================
+      // ================= UNIQUE PROPERTY ID =================
       propertyUniqueId: {
         type: String,
 
@@ -114,6 +136,8 @@ const propertySchema =
       // ================= BASIC INFO =================
       title: {
         type: String,
+
+        required: true,
 
         trim: true,
       },
@@ -127,6 +151,8 @@ const propertySchema =
       location: {
         type: String,
 
+        required: true,
+
         trim: true,
       },
 
@@ -135,18 +161,24 @@ const propertySchema =
         type: String,
 
         trim: true,
+
+        lowercase: true,
       },
 
       subType: {
         type: String,
 
         trim: true,
+
+        lowercase: true,
       },
 
       constructionStatus: {
         type: String,
 
         trim: true,
+
+        lowercase: true,
       },
 
       description: {
@@ -155,7 +187,10 @@ const propertySchema =
         trim: true,
       },
 
-      // ================= BUSINESS STATUS =================
+      // ======================================================
+      // ================= BUSINESS STATUS ====================
+      // ======================================================
+
       businessStatus: {
         type: String,
 
@@ -165,23 +200,34 @@ const propertySchema =
         ],
 
         default: "available",
+
+        lowercase: true,
       },
 
-      // ================= UNDER NEGOTIATION =================
+      // ======================================================
+      // ================= NEGOTIATION ========================
+      // ======================================================
+
       underNegotiation: {
         type: Boolean,
 
         default: false,
       },
 
-      // ================= MAIN IMAGE =================
+      // ======================================================
+      // ================= MAIN IMAGE =========================
+      // ======================================================
+
       image: {
         type: String,
 
         default: "",
       },
 
-      // ================= MULTIPLE IMAGES =================
+      // ======================================================
+      // ================= MULTIPLE IMAGES ====================
+      // ======================================================
+
       images: {
         type: [
           propertyImageSchema,
@@ -190,7 +236,10 @@ const propertySchema =
         default: [],
       },
 
-      // ================= ADMIN MODERATION =================
+      // ======================================================
+      // ================= ADMIN MODERATION ===================
+      // ======================================================
+
       status: {
         type: String,
 
@@ -209,15 +258,24 @@ const propertySchema =
               ? "approved"
               : "pending";
           },
+
+        lowercase: true,
+
+        trim: true,
       },
 
-      // ================= OWNER =================
+      // ======================================================
+      // ================= PROPERTY OWNER =====================
+      // ======================================================
+
       createdBy: {
         type:
           mongoose.Schema.Types
             .ObjectId,
 
         ref: "User",
+
+        required: true,
       },
 
       createdByRole: {
@@ -231,9 +289,14 @@ const propertySchema =
         ],
 
         default: "seller",
+
+        lowercase: true,
       },
 
-      // ================= OWNER SNAPSHOT =================
+      // ======================================================
+      // ================= OWNER SNAPSHOT =====================
+      // ======================================================
+
       ownerUniqueId: {
         type: String,
 
@@ -250,7 +313,10 @@ const propertySchema =
         default: "",
       },
 
-      // ================= VERIFICATION =================
+      // ======================================================
+      // ================= VERIFICATION =======================
+      // ======================================================
+
       verifiedBy: {
         type:
           mongoose.Schema.Types
@@ -267,7 +333,10 @@ const propertySchema =
         default: null,
       },
 
-      // ================= TRACKING =================
+      // ======================================================
+      // ================= STATUS TRACKING ====================
+      // ======================================================
+
       lastStatusChangedAt: {
         type: Date,
 
@@ -297,7 +366,10 @@ const propertySchema =
           },
       },
 
-      // ================= ANALYTICS =================
+      // ======================================================
+      // ================= ANALYTICS ==========================
+      // ======================================================
+
       totalViews: {
         type: Number,
 
@@ -310,7 +382,10 @@ const propertySchema =
         default: 0,
       },
 
-      // ================= FUTURE READY =================
+      // ======================================================
+      // ================= PREMIUM FEATURES ==================
+      // ======================================================
+
       featured: {
         type: Boolean,
 
@@ -335,7 +410,10 @@ const propertySchema =
     }
   );
 
-// ================= AUTO GENERATE PROPERTY ID =================
+// ======================================================
+// ================= AUTO GENERATE PROPERTY ID ==========
+// ======================================================
+
 propertySchema.pre(
   "save",
 
@@ -345,6 +423,7 @@ propertySchema.pre(
 
     try {
 
+      // ================= GENERATE UNIQUE ID =================
       if (
         !this.propertyUniqueId
       ) {
@@ -368,7 +447,10 @@ propertySchema.pre(
   }
 );
 
-// ================= INDEXES =================
+// ======================================================
+// ================= INDEXES ============================
+// ======================================================
+
 propertySchema.index({
   status: 1,
 });
@@ -381,9 +463,21 @@ propertySchema.index({
   underNegotiation: 1,
 });
 
-// ================= EXPORT =================
+propertySchema.index({
+  createdBy: 1,
+});
+
+propertySchema.index({
+  createdAt: -1,
+});
+
+// ======================================================
+// ================= EXPORT =============================
+// ======================================================
+
 module.exports =
   mongoose.models.Property ||
+
   mongoose.model(
     "Property",
     propertySchema
