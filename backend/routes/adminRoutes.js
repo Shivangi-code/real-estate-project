@@ -1,594 +1,866 @@
 const express = require("express");
+
 const router = express.Router();
+
 const mongoose = require("mongoose");
 
 const Property = require("../models/Property");
 
+const Lead = require("../models/Lead");
+
 const {
-  protect,
-  authorizeRoles,
+protect,
+authorizeRoles,
 } = require("../middleware/authMiddleware");
 
 // ================= VALIDATE ID =================
 const isValidId = (id) =>
-  mongoose.Types.ObjectId.isValid(id);
+mongoose.Types.ObjectId.isValid(id);
 
 // ================= REALTIME EMIT =================
 const emitRealtimeUpdate = (
-  req,
-  property
+req,
+property
 ) => {
 
-  const io = req.app.get("io");
+const io =
+req.app.get("io");
 
-  if (io) {
-    io.emit("propertyUpdated", {
-      propertyId: property._id,
-      status: property.status,
-      property,
-    });
+if (io) {
+
+
+io.emit(
+  "propertyUpdated",
+  {
+    propertyId:
+      property._id,
+
+    status:
+      property.status,
+
+    businessStatus:
+      property.businessStatus,
+
+    underNegotiation:
+      property.underNegotiation,
+
+    property,
   }
+);
+
+
+}
 };
 
 // ================= SAFE STATUS QUERY =================
 const statusQuery = (
-  status
+status
 ) => ({
-  $expr: {
-    $eq: [
-      {
-        $toLower: {
-          $trim: {
-            input: "$status",
-          },
-        },
-      },
-      status.toLowerCase(),
-    ],
-  },
+$expr: {
+$eq: [
+{
+$toLower: {
+$trim: {
+input: "$status",
+},
+},
+},
+status.toLowerCase(),
+],
+},
 });
 
-// ================= UPDATE STATUS =================
-const updatePropertyStatus = async (
-  id,
-  newStatus,
-  adminId
+// ================= UPDATE MODERATION STATUS =================
+const updatePropertyStatus =
+async (
+id,
+newStatus,
+adminId
 ) => {
 
-  const property =
-    await Property.findById(id);
 
-  if (!property) return null;
+const property =
+  await Property.findById(
+    id
+  );
 
-  property.status =
-    newStatus.trim().toLowerCase();
+if (!property)
+  return null;
 
-  property.verifiedBy =
-    adminId;
+property.status =
+  newStatus
+    .trim()
+    .toLowerCase();
 
-  property.verifiedAt =
-    new Date();
+property.verifiedBy =
+  adminId;
 
-  property.lastStatusChangedAt =
-    new Date();
+property.verifiedAt =
+  new Date();
 
-  property.statusHistory.push({
+property.lastStatusChangedAt =
+  new Date();
+
+property.statusHistory.push(
+  {
     status:
-      newStatus.trim().toLowerCase(),
-    changedAt: new Date(),
-    changedBy: adminId,
+      newStatus
+        .trim()
+        .toLowerCase(),
+
+    changedAt:
+      new Date(),
+
+    changedBy:
+      adminId,
+  }
+);
+
+await property.save();
+
+return property;
+
+
+};
+
+// =====================================================
+// GET ALL PROPERTIES
+// =====================================================
+
+router.get(
+"/properties/all",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const properties =
+    await Property.find()
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+  res.json(
+    properties
+  );
+
+} catch (err) {
+
+  console.log(
+    "ALL PROPERTIES ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
   });
+}
+
+
+}
+);
+
+// =====================================================
+// GET PENDING
+// =====================================================
+
+router.get(
+"/properties/pending",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const data =
+    await Property.find(
+      statusQuery(
+        "pending"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "PENDING FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// GET APPROVED
+// =====================================================
+
+router.get(
+"/properties/approved",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const data =
+    await Property.find(
+      statusQuery(
+        "approved"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "APPROVED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// GET REJECTED
+// =====================================================
+
+router.get(
+"/properties/rejected",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const data =
+    await Property.find(
+      statusQuery(
+        "rejected"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "REJECTED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// GET DELETED
+// =====================================================
+
+router.get(
+"/properties/deleted",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const data =
+    await Property.find(
+      statusQuery(
+        "deleted"
+      )
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
+      )
+      .sort({
+        createdAt: -1,
+      });
+
+  res.json(data);
+
+} catch (err) {
+
+  console.log(
+    "DELETED FETCH ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// APPROVE PROPERTY
+// =====================================================
+
+router.put(
+"/properties/:id/approve",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "approved",
+      req.user._id
+    );
+
+  if (!property) {
+
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
+  }
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property approved successfully",
+  });
+
+} catch (err) {
+
+  console.log(
+    "APPROVE ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// REJECT PROPERTY
+// =====================================================
+
+router.put(
+"/properties/:id/reject",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "rejected",
+      req.user._id
+    );
+
+  if (!property) {
+
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
+  }
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property rejected successfully",
+  });
+
+} catch (err) {
+
+  console.log(
+    "REJECT ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// DELETE PROPERTY
+// =====================================================
+
+router.put(
+"/properties/:id/delete",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const property =
+    await updatePropertyStatus(
+      req.params.id,
+      "deleted",
+      req.user._id
+    );
+
+  if (!property) {
+
+    return res.status(404).json({
+      message:
+        "Property not found",
+    });
+  }
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property deleted successfully",
+  });
+
+} catch (err) {
+
+  console.log(
+    "DELETE ERROR:",
+    err
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
+);
+
+// =====================================================
+// BUSINESS STATUS SYSTEM
+// =====================================================
+
+router.put(
+"/properties/:id/business-status",
+
+protect,
+
+authorizeRoles(
+"admin"
+),
+
+async (req, res) => {
+
+
+try {
+
+  const {
+    businessStatus,
+    underNegotiation,
+  } = req.body;
+
+  const property =
+    await Property.findById(
+      req.params.id
+    );
+
+  if (!property) {
+
+    return res.status(404).json({
+      success: false,
+      message:
+        "Property not found",
+    });
+  }
+
+  if (
+    businessStatus
+  ) {
+
+    property.businessStatus =
+      businessStatus;
+  }
+
+  if (
+    typeof underNegotiation ===
+    "boolean"
+  ) {
+
+    property.underNegotiation =
+      underNegotiation;
+  }
 
   await property.save();
 
-  return property;
-};
+  emitRealtimeUpdate(
+    req,
+    property
+  );
 
-// ================= GET ALL =================
-router.get(
-  "/properties/all",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+  res.json({
+    success: true,
+    message:
+      "Business status updated successfully",
+  });
 
-    try {
+} catch (error) {
 
-      const properties =
-        await Property.find()
-          .populate(
-            "createdBy",
-            "name role"
-          )
-          .populate(
-            "verifiedBy",
-            "name"
-          )
-          .sort({
-            createdAt: -1,
-          });
+  console.log(
+    "BUSINESS STATUS ERROR:",
+    error
+  );
 
-      res.json(properties);
+  res.status(500).json({
+    success: false,
+    message:
+      "Server error",
+  });
+}
 
-    } catch (err) {
 
-      console.log(
-        "ALL PROPERTIES ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
+}
 );
 
-// ================= GET PENDING =================
-router.get(
-  "/properties/pending",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+// =====================================================
+// IMAGE MODERATION SYSTEM
+// =====================================================
 
-    try {
-
-      const data =
-        await Property.find(
-          statusQuery("pending")
-        )
-          .populate(
-            "createdBy",
-            "name role"
-          )
-          .populate(
-            "verifiedBy",
-            "name"
-          )
-          .sort({
-            createdAt: -1,
-          });
-
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "PENDING FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= GET APPROVED =================
-router.get(
-  "/properties/approved",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-
-    try {
-
-      const data =
-        await Property.find(
-          statusQuery("approved")
-        )
-          .populate(
-            "createdBy",
-            "name role"
-          )
-          .populate(
-            "verifiedBy",
-            "name"
-          )
-          .sort({
-            createdAt: -1,
-          });
-
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "APPROVED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= GET REJECTED =================
-router.get(
-  "/properties/rejected",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-
-    try {
-
-      const data =
-        await Property.find(
-          statusQuery("rejected")
-        )
-          .populate(
-            "createdBy",
-            "name role"
-          )
-          .populate(
-            "verifiedBy",
-            "name"
-          )
-          .sort({
-            createdAt: -1,
-          });
-
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "REJECTED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= GET DELETED =================
-router.get(
-  "/properties/deleted",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-
-    try {
-
-      const data =
-        await Property.find(
-          statusQuery("deleted")
-        )
-          .populate(
-            "createdBy",
-            "name role"
-          )
-          .populate(
-            "verifiedBy",
-            "name"
-          )
-          .sort({
-            createdAt: -1,
-          });
-
-      res.json(data);
-
-    } catch (err) {
-
-      console.log(
-        "DELETED FETCH ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= APPROVE =================
 router.put(
-  "/property/:id/approve",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+"/property-image/:propertyId/:imageId/approve",
 
-    try {
+protect,
 
-      if (
-        !isValidId(
-          req.params.id
-        )
-      ) {
+authorizeRoles("admin"),
 
-        return res.status(400).json({
-          message:
-            "Invalid ID",
-        });
-      }
+async (req, res) => {
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "approved",
-          req.user._id
-        );
 
-      emitRealtimeUpdate(
-        req,
-        property
-      );
+try {
 
-      res.json({
-        message:
-          "Approved",
-        property,
-      });
+  const { propertyId, imageId } = req.params;
 
-    } catch (err) {
+  if (!isValidId(propertyId)) {
 
-      console.log(
-        "APPROVE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+    return res.status(400).json({
+      success: false,
+      message: "Invalid property ID",
+    });
   }
+
+  const property =
+    await Property.findById(propertyId);
+
+  if (!property) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Property not found",
+    });
+  }
+
+  const image =
+    property.images.id(imageId);
+
+  if (!image) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Image not found",
+    });
+  }
+
+  image.status = "approved";
+
+  image.verifiedBy = req.user._id;
+
+  image.verifiedAt = new Date();
+
+  await property.save();
+
+  emitRealtimeUpdate(req, property);
+
+  res.json({
+    success: true,
+    message: "Image approved successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "IMAGE APPROVE ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
-// ================= REJECT =================
 router.put(
-  "/property/:id/reject",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+"/property-image/:propertyId/:imageId/reject",
 
-    try {
+protect,
 
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "rejected",
-          req.user._id
-        );
+authorizeRoles("admin"),
 
-      emitRealtimeUpdate(
-        req,
-        property
-      );
+async (req, res) => {
 
-      res.json({
-        message:
-          "Rejected",
-        property,
-      });
 
-    } catch (err) {
+try {
 
-      console.log(
-        "REJECT ERROR:",
-        err
-      );
+  const { propertyId, imageId } = req.params;
 
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
+  if (!isValidId(propertyId)) {
+
+    return res.status(400).json({
+      success: false,
+      message: "Invalid property ID",
+    });
   }
+
+  const property =
+    await Property.findById(propertyId);
+
+  if (!property) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Property not found",
+    });
+  }
+
+  const image =
+    property.images.id(imageId);
+
+  if (!image) {
+
+    return res.status(404).json({
+      success: false,
+      message: "Image not found",
+    });
+  }
+
+  image.status = "rejected";
+
+  image.verifiedBy = req.user._id;
+
+  image.verifiedAt = new Date();
+
+  await property.save();
+
+  emitRealtimeUpdate(req, property);
+
+  res.json({
+    success: true,
+    message: "Image rejected successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "IMAGE REJECT ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
-// ================= PENDING =================
-router.put(
-  "/property/:id/pending",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+// =====================================================
+// LEADS DASHBOARD
+// =====================================================
 
-    try {
-
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "pending",
-          req.user._id
-        );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          "Moved to pending",
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "PENDING UPDATE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= DELETE =================
-router.put(
-  "/property/:id/delete",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-
-    try {
-
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          "deleted",
-          req.user._id
-        );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          "Property moved to deleted",
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "DELETE ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= GENERIC STATUS =================
-router.put(
-  "/property/:id/status",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
-
-    try {
-
-      const { status } =
-        req.body;
-
-      const allowed = [
-        "pending",
-        "approved",
-        "rejected",
-        "deleted",
-      ];
-
-      if (
-        !allowed.includes(
-          status
-        )
-      ) {
-
-        return res.status(400).json({
-          message:
-            "Invalid status",
-        });
-      }
-
-      const property =
-        await updatePropertyStatus(
-          req.params.id,
-          status,
-          req.user._id
-        );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        message:
-          `Property moved to ${status}`,
-        property,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "STATUS ERROR:",
-        err
-      );
-
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ================= STATS =================
 router.get(
-  "/stats",
-  protect,
-  authorizeRoles("admin"),
-  async (req, res) => {
+"/leads/all",
 
-    try {
+protect,
 
-      const total =
-        await Property.countDocuments();
+authorizeRoles(
+"admin"
+),
 
-      const pending =
-        await Property.countDocuments(
-          statusQuery("pending")
-        );
+async (req, res) => {
 
-      const approved =
-        await Property.countDocuments(
-          statusQuery("approved")
-        );
 
-      const rejected =
-        await Property.countDocuments(
-          statusQuery("rejected")
-        );
+try {
 
-      const deleted =
-        await Property.countDocuments(
-          statusQuery("deleted")
-        );
-
-      res.json({
-        total,
-        pending,
-        approved,
-        rejected,
-        deleted,
+  const leads =
+    await Lead.find()
+      .sort({
+        createdAt: -1,
       });
 
-    } catch (err) {
+  res.json(leads);
 
-      console.log(
-        "STATS ERROR:",
-        err
-      );
+} catch (error) {
 
-      res.status(500).json({
-        message:
-          "Server error",
-      });
-    }
-  }
+  console.log(
+    "LEADS ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    message:
+      "Server error",
+  });
+}
+
+
+}
 );
 
 module.exports = router;

@@ -9,6 +9,7 @@ import {
   Hash,
   Building2,
   IndianRupee,
+  BadgeCheck,
 } from "lucide-react";
 
 import {
@@ -72,9 +73,18 @@ function PropertyCard({
 
   // ================= UNIQUE PROPERTY ID =================
   const propertyId =
-    data?._id
+    data?.propertyUniqueId ||
+    `RE-${data?._id
       ?.slice(-8)
-      ?.toUpperCase();
+      ?.toUpperCase()}`;
+
+  // ================= BUSINESS STATUS =================
+  const isSold =
+    data?.businessStatus ===
+    "sold";
+
+  const underNegotiation =
+    data?.underNegotiation;
 
   return (
     <motion.div
@@ -107,7 +117,11 @@ function PropertyCard({
         <motion.img
           src={imageUrl}
           alt={data.title}
-          className="card-img"
+          className={`card-img transition duration-300 ${
+            isSold
+              ? "grayscale-[20%]"
+              : ""
+          }`}
           whileHover={{
             scale: 1.08,
           }}
@@ -121,14 +135,40 @@ function PropertyCard({
           }}
         />
 
+        {/* SOLD BADGE */}
+        {isSold && (
+
+          <div className="absolute top-4 left-4 bg-red-600 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl z-20 tracking-wide">
+
+            SOLD
+
+          </div>
+        )}
+
         {/* VERIFIED BADGE */}
-        <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg z-10">
+        {!isSold && (
 
-          <ShieldCheck size={13} />
+          <div className="absolute top-4 left-4 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-lg z-10">
 
-          Verified
+            <ShieldCheck size={13} />
 
-        </div>
+            Verified
+
+          </div>
+        )}
+
+        {/* UNDER NEGOTIATION */}
+        {!isSold &&
+          underNegotiation && (
+
+            <div className="absolute top-16 left-4 bg-yellow-400 text-slate-900 px-3 py-1 rounded-full text-xs font-bold shadow-lg z-20 flex items-center gap-1">
+
+              <BadgeCheck size={13} />
+
+              Under Negotiation
+
+            </div>
+          )}
 
         {/* TYPE BADGE */}
         {data?.type && (
@@ -202,8 +242,9 @@ function PropertyCard({
           </span>
 
           <span className="font-bold tracking-wider text-slate-700">
-            RE-
+
             {propertyId}
+
           </span>
 
         </div>
@@ -283,7 +324,11 @@ function PropertyCard({
         <div className="bottom mt-5 flex justify-between items-center">
 
           {/* PRICE */}
-          <p className="price flex items-center gap-1">
+          <p className={`price flex items-center gap-1 ${
+            isSold
+              ? "text-red-600"
+              : ""
+          }`}>
 
             <IndianRupee size={18} />
 
@@ -292,6 +337,18 @@ function PropertyCard({
             )}
 
           </p>
+
+          {/* BUSINESS STATUS */}
+          <div className={`px-3 py-1 rounded-full text-xs font-semibold capitalize ${
+            isSold
+              ? "bg-red-100 text-red-700"
+              : "bg-green-100 text-green-700"
+          }`}>
+
+            {data?.businessStatus ||
+              "available"}
+
+          </div>
 
         </div>
 
@@ -303,10 +360,16 @@ function PropertyCard({
 
             openProperty();
           }}
-          className="w-full mt-5 bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-2xl font-medium flex items-center justify-center gap-2 transition"
+          className={`w-full mt-5 py-3 rounded-2xl font-medium flex items-center justify-center gap-2 transition ${
+            isSold
+              ? "bg-red-600 hover:bg-red-700 text-white"
+              : "bg-slate-900 hover:bg-slate-800 text-white"
+          }`}
         >
 
-          View Details
+          {isSold
+            ? "View Sold Property"
+            : "View Details"}
 
           <ArrowUpRight size={16} />
 

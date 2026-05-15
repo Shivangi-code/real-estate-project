@@ -1,232 +1,527 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
+import {
+  Upload,
+  X,
+  ImagePlus,
+  Loader2,
+  ArrowLeft,
+  Building2,
+  IndianRupee,
+  MapPin,
+  FileText,
+} from "lucide-react";
 
 const AddProperty = () => {
-  const navigate = useNavigate();
 
-  const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(null);
+  const navigate =
+    useNavigate();
 
-  // ✅ USER
-  const user = JSON.parse(localStorage.getItem("user"));
+  const [loading, setLoading] =
+    useState(false);
 
-  // ✅ ROLE CHECK
+  // ======================================================
+  // ================= USER ===============================
+  // ======================================================
+
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        "user"
+      )
+    );
+
+  // ======================================================
+  // ================= ROLE CHECK =========================
+  // ======================================================
+
   useEffect(() => {
+
     if (
       !user ||
-      !["seller", "builder", "admin"].includes(user.role)
+      ![
+        "seller",
+        "builder",
+        "admin",
+        "agent",
+      ].includes(
+        user.role
+      )
     ) {
+
       navigate("/login");
     }
+
   }, [user, navigate]);
 
-  const [formData, setFormData] = useState({
-    title: "",
-    price: "",
-    location: "",
-    type: "",
-    subType: "",
-    constructionStatus: "",
-    description: "",
-    image: null,
-  });
+  // ======================================================
+  // ================= FORM ===============================
+  // ======================================================
 
-  // ================= HANDLE CHANGE =================
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-
-    if (files && files[0]) {
-      setFormData({
-        ...formData,
-        [name]: files[0],
-      });
-
-      setPreview(
-        URL.createObjectURL(files[0])
-      );
-    } else {
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
-    }
-  };
-
-  // ================= HANDLE SUBMIT =================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const token =
-      localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please login first ❌");
-      navigate("/login");
-      return;
-    }
-
-    const data = new FormData();
-
-    Object.keys(formData).forEach((key) => {
-      data.append(key, formData[key]);
+  const [formData, setFormData] =
+    useState({
+      title: "",
+      price: "",
+      location: "",
+      type: "",
+      subType: "",
+      constructionStatus:
+        "",
+      description: "",
     });
 
-    try {
-      setLoading(true);
+  // ======================================================
+  // ================= IMAGES =============================
+  // ======================================================
 
-      const res = await fetch(
-        "http://localhost:5000/api/property/add",
-        {
-          method: "POST",
+  const [images, setImages] =
+    useState([]);
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+  const [previews, setPreviews] =
+    useState([]);
 
-          body: data,
-        }
-      );
+  // ======================================================
+  // ================= HANDLE CHANGE ======================
+  // ======================================================
 
-      const result = await res.json();
+  const handleChange = (
+    e
+  ) => {
 
-      if (res.ok) {
+    const {
+      name,
+      value,
+    } = e.target;
 
-        // ✅ ADMIN MESSAGE
-        if (user?.role === "admin") {
-          alert(
-            "Property published instantly 🚀"
-          );
-        } else {
-          alert(
-            "Property submitted for review ✅"
-          );
-        }
-
-        // RESET
-        setFormData({
-          title: "",
-          price: "",
-          location: "",
-          type: "",
-          subType: "",
-          constructionStatus: "",
-          description: "",
-          image: null,
-        });
-
-        setPreview(null);
-
-        // ✅ ADMIN REDIRECT
-        if (user?.role === "admin") {
-          navigate("/admin/properties/approved");
-        } else {
-          navigate(-1);
-        }
-
-      } else {
-        alert(
-          result.message ||
-            "Failed to add property ❌"
-        );
-      }
-
-    } catch (error) {
-
-      console.error(error);
-
-      alert("Server error ❌");
-
-    } finally {
-      setLoading(false);
-    }
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
-  return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+  // ======================================================
+  // ================= IMAGE CHANGE =======================
+  // ======================================================
 
-        {/* TOP BAR */}
-        <div style={styles.topBar}>
+  const handleImageChange =
+    (e) => {
+
+      const files =
+        Array.from(
+          e.target.files
+        );
+
+      if (
+        images.length +
+          files.length >
+        15
+      ) {
+
+        alert(
+          "Maximum 15 images allowed"
+        );
+
+        return;
+      }
+
+      // ================= STORE FILES =================
+      setImages(
+        (prev) => [
+          ...prev,
+          ...files,
+        ]
+      );
+
+      // ================= PREVIEW =====================
+      const newPreviews =
+        files.map((file) =>
+          URL.createObjectURL(
+            file
+          )
+        );
+
+      setPreviews(
+        (prev) => [
+          ...prev,
+          ...newPreviews,
+        ]
+      );
+    };
+
+  // ======================================================
+  // ================= REMOVE IMAGE =======================
+  // ======================================================
+
+  const removeImage = (
+    index
+  ) => {
+
+    const updatedImages =
+      [...images];
+
+    const updatedPreviews =
+      [...previews];
+
+    updatedImages.splice(
+      index,
+      1
+    );
+
+    updatedPreviews.splice(
+      index,
+      1
+    );
+
+    setImages(
+      updatedImages
+    );
+
+    setPreviews(
+      updatedPreviews
+    );
+  };
+
+  // ======================================================
+  // ================= SUBMIT =============================
+  // ======================================================
+
+  const handleSubmit =
+    async (e) => {
+
+      e.preventDefault();
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      if (!token) {
+
+        alert(
+          "Please login first"
+        );
+
+        navigate(
+          "/login"
+        );
+
+        return;
+      }
+
+      if (
+        images.length ===
+        0
+      ) {
+
+        alert(
+          "Please upload at least one image"
+        );
+
+        return;
+      }
+
+      try {
+
+        setLoading(true);
+
+        // ======================================================
+        // ================= FORMDATA ===========================
+        // ======================================================
+
+        const data =
+          new FormData();
+
+        // ================= TEXT FIELDS =================
+        Object.keys(
+          formData
+        ).forEach(
+          (key) => {
+
+            data.append(
+              key,
+              formData[
+                key
+              ]
+            );
+          }
+        );
+
+        // ================= MULTI IMAGES =================
+        images.forEach(
+          (image) => {
+
+            data.append(
+              "images",
+              image
+            );
+          }
+        );
+
+        // ======================================================
+        // ================= API ================================
+        // ======================================================
+
+        const res =
+          await fetch(
+            "http://localhost:5000/api/properties/add",
+            {
+              method:
+                "POST",
+
+              headers: {
+                Authorization:
+                  `Bearer ${token}`,
+              },
+
+              body: data,
+            }
+          );
+
+        const result =
+          await res.json();
+
+        // ======================================================
+        // ================= SUCCESS ============================
+        // ======================================================
+
+        if (res.ok) {
+
+          if (
+            user?.role ===
+            "admin"
+          ) {
+
+            alert(
+              "Property published instantly 🚀"
+            );
+
+          } else {
+
+            alert(
+              "Property submitted successfully ✅"
+            );
+          }
+
+          // ================= RESET =================
+          setFormData({
+            title: "",
+            price: "",
+            location: "",
+            type: "",
+            subType: "",
+            constructionStatus:
+              "",
+            description:
+              "",
+          });
+
+          setImages([]);
+
+          setPreviews([]);
+
+          // ================= REDIRECT =================
+          if (
+            user?.role ===
+            "admin"
+          ) {
+
+            navigate(
+              "/admin/properties/approved"
+            );
+
+          } else {
+
+            navigate(
+              "/my-properties"
+            );
+          }
+
+        } else {
+
+          alert(
+            result.message ||
+              "Failed to add property"
+          );
+        }
+
+      } catch (error) {
+
+        console.log(
+          error
+        );
+
+        alert(
+          "Server error"
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
+      }
+    };
+
+  return (
+    <div className="min-h-screen bg-slate-100 py-10 px-4">
+
+      <div className="max-w-6xl mx-auto bg-white rounded-[32px] shadow-xl overflow-hidden border border-slate-200">
+
+        {/* ====================================================== */}
+        {/* ================= HEADER ============================= */}
+        {/* ====================================================== */}
+
+        <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white p-8">
+
           <button
-            type="button"
-            onClick={() => navigate(-1)}
-            style={styles.backBtn}
+            onClick={() =>
+              navigate(-1)
+            }
+            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-2xl transition mb-6"
           >
-            ← Back
+
+            <ArrowLeft size={18} />
+
+            Back
+
           </button>
 
-          <h2 style={styles.heading}>
-            Add Property
-          </h2>
+          <h1 className="text-4xl font-bold">
+
+            Add New Property
+
+          </h1>
+
+          <p className="text-blue-100 mt-3 text-lg">
+
+            Create premium property listings with image galleries
+
+          </p>
+
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={styles.grid}>
+        {/* ====================================================== */}
+        {/* ================= FORM =============================== */}
+        {/* ====================================================== */}
+
+        <form
+          onSubmit={
+            handleSubmit
+          }
+          className="p-8 md:p-10"
+        >
+
+          <div className="grid md:grid-cols-2 gap-6">
 
             {/* TITLE */}
             <div>
-              <label>
+
+              <label className="font-semibold flex items-center gap-2 mb-2">
+
+                <Building2 size={18} />
+
                 Property Title
+
               </label>
 
               <input
                 type="text"
                 name="title"
-                value={formData.title}
-                placeholder="e.g. 3BHK Luxury Flat"
-                onChange={handleChange}
+                value={
+                  formData.title
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Luxury 3BHK Apartment"
                 required
-                style={styles.input}
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
+
             </div>
 
             {/* PRICE */}
             <div>
-              <label>
-                Price (₹)
+
+              <label className="font-semibold flex items-center gap-2 mb-2">
+
+                <IndianRupee size={18} />
+
+                Price
+
               </label>
 
               <input
                 type="number"
                 name="price"
-                value={formData.price}
-                placeholder="Enter price"
-                onChange={handleChange}
+                value={
+                  formData.price
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="5000000"
                 required
-                style={styles.input}
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
+
             </div>
 
             {/* LOCATION */}
             <div>
-              <label>
+
+              <label className="font-semibold flex items-center gap-2 mb-2">
+
+                <MapPin size={18} />
+
                 Location
+
               </label>
 
               <input
                 type="text"
                 name="location"
-                value={formData.location}
-                placeholder="City / Area"
-                onChange={handleChange}
+                value={
+                  formData.location
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Mumbai"
                 required
-                style={styles.input}
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
+
             </div>
 
-            {/* PROPERTY TYPE */}
+            {/* TYPE */}
             <div>
-              <label>
+
+              <label className="font-semibold mb-2 block">
+
                 Property Type
+
               </label>
 
               <select
                 name="type"
-                value={formData.type}
-                onChange={handleChange}
+                value={
+                  formData.type
+                }
+                onChange={
+                  handleChange
+                }
                 required
-                style={styles.input}
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               >
+
                 <option value="">
                   Select Type
                 </option>
@@ -242,115 +537,43 @@ const AddProperty = () => {
                 <option value="Agriculture">
                   Agriculture
                 </option>
+
               </select>
+
             </div>
 
-            {/* RESIDENTIAL */}
-            {formData.type ===
-              "Residential" && (
-              <div>
-                <label>
-                  Residential Type
-                </label>
+            {/* SUBTYPE */}
+            <div>
 
-                <select
-                  name="subType"
-                  value={formData.subType}
-                  onChange={handleChange}
-                  required
-                  style={styles.input}
-                >
-                  <option value="">
-                    Select
-                  </option>
+              <label className="font-semibold mb-2 block">
 
-                  <option value="1BHK">
-                    1BHK
-                  </option>
+                Sub Type
 
-                  <option value="2BHK">
-                    2BHK
-                  </option>
+              </label>
 
-                  <option value="3BHK">
-                    3BHK
-                  </option>
+              <input
+                type="text"
+                name="subType"
+                value={
+                  formData.subType
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="3BHK / Office / Villa"
+                required
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+              />
 
-                  <option value="Villa">
-                    Villa
-                  </option>
-                </select>
-              </div>
-            )}
-
-            {/* COMMERCIAL */}
-            {formData.type ===
-              "Commercial" && (
-              <div>
-                <label>
-                  Commercial Type
-                </label>
-
-                <select
-                  name="subType"
-                  value={formData.subType}
-                  onChange={handleChange}
-                  required
-                  style={styles.input}
-                >
-                  <option value="">
-                    Select
-                  </option>
-
-                  <option value="Office">
-                    Office
-                  </option>
-
-                  <option value="Shop">
-                    Shop
-                  </option>
-
-                  <option value="Showroom">
-                    Showroom
-                  </option>
-                </select>
-              </div>
-            )}
-
-            {/* AGRICULTURE */}
-            {formData.type ===
-              "Agriculture" && (
-              <div>
-                <label>
-                  Agriculture Type
-                </label>
-
-                <select
-                  name="subType"
-                  value={formData.subType}
-                  onChange={handleChange}
-                  required
-                  style={styles.input}
-                >
-                  <option value="">
-                    Select
-                  </option>
-
-                  <option value="Farm Land">
-                    Farm Land
-                  </option>
-
-                  <option value="Agriculture Plot">
-                    Agriculture Plot
-                  </option>
-                </select>
-              </div>
-            )}
+            </div>
 
             {/* CONSTRUCTION */}
             <div>
-              <label>
+
+              <label className="font-semibold mb-2 block">
+
                 Construction Status
+
               </label>
 
               <select
@@ -358,178 +581,240 @@ const AddProperty = () => {
                 value={
                   formData.constructionStatus
                 }
-                onChange={handleChange}
+                onChange={
+                  handleChange
+                }
                 required
-                style={styles.input}
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               >
+
                 <option value="">
                   Select Status
-                </option>
-
-                <option value="Under Construction">
-                  Under Construction
                 </option>
 
                 <option value="Ready to Move">
                   Ready to Move
                 </option>
 
+                <option value="Under Construction">
+                  Under Construction
+                </option>
+
                 <option value="New Launch">
                   New Launch
                 </option>
+
               </select>
+
             </div>
 
-            {/* IMAGE */}
-            <div>
-              <label>
-                Upload Image
-              </label>
+          </div>
+
+          {/* ====================================================== */}
+          {/* ================= DESCRIPTION ======================== */}
+          {/* ====================================================== */}
+
+          <div className="mt-8">
+
+            <label className="font-semibold flex items-center gap-2 mb-2">
+
+              <FileText size={18} />
+
+              Description
+
+            </label>
+
+            <textarea
+              name="description"
+              rows="5"
+              value={
+                formData.description
+              }
+              onChange={
+                handleChange
+              }
+              placeholder="Describe your property..."
+              required
+              className="w-full border border-slate-300 rounded-2xl px-4 py-4 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+            />
+
+          </div>
+
+          {/* ====================================================== */}
+          {/* ================= MULTI IMAGE ======================== */}
+          {/* ====================================================== */}
+
+          <div className="mt-10">
+
+            <div className="flex items-center justify-between mb-4">
+
+              <div>
+
+                <h2 className="text-2xl font-bold">
+
+                  Property Gallery
+
+                </h2>
+
+                <p className="text-slate-500 mt-1">
+
+                  Upload up to 15 high quality images
+
+                </p>
+
+              </div>
+
+              <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-2xl text-sm font-semibold">
+
+                {images.length}/15 Images
+
+              </div>
+
+            </div>
+
+            {/* UPLOAD BOX */}
+            <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 transition rounded-[28px] p-10 flex flex-col items-center justify-center cursor-pointer bg-slate-50">
+
+              <div className="bg-blue-100 p-5 rounded-full mb-5">
+
+                <ImagePlus className="text-blue-700" size={38} />
+
+              </div>
+
+              <h3 className="text-xl font-bold">
+
+                Upload Property Images
+
+              </h3>
+
+              <p className="text-slate-500 mt-2 text-center">
+
+                JPG, PNG, WEBP supported
+
+              </p>
+
+              <div className="mt-5 bg-blue-600 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2">
+
+                <Upload size={18} />
+
+                Select Images
+
+              </div>
 
               <input
                 type="file"
-                name="image"
+                multiple
                 accept="image/*"
-                onChange={handleChange}
-                required
-                style={styles.input}
+                onChange={
+                  handleImageChange
+                }
+                className="hidden"
               />
-            </div>
 
-            {/* PREVIEW */}
-            {preview && (
-              <div>
-                <label>
-                  Preview
-                </label>
+            </label>
 
-                <img
-                  src={preview}
-                  alt="preview"
-                  style={styles.preview}
-                />
+            {/* ====================================================== */}
+            {/* ================= PREVIEWS =========================== */}
+            {/* ====================================================== */}
+
+            {previews.length >
+              0 && (
+
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 mt-8">
+
+                {previews.map(
+                  (
+                    preview,
+                    index
+                  ) => (
+
+                    <div
+                      key={
+                        index
+                      }
+                      className="relative group rounded-3xl overflow-hidden shadow-lg border border-slate-200"
+                    >
+
+                      {/* PRIMARY */}
+                      {index ===
+                        0 && (
+
+                        <div className="absolute top-3 left-3 z-10 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+
+                          Primary
+
+                        </div>
+                      )}
+
+                      {/* REMOVE */}
+                      <button
+                        type="button"
+                        onClick={() =>
+                          removeImage(
+                            index
+                          )
+                        }
+                        className="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition"
+                      >
+
+                        <X size={16} />
+
+                      </button>
+
+                      {/* IMAGE */}
+                      <img
+                        src={
+                          preview
+                        }
+                        alt="preview"
+                        className="w-full h-52 object-cover group-hover:scale-105 transition duration-300"
+                      />
+
+                    </div>
+                  )
+                )}
+
               </div>
             )}
 
-            {/* DESCRIPTION */}
-            <div
-              style={{
-                gridColumn: "1 / -1",
-              }}
-            >
-              <label>
-                Description
-              </label>
-
-              <textarea
-                name="description"
-                rows="4"
-                value={formData.description}
-                placeholder="Property details..."
-                onChange={handleChange}
-                required
-                style={styles.input}
-              />
-            </div>
           </div>
+
+          {/* ====================================================== */}
+          {/* ================= SUBMIT ============================= */}
+          {/* ====================================================== */}
 
           <button
             type="submit"
-            style={{
-              ...styles.button,
-
-              opacity: loading
-                ? 0.7
-                : 1,
-
-              cursor: loading
-                ? "not-allowed"
-                : "pointer",
-            }}
-            disabled={loading}
+            disabled={
+              loading
+            }
+            className={`w-full mt-10 py-4 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition ${
+              loading
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700 text-white"
+            }`}
           >
-            {loading
-              ? "Uploading..."
-              : "Submit Property"}
+
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin" size={22} />
+                Uploading Property...
+              </>
+            ) : (
+              <>
+                <Upload size={22} />
+                Submit Property
+              </>
+            )}
+
           </button>
+
         </form>
+
       </div>
+
     </div>
   );
-};
-
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    padding: "40px",
-    background: "#f4f6f9",
-    minHeight: "100vh",
-  },
-
-  card: {
-    background: "#fff",
-    padding: "30px",
-    borderRadius: "12px",
-    width: "760px",
-    boxShadow:
-      "0 8px 25px rgba(0,0,0,0.08)",
-  },
-
-  topBar: {
-    display: "flex",
-    alignItems: "center",
-    gap: "15px",
-    marginBottom: "20px",
-  },
-
-  backBtn: {
-    padding: "10px 16px",
-    border: "none",
-    borderRadius: "8px",
-    background: "#e5e7eb",
-    cursor: "pointer",
-    fontWeight: "600",
-  },
-
-  heading: {
-    margin: 0,
-  },
-
-  grid: {
-    display: "grid",
-    gridTemplateColumns:
-      "1fr 1fr",
-    gap: "15px",
-  },
-
-  input: {
-    width: "100%",
-    padding: "10px",
-    marginTop: "5px",
-    borderRadius: "6px",
-    border: "1px solid #ddd",
-  },
-
-  preview: {
-    width: "100%",
-    height: "140px",
-    objectFit: "cover",
-    borderRadius: "8px",
-    marginTop: "5px",
-    border: "1px solid #ddd",
-  },
-
-  button: {
-    marginTop: "20px",
-    width: "100%",
-    padding: "12px",
-    background: "#2563eb",
-    color: "white",
-    border: "none",
-    borderRadius: "6px",
-    fontWeight: "bold",
-  },
 };
 
 export default AddProperty;

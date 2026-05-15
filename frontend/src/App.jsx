@@ -1,5 +1,11 @@
 import { useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
 import { Toaster } from "react-hot-toast";
 
 import TopNavbar from "./components/TopNavbar";
@@ -10,7 +16,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import FloatingChat from "./components/FloatingChat";
 import ChatPopup from "./components/ChatPopup";
 
-// PUBLIC PAGES
+// ================= PUBLIC =================
 import Home from "./pages/public/Home";
 import Properties from "./pages/public/Properties";
 import PropertyDetails from "./pages/public/PropertyDetails";
@@ -24,12 +30,13 @@ import Otp from "./pages/Otp";
 import Onboarding from "./pages/public/Onboarding";
 import ForgotPassword from "./pages/ForgotPassword";
 
-// PRIVATE PAGES
+// ================= OWNER DASHBOARDS =================
 import SellerDashboard from "./pages/private/SellerDashboard";
 import BuilderDashboard from "./pages/private/BuilderDashboard";
+import MyProperties from "./pages/private/MyProperties";
 import AddProperty from "./pages/private/AddProperty";
 
-// ADMIN PAGES
+// ================= ADMIN =================
 import AdminLayout from "./pages/admin/AdminDashboard";
 import Overview from "./pages/admin/Overview";
 import PendingProperties from "./pages/admin/PendingProperties";
@@ -39,25 +46,101 @@ import DeletedProperties from "./pages/admin/DeletedProperties";
 import VerificationBoard from "./pages/admin/VerificationBoard";
 import LeadsDashboard from "./pages/admin/LeadsDashboard";
 
-// ROLE REDIRECT
+// ======================================================
+// ================= ROLE REDIRECT =======================
+// ======================================================
+
 function RoleRedirect() {
-  const user = JSON.parse(localStorage.getItem("user"));
 
-  if (!user) return <Navigate to="/" replace />;
+  const user =
+    JSON.parse(
+      localStorage.getItem(
+        "user"
+      )
+    );
 
-  if (user.role === "admin") return <Navigate to="/admin" replace />;
-  if (user.role === "seller") return <Navigate to="/seller" replace />;
-  if (user.role === "builder") return <Navigate to="/builder" replace />;
+  if (!user) {
 
-  return <Navigate to="/" replace />;
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    );
+  }
+
+  if (
+    user.role ===
+    "admin"
+  ) {
+
+    return (
+      <Navigate
+        to="/admin"
+        replace
+      />
+    );
+  }
+
+  if (
+    user.role ===
+    "seller"
+  ) {
+
+    return (
+      <Navigate
+        to="/seller-dashboard"
+        replace
+      />
+    );
+  }
+
+  if (
+    user.role ===
+    "builder"
+  ) {
+
+    return (
+      <Navigate
+        to="/builder-dashboard"
+        replace
+      />
+    );
+  }
+
+  if (
+    user.role ===
+    "agent"
+  ) {
+
+    return (
+      <Navigate
+        to="/seller-dashboard"
+        replace
+      />
+    );
+  }
+
+  return (
+    <Navigate
+      to="/"
+      replace
+    />
+  );
 }
 
+// ======================================================
+// ================= APP ================================
+// ======================================================
+
 function App() {
-  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const [isChatOpen, setIsChatOpen] =
+    useState(false);
 
   return (
     <>
-      {/* TOAST */}
+      {/* TOASTER */}
       <Toaster position="top-right" />
 
       {/* TOP NAVBAR */}
@@ -66,22 +149,12 @@ function App() {
       {/* MAIN NAVBAR */}
       <Navbar />
 
+      {/* ROUTES */}
       <Routes>
 
-        {/* PUBLIC */}
-        <Route path="/" element={<Home />} />
-        <Route path="/properties" element={<Properties />} />
-        <Route path="/property/:id" element={<PropertyDetails />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/chat" element={<Chat />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/select-role" element={<SelectRole />} />
-        <Route path="/otp" element={<Otp />} />
-        <Route path="/onboarding" element={<Onboarding />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/dashboard-redirect" element={<RoleRedirect />} />
+        {/* ====================================================== */}
+        {/* ================= PUBLIC ============================== */}
+        {/* ====================================================== */}
 
         <Route
           path="/"
@@ -91,6 +164,11 @@ function App() {
         <Route
           path="/properties"
           element={<Properties />}
+        />
+
+        <Route
+          path="/property/:id"
+          element={<PropertyDetails />}
         />
 
         <Route
@@ -133,87 +211,205 @@ function App() {
           element={<ForgotPassword />}
         />
 
-        {/* ✅ FIXED LOGIN */}
         <Route
           path="/login"
           element={<Login />}
         />
 
-        {/* ✅ FIXED SIGNUP */}
         <Route
           path="/signup"
           element={<Signup />}
         />
 
-        {/* ROLE REDIRECT */}
+        {/* ====================================================== */}
+        {/* ================= ROLE REDIRECT ====================== */}
+        {/* ====================================================== */}
+
         <Route
           path="/dashboard-redirect"
           element={<RoleRedirect />}
         />
 
-        {/* SELLER */}
+        {/* ====================================================== */}
+        {/* ================= SELLER ============================= */}
+        {/* ====================================================== */}
+
         <Route
-          path="/seller"
+          path="/seller-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["seller"]}>
+            <ProtectedRoute
+              allowedRoles={[
+                "seller",
+                "agent",
+              ]}
+            >
               <SellerDashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* BUILDER */}
+        {/* ====================================================== */}
+        {/* ================= BUILDER ============================ */}
+        {/* ====================================================== */}
+
         <Route
-          path="/builder"
+          path="/builder-dashboard"
           element={
-            <ProtectedRoute allowedRoles={["builder"]}>
+            <ProtectedRoute
+              allowedRoles={[
+                "builder",
+              ]}
+            >
               <BuilderDashboard />
             </ProtectedRoute>
           }
         />
 
-        {/* ADD PROPERTY */}
+        {/* ====================================================== */}
+        {/* ================= MY PROPERTIES ====================== */}
+        {/* ====================================================== */}
+
+        <Route
+          path="/my-properties"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "seller",
+                "builder",
+                "agent",
+                "admin",
+              ]}
+            >
+              <MyProperties />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ====================================================== */}
+        {/* ================= ADD PROPERTY ======================= */}
+        {/* ====================================================== */}
+
         <Route
           path="/add-property"
           element={
-            <ProtectedRoute allowedRoles={["seller", "builder", "admin"]}>
+            <ProtectedRoute
+              allowedRoles={[
+                "seller",
+                "builder",
+                "agent",
+                "admin",
+              ]}
+            >
               <AddProperty />
             </ProtectedRoute>
           }
         />
 
-        {/* ADMIN */}
+        {/* ====================================================== */}
+        {/* ================= ADMIN ============================== */}
+        {/* ====================================================== */}
+
         <Route
           path="/admin"
           element={
-            <ProtectedRoute allowedRoles={["admin"]}>
+            <ProtectedRoute
+              allowedRoles={[
+                "admin",
+              ]}
+            >
               <AdminLayout />
             </ProtectedRoute>
           }
         >
-          <Route index element={<Overview />} />
-          <Route path="overview" element={<Overview />} />
-          <Route path="add-property" element={<AddProperty />} />
-          <Route path="leads" element={<LeadsDashboard />} />
-          <Route path="properties/pending" element={<PendingProperties />} />
-          <Route path="properties/approved" element={<ApprovedProperties />} />
-          <Route path="properties/rejected" element={<RejectedProperties />} />
-          <Route path="properties/deleted" element={<DeletedProperties />} />
-          <Route path="verification-board" element={<VerificationBoard />} />
+
+          <Route
+            index
+            element={<Overview />}
+          />
+
+          <Route
+            path="overview"
+            element={<Overview />}
+          />
+
+          <Route
+            path="add-property"
+            element={<AddProperty />}
+          />
+
+          <Route
+            path="leads"
+            element={<LeadsDashboard />}
+          />
+
+          <Route
+            path="properties/pending"
+            element={
+              <PendingProperties />
+            }
+          />
+
+          <Route
+            path="properties/approved"
+            element={
+              <ApprovedProperties />
+            }
+          />
+
+          <Route
+            path="properties/rejected"
+            element={
+              <RejectedProperties />
+            }
+          />
+
+          <Route
+            path="properties/deleted"
+            element={
+              <DeletedProperties />
+            }
+          />
+
+          <Route
+            path="verification-board"
+            element={
+              <VerificationBoard />
+            }
+          />
+
         </Route>
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        {/* ====================================================== */}
+        {/* ================= FALLBACK =========================== */}
+        {/* ====================================================== */}
+
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
+
       </Routes>
 
       {/* FOOTER */}
       <Footer />
 
       {/* CHAT */}
-      <FloatingChat onClick={() => setIsChatOpen(true)} />
+      <FloatingChat
+        onClick={() =>
+          setIsChatOpen(true)
+        }
+      />
 
       <ChatPopup
         isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
+        onClose={() =>
+          setIsChatOpen(false)
+        }
       />
     </>
   );
