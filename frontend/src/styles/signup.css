@@ -1,0 +1,299 @@
+/* ================= FULL PAGE ================= */
+
+.signup-page {
+
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  position: relative;
+  overflow: hidden;
+
+  font-family: "Inter", sans-serif;
+
+  background:
+    linear-gradient(
+      rgba(10, 14, 25, 0.55),
+      rgba(10, 14, 25, 0.65)
+    ),
+    url("https://images.pexels.com/photos/31737859/pexels-photo-31737859.jpeg");
+
+  background-size: cover;
+  background-position: center;
+
+  animation: zoomBg 18s ease-in-out infinite alternate;
+}
+
+/* ================= BACKGROUND ZOOM ================= */
+
+@keyframes zoomBg {
+
+  from {
+    background-size: 100%;
+  }
+
+  to {
+    background-size: 108%;
+  }
+}
+
+/* ================= GLOW ORBS ================= */
+
+.orb {
+
+  position: absolute;
+
+  border-radius: 999px;
+
+  filter: blur(90px);
+
+  opacity: 0.35;
+
+  animation: floatOrb 10s ease-in-out infinite;
+}
+
+.orb1 {
+
+  width: 260px;
+  height: 260px;
+
+  background: #2563eb;
+
+  top: 8%;
+  left: -4%;
+}
+
+.orb2 {
+
+  width: 320px;
+  height: 320px;
+
+  background: #7c3aed;
+
+  bottom: -10%;
+  right: -5%;
+}
+
+.orb3 {
+
+  width: 220px;
+  height: 220px;
+
+  background: #38bdf8;
+
+  top: 45%;
+  left: 55%;
+}
+
+@keyframes floatOrb {
+
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ================= LIGHT LINES ================= */
+
+.light-line {
+
+  position: absolute;
+
+  width: 1px;
+  height: 100%;
+
+  background: linear-gradient(
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+
+  opacity: 0.4;
+}
+
+.line1 { left: 18%; }
+.line2 { left: 55%; }
+.line3 { left: 82%; }
+
+/* ================= FLOATING CARDS ================= */
+
+.floating-card {
+
+  position: absolute;
+
+  padding: 14px 24px;
+
+  border-radius: 20px;
+
+  background: rgba(255,255,255,0.08);
+
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(255,255,255,0.12);
+
+  color: white;
+
+  font-weight: 600;
+
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+
+  animation: floatCard 5s ease-in-out infinite;
+}
+
+.card1 { top: 26%; left: 6%; }
+.card2 { top: 38%; right: 8%; }
+.card3 { bottom: 22%; left: 8%; }
+.card4 { bottom: 22%; right: 10%; }
+
+@keyframes floatCard {
+
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ================= SIGNUP CARD (TRANSPARENT GLASS LIKE LOGIN) ================= */
+
+.signup-container {
+
+  width: 470px;
+
+  padding: 18px;
+
+  border-radius: 24px;
+
+  background: rgba(255, 255, 255, 0);
+
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+
+  transform: scale(0.90);
+
+  margin-top: -112px;
+}
+
+/* ================= HOUSE ICON ================= */
+
+.house-icon {
+
+  font-size: 42px;
+
+  margin-bottom: 4px;
+
+  animation: houseBounce 3s ease-in-out infinite;
+}
+
+@keyframes houseBounce {
+
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}
+
+/* ================= TITLE (LOGIN STYLE MATCHED) ================= */
+
+.signup-title {
+
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-align: center;
+
+  background: linear-gradient(
+    120deg,
+    #0f172a,
+    #1d4ed8,
+    #60a5fa,
+    #ffffff,
+    #1d4ed8,
+    #0f172a
+  );
+
+  background-size: 300% 300%;
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  color: transparent;
+
+  animation: luxuryFlow 5s ease-in-out infinite,
+             riseIn 1.2s ease-out;
+}
+
+/* ================= SUBTITLE ================= */
+
+.signup-subtitle {
+
+  color: rgba(255,255,255,0.85);
+
+  font-size: 13px;
+
+  margin-top: 4px;
+}
+
+/* ================= INPUTS ================= */
+
+.signup-input {
+
+  width: 100%;
+
+  padding: 10px 12px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.18);
+
+  color: white;
+
+  outline: none;
+
+  border: 1px solid rgba(255,255,255,0.15);
+
+  transition: 0.3s;
+}
+
+.signup-input::placeholder {
+  color: rgba(255,255,255,0.7);
+}
+
+.signup-input:focus {
+
+  border-color: #60a5fa;
+
+  box-shadow: 0 0 18px rgba(96,165,250,0.4);
+}
+
+/* ================= PREMIUM ANIMATIONS (FROM LOGIN) ================= */
+
+@keyframes luxuryFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes riseIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}

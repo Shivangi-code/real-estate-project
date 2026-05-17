@@ -1,7 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-} from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   useNavigate,
@@ -12,14 +9,12 @@ import {
 import {
   Menu,
   X,
-  Search,
   User,
   Home,
   LayoutDashboard,
   Moon,
   Sun,
   ShieldCheck,
-  Hash,
   Building2,
 } from "lucide-react";
 
@@ -29,207 +24,76 @@ import {
 } from "framer-motion";
 
 import logo from "../assets/logo.png";
+import brandName from "../assets/brand-text.png";
 
 import "../styles/navbar.css";
 
 import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
+  const [open, setOpen] = useState(false);
+  const [dark, setDark] = useState(false);
 
-  const [open, setOpen] =
-    useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const [dark, setDark] =
-    useState(false);
+  const { user, logout, isAuthenticated } = useAuth();
 
-  const [search, setSearch] =
-    useState("");
-
-  const navigate =
-    useNavigate();
-
-  const location =
-    useLocation();
-
-  const {
-    user,
-    logout,
-    isAuthenticated,
-  } = useAuth();
-
-  const role =
-    user?.role;
-
-  const uniqueUserId =
-    user?.uniqueUserId;
-
-  // ======================================================
-  // ================= DARK MODE ==========================
-  // ======================================================
+  const role = user?.role;
 
   useEffect(() => {
-
-    document.body.classList.toggle(
-      "dark",
-      dark
-    );
-
+    document.body.classList.toggle("dark", dark);
   }, [dark]);
 
-  // ======================================================
-  // ================= HELPERS ============================
-  // ======================================================
-
-  const closeAll = () =>
-    setOpen(false);
+  const closeAll = () => setOpen(false);
 
   const goTo = (path) => {
-
     closeAll();
-
     navigate(path);
   };
 
-  const isActive = (path) =>
-    location.pathname === path;
-
-  // ======================================================
-  // ================= LOGOUT =============================
-  // ======================================================
+  const isActive = (path) => location.pathname === path;
 
   const handleLogout = () => {
-
     logout();
-
     closeAll();
-
     navigate("/");
   };
 
-  // ======================================================
-  // ================= DASHBOARD ROUTE ====================
-  // ======================================================
-
-  const getDashboardRoute =
-    () => {
-
-      if (
-        role === "admin"
-      ) {
-
-        return "/admin";
-      }
-
-      if (
-        role === "seller"
-      ) {
-
-        return "/seller-dashboard";
-      }
-
-      if (
-        role === "builder"
-      ) {
-
-        return "/builder-dashboard";
-      }
-
-      if (
-        role === "agent"
-      ) {
-
-        return "/seller-dashboard";
-      }
-
-      return "/";
-    };
-
-  // ======================================================
-  // ================= ROLE COLOR =========================
-  // ======================================================
-
-  const roleColor =
-    () => {
-
-      if (
-        role === "admin"
-      ) {
-
-        return "bg-red-100 text-red-700";
-      }
-
-      if (
-        role === "seller"
-      ) {
-
-        return "bg-blue-100 text-blue-700";
-      }
-
-      if (
-        role === "builder"
-      ) {
-
-        return "bg-orange-100 text-orange-700";
-      }
-
-      if (
-        role === "agent"
-      ) {
-
-        return "bg-purple-100 text-purple-700";
-      }
-
-      return "bg-slate-100 text-slate-700";
-    };
+  const getDashboardRoute = () => {
+    if (role === "admin") return "/admin";
+    if (role === "seller") return "/seller-dashboard";
+    if (role === "builder") return "/builder-dashboard";
+    if (role === "agent") return "/seller-dashboard";
+    return "/";
+  };
 
   return (
     <>
-      {/* ====================================================== */}
-      {/* ================= NAVBAR ============================= */}
-      {/* ====================================================== */}
-
-      <div className="navbar god-nav">
+      {/* ================= NAVBAR ================= */}
+      <div className="navbar">
 
         {/* LEFT */}
         <div className="nav-left">
-
-          <motion.img
-            whileHover={{
-              scale: 1.05,
-            }}
-            whileTap={{
-              scale: 0.95,
-            }}
-            src={logo}
-            className="nav-logo cursor-pointer"
-            alt="logo"
-            onClick={() =>
-              navigate("/")
-            }
-          />
-
-        </div>
-
-        {/* SEARCH */}
-        <div className="nav-center">
-
-          <div className="search-box">
-
-            <input
-              placeholder="Search properties..."
-              value={search}
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
+          <div className="logo-wrapper" onClick={() => navigate("/")}>
+            
+            <img
+              src={logo}
+              className="nav-logo"
+              alt="logo"
             />
 
-            <Search size={18} />
+            <img
+              src={brandName}
+              className="brand-name-img"
+              alt="brand"
+            />
 
           </div>
-
         </div>
+
+        {/* CENTER */}
+        <div className="nav-center"></div>
 
         {/* RIGHT */}
         <div className="nav-right">
@@ -237,400 +101,188 @@ function Navbar() {
           {/* DARK MODE */}
           <button
             className="icon-btn"
-            onClick={() =>
-              setDark(!dark)
-            }
+            onClick={() => setDark(!dark)}
           >
-
-            {dark ? (
-              <Sun size={18} />
-            ) : (
-              <Moon size={18} />
-            )}
-
+            {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
 
           {/* ABOUT */}
           <Link
             to="/about"
-            className={
-              isActive("/about")
-                ? "active"
-                : ""
-            }
+            className={isActive("/about") ? "active" : ""}
           >
-
             About
-
           </Link>
 
           {/* CONTACT */}
           <Link
             to="/contact"
-            className={
-              isActive("/contact")
-                ? "active"
-                : ""
-            }
+            className={isActive("/contact") ? "active" : ""}
           >
-
             Contact
-
           </Link>
 
           {/* MY PROPERTIES */}
-          {isAuthenticated &&
-            role !== "buyer" && (
-
-              <button
-                className="login-btn flex items-center gap-2"
-                onClick={() =>
-                  navigate(
-                    "/my-properties"
-                  )
-                }
-              >
-
-                <Building2 size={16} />
-
-                My Properties
-
-              </button>
-            )}
+          {isAuthenticated && role !== "buyer" && (
+            <button
+              className="login-btn"
+              onClick={() => navigate("/my-properties")}
+            >
+              <Building2 size={16} />
+              My Properties
+            </button>
+          )}
 
           {/* USER PANEL */}
           {isAuthenticated && (
+            <motion.div className="user-box">
 
-            <motion.div
-              initial={{
-                opacity: 0,
-                y: -10,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
-              className="hidden lg:flex items-center gap-3 bg-white border border-slate-200 px-4 py-2 rounded-2xl shadow-sm"
-            >
-
-              {/* ICON */}
               <div className="bg-slate-100 p-2 rounded-xl">
-
                 <User size={18} />
-
               </div>
 
-              {/* USER INFO */}
               <div className="leading-tight">
-
                 <div className="font-semibold text-sm">
-
-                  {user?.name ||
-                    "User"}
-
+                  {user?.name || "User"}
                 </div>
-
-                <div className="flex items-center gap-2 mt-1">
-
-                  <span className={`text-xs px-2 py-1 rounded-full capitalize font-medium ${roleColor()}`}>
-
-                    {role}
-
-                  </span>
-
-                  {uniqueUserId && (
-
-                    <span className="flex items-center gap-1 text-xs text-slate-500 font-medium">
-
-                      <Hash size={12} />
-
-                      {uniqueUserId}
-
-                    </span>
-                  )}
-
-                </div>
-
               </div>
+
             </motion.div>
           )}
 
           {/* DASHBOARD */}
-          {isAuthenticated &&
-            role !== "buyer" && (
-
-              <button
-                className="login-btn flex items-center gap-2"
-                onClick={() =>
-                  navigate(
-                    getDashboardRoute()
-                  )
-                }
-              >
-
-                <LayoutDashboard size={16} />
-
-                Dashboard
-
-              </button>
-            )}
-
-          {/* LOGIN / LOGOUT */}
-          {!isAuthenticated ? (
-
+          {isAuthenticated && role !== "buyer" && (
             <button
               className="login-btn"
-              onClick={() =>
-                navigate("/login")
-              }
+              onClick={() => navigate(getDashboardRoute())}
             >
-
-              Login
-
-            </button>
-
-          ) : (
-
-            <button
-              className="login-btn"
-              onClick={
-                handleLogout
-              }
-            >
-
-              Logout
-
+              <LayoutDashboard size={16} />
+              Dashboard
             </button>
           )}
 
-          {/* MOBILE MENU */}
+          {/* LOGIN / LOGOUT */}
+          {!isAuthenticated ? (
+            <button
+              className="login-btn"
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </button>
+          ) : (
+            <button
+              className="login-btn"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          )}
+
+          {/* MENU */}
           <button
             className="menu-btn"
-            onClick={() =>
-              setOpen(true)
-            }
+            onClick={() => setOpen(true)}
           >
-
             <Menu size={26} />
-
           </button>
 
         </div>
-
       </div>
 
-      {/* ====================================================== */}
-      {/* ================= MOBILE DRAWER ====================== */}
-      {/* ====================================================== */}
-
+      {/* ================= DRAWER ================= */}
       <AnimatePresence>
 
         {open && (
           <>
 
-            {/* OVERLAY */}
             <motion.div
               className="overlay"
-              initial={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              exit={{
-                opacity: 0,
-              }}
               onClick={closeAll}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
             />
 
-            {/* DRAWER */}
             <motion.div
               className="drawer"
-              initial={{
-                x: "100%",
-              }}
-              animate={{
-                x: 0,
-              }}
-              exit={{
-                x: "100%",
-              }}
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
             >
 
-              {/* HEADER */}
               <div className="drawer-header">
-
                 <X
                   size={26}
                   onClick={closeAll}
                 />
-
               </div>
 
-              {/* PROFILE */}
-              {isAuthenticated && (
+              <div
+                className="nav-item"
+                onClick={() => goTo("/")}
+              >
+                <Home size={18} />
+                Home
+              </div>
 
-                <div className="drawer-profile">
+              <div
+                className="nav-item"
+                onClick={() => goTo("/about")}
+              >
+                About
+              </div>
 
-                  <div className="bg-slate-100 p-4 rounded-2xl">
+              <div
+                className="nav-item"
+                onClick={() => goTo("/contact")}
+              >
+                Contact
+              </div>
 
-                    <User size={32} />
-
-                  </div>
-
-                  <div>
-
-                    <p className="font-bold text-lg">
-
-                      {user?.name ||
-                        "User"}
-
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-2 mt-2">
-
-                      <span className={`text-xs px-3 py-1 rounded-full capitalize font-medium ${roleColor()}`}>
-
-                        {role}
-
-                      </span>
-
-                      {uniqueUserId && (
-
-                        <span className="flex items-center gap-1 text-xs text-slate-500 font-semibold">
-
-                          <Hash size={12} />
-
-                          {uniqueUserId}
-
-                        </span>
-                      )}
-
-                    </div>
-
-                  </div>
+              {isAuthenticated && role !== "buyer" && (
+                <div
+                  className="nav-item"
+                  onClick={() => goTo("/my-properties")}
+                >
+                  <Building2 size={18} />
+                  My Properties
                 </div>
               )}
 
-              {/* HOME */}
-              <div
-                className="nav-item"
-                onClick={() =>
-                  goTo("/")
-                }
-              >
+              {isAuthenticated && role !== "buyer" && (
+                <div
+                  className="nav-item"
+                  onClick={() => goTo(getDashboardRoute())}
+                >
+                  <LayoutDashboard size={18} />
+                  Dashboard
+                </div>
+              )}
 
-                <Home size={18} />
-
-                Home
-
-              </div>
-
-              {/* MY PROPERTIES */}
-              {isAuthenticated &&
-                role !== "buyer" && (
-
-                  <div
-                    className="nav-item"
-                    onClick={() =>
-                      goTo(
-                        "/my-properties"
-                      )
-                    }
-                  >
-
-                    <Building2 size={18} />
-
-                    My Properties
-
-                  </div>
-                )}
-
-              {/* DASHBOARD */}
-              {isAuthenticated &&
-                role !== "buyer" && (
-
-                  <div
-                    className="nav-item"
-                    onClick={() =>
-                      goTo(
-                        getDashboardRoute()
-                      )
-                    }
-                  >
-
-                    <LayoutDashboard size={18} />
-
-                    Dashboard
-
-                  </div>
-                )}
-
-              {/* ABOUT */}
-              <div
-                className="nav-item"
-                onClick={() =>
-                  goTo("/about")
-                }
-              >
-
-                About
-
-              </div>
-
-              {/* CONTACT */}
-              <div
-                className="nav-item"
-                onClick={() =>
-                  goTo("/contact")
-                }
-              >
-
-                Contact
-
-              </div>
-
-              {/* VERIFIED */}
               {isAuthenticated && (
-
                 <div className="nav-item">
-
                   <ShieldCheck
                     size={18}
                     className="text-green-600"
                   />
-
                   Verified User
-
                 </div>
               )}
 
-              {/* LOGIN / LOGOUT */}
-              {!isAuthenticated ? (
-
-                <div
-                  className="nav-item"
-                  onClick={() =>
-                    goTo("/login")
-                  }
-                >
-
-                  Login
-
-                </div>
-
-              ) : (
-
+              {isAuthenticated ? (
                 <button
                   className="drawer-btn logout-btn"
-                  onClick={
-                    handleLogout
-                  }
+                  onClick={handleLogout}
                 >
-
                   Logout
-
                 </button>
+              ) : (
+                <div
+                  className="nav-item"
+                  onClick={() => goTo("/login")}
+                >
+                  Login
+                </div>
               )}
 
             </motion.div>

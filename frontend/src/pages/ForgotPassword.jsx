@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
+import "../styles/forgotpassword.css";
 
 export default function ForgotPassword() {
+
   const [data, setData] = useState({
     email: "",
     mobile: "",
@@ -76,11 +78,13 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-red-500 via-pink-500 to-purple-600">
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
+    <div className="forgot-page">
 
-        <h2 className="text-2xl font-bold text-white text-center mb-6">
-          Reset Password
+      <div className="forgot-container">
+
+        {/* TITLE */}
+        <h2 className="forgot-title">
+          RESET PASSWORD
         </h2>
 
         {/* EMAIL */}
@@ -89,7 +93,7 @@ export default function ForgotPassword() {
           placeholder="Email (optional)"
           value={data.email}
           onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+          className="forgot-input"
         />
 
         {/* MOBILE */}
@@ -98,27 +102,26 @@ export default function ForgotPassword() {
           placeholder="Mobile (optional)"
           value={data.mobile}
           onChange={handleChange}
-          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+          className="forgot-input"
         />
 
         {/* OTP */}
-        <div className="relative mb-3">
+        <div className="otp-wrapper">
+
           <input
             name="otp"
             placeholder="Enter OTP"
             value={data.otp}
             onChange={handleChange}
-            className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+            className="forgot-input otp-input"
           />
 
           <button
             onClick={sendOtp}
             disabled={timer > 0}
-            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm ${
-              timer > 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
-            } text-white`}
+            className={`otp-btn ${
+              timer > 0 ? "disabled" : ""
+            }`}
           >
             {timer > 0
               ? `Resend ${timer}s`
@@ -126,6 +129,7 @@ export default function ForgotPassword() {
               ? "Resend OTP"
               : "Send OTP"}
           </button>
+
         </div>
 
         {/* NEW PASSWORD */}
@@ -135,29 +139,28 @@ export default function ForgotPassword() {
           placeholder="New Password"
           value={data.newPassword}
           onChange={handleChange}
-          className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+          className="forgot-input"
         />
 
-        {/* RESET BUTTON */}
+        {/* BUTTON */}
         <button
           onClick={handleReset}
           disabled={loading}
-          className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
+          className="reset-btn"
         >
           {loading ? "Updating..." : "Reset Password"}
         </button>
 
-        <p className="text-center text-white text-sm mt-4">
+        {/* LOGIN LINK */}
+        <p className="forgot-bottom">
           Back to{" "}
-          <span
-            onClick={() => navigate("/login")}
-            className="underline cursor-pointer"
-          >
+          <span onClick={() => navigate("/login")}>
             Login
           </span>
         </p>
 
       </div>
+
     </div>
   );
 }

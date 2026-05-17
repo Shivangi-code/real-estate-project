@@ -6,62 +6,244 @@
   align-items: center;
   justify-content: center;
 
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
+
+  /* 🌙 FIXED: PREMIUM NIGHT REAL ESTATE BACKGROUND */
   background:
-    linear-gradient(rgba(255,255,255,0.6), rgba(240,244,255,0.7)),
-    url("https://images.unsplash.com/photo-1568605114967-8130f3a36994");
+    linear-gradient(
+      rgba(10, 14, 25, 0.55),
+      rgba(10, 14, 25, 0.65)
+    ),
+    url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80");
 
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
 
-  animation: zoomBg 20s infinite alternate;
-
-  font-family: 'Inter', sans-serif;
-
-  overflow: hidden;
+  animation: zoomBg 20s ease-in-out infinite alternate;
 }
 
-/* ================= SMOOTH ZOOM EFFECT ================= */
+/* ================= BACKGROUND CINEMATIC ZOOM ================= */
 
 @keyframes zoomBg {
-
-  from {
-    background-size: 100%;
-  }
-
-  to {
-    background-size: 110%;
-  }
-}
-
-/* ================= HOUSIFY TITLE ANIMATION ================= */
-
-@keyframes glowText {
-
   0% {
-    transform: scale(1);
-    text-shadow: 0 0 10px rgba(37,99,235,0.3);
-  }
-
-  50% {
-    transform: scale(1.04);
-    text-shadow: 0 0 25px rgba(37,99,235,0.7);
+    background-size: 100%;
+    background-position: center;
   }
 
   100% {
-    transform: scale(1);
-    text-shadow: 0 0 10px rgba(37,99,235,0.3);
+    background-size: 115%;
+    background-position: center;
   }
 }
 
-/* ================= TITLE ================= */
+/* ================= REAL ESTATE HOUSIFY TITLE ================= */
 
 .housify-title {
-  font-size: 38px;
-  font-weight: 800;
-  letter-spacing: 6px;
-  color: #1d4ed8;
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: 10px;
   text-align: center;
-  margin-bottom: 25px;
 
-  animation: glowText 3s infinite;
+  background: linear-gradient(
+    120deg,
+    #0f172a,
+    #1d4ed8,
+    #60a5fa,
+    #ffffff,
+    #1d4ed8,
+    #0f172a
+  );
+
+  background-size: 300% 300%;
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  color: transparent;
+
+  animation:
+    luxuryFlow 5s ease-in-out infinite,
+    riseIn 1.2s ease-out;
+}
+
+/* ================= PREMIUM GRADIENT FLOW ================= */
+
+@keyframes luxuryFlow {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ================= TITLE ENTRY ANIMATION ================= */
+
+@keyframes riseIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ================= MOVING BORDER SYSTEM ================= */
+
+@keyframes borderMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ================= MODE BUTTONS ================= */
+
+.premium-tab {
+  padding: 8px 16px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  border: 2px solid transparent;
+
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(
+      90deg,
+      #e5e7eb,
+      #3b82f6,
+      #1d4ed8,
+      #e5e7eb
+    );
+
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  background-size: 300% 300%;
+
+  animation: borderMove 5s linear infinite;
+
+  transition: all 0.3s ease;
+
+  color: #374151;
+  cursor: pointer;
+}
+
+.premium-tab:hover {
+  transform: translateY(-2px);
+}
+
+.premium-tab.active {
+  background: linear-gradient(
+    90deg,
+    #1d4ed8,
+    #2563eb
+  );
+
+  color: white;
+  border-color: transparent;
+}
+
+/* ================= INPUTS ================= */
+
+.premium-input {
+  width: 100%;
+
+  padding: 12px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.92);
+
+  color: #1f2937;
+
+  border: 2px solid transparent;
+
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(
+      90deg,
+      #3b82f6,
+      #60a5fa,
+      #1d4ed8,
+      #3b82f6
+    );
+
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  background-size: 300% 300%;
+
+  animation: borderMove 4s linear infinite;
+
+  transition: 0.3s ease;
+}
+
+.premium-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
+}
+
+/* ================= OTP INPUT ================= */
+
+.premium-otp-wrapper {
+  position: relative;
+}
+
+.premium-otp {
+  width: 100%;
+
+  padding: 12px 90px 12px 12px;
+
+  border-radius: 10px;
+
+  background: rgba(255,255,255,0.92);
+
+  border: 2px solid transparent;
+
+  background-image:
+    linear-gradient(white, white),
+    linear-gradient(
+      90deg,
+      #3b82f6,
+      #60a5fa,
+      #1d4ed8,
+      #3b82f6
+    );
+
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  background-size: 300% 300%;
+
+  animation: borderMove 4s linear infinite;
+
+  transition: 0.3s ease;
+}
+
+.premium-otp:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
 }
