@@ -1,15 +1,10 @@
-/* ================= GLOBAL ================= */
-body.dark {
-  background: #020617;
-  color: white;
-}
-
 /* ================= NAVBAR ================= */
 .navbar {
   height: 80px;
-  padding: 0 40px;
+  padding: 0 24px;
 
   display: flex;
+  flex-direction: row;
   align-items: center;
   justify-content: space-between;
 
@@ -18,234 +13,412 @@ body.dark {
   z-index: 1000;
 
   background: rgba(255, 255, 255, 0.75);
+
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+  white-space: nowrap;
 }
 
-/* ================= FLEX LAYOUT FIX ================= */
-.nav-left {
-  flex: 1;
+/* ================= LEFT / CENTER / RIGHT ================= */
+.nav-left,
+.nav-center,
+.nav-right {
   display: flex;
   align-items: center;
+}
+
+.nav-left {
+  flex: 0 0 auto;
+  margin-left: -8px;
 }
 
 .nav-center {
-  flex: 2;
-  display: flex;
-  justify-content: center;
-}
-
-.nav-right {
   flex: 1;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 16px;
 }
 
-/* LOGO */
-.nav-logo {
-  height: 90px;
-  object-fit: contain;
+/* ================= RIGHT SIDE ONLY UPDATED ================= */
+.nav-right {
+  flex: 3;
+
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  flex-wrap: nowrap;
+}
+
+/* ================= LOGO WRAPPER (UNCHANGED) ================= */
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1px;
   cursor: pointer;
 }
 
-/* ================= SEARCH ================= */
-.search-box {
-  width: 100%;
-  max-width: 550px;
+/* ================= YOUR LOGO (UNCHANGED) ================= */
+.nav-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* ================= YOUR BRAND NAME IMAGE (UNCHANGED) ================= */
+.brand-name-img {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+
+  margin-left: -55px;
+}
+
+/* ================= NAV LINKS ================= */
+.nav-right a {
+  height: 42px;
+
+  padding: 0 16px;
 
   display: flex;
   align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: #1e293b;
+
+  position: relative;
+  overflow: hidden;
+
+  transition: all 0.25s ease;
+
+  white-space: nowrap;
+}
+
+/* GOLD HOVER EFFECT */
+.nav-right a:hover {
+  background: rgba(212,175,55,0.10);
+
+  color: #b88917;
+
+  box-shadow:
+    0 6px 18px rgba(212,175,55,0.12);
+}
+
+/* ================= PREMIUM BUTTONS ================= */
+.login-btn {
+  height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(212,175,55,0.18);
+
+  background:
+    linear-gradient(
+      to bottom right,
+      rgba(255,255,255,0.75),
+      rgba(255,255,255,0.40)
+    );
+
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  color: #1e293b;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  white-space: nowrap;
+
+  transition: all 0.25s ease;
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+
+  position: relative;
+  overflow: hidden;
+}
+
+/* GOLD SHIMMER */
+.login-btn::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,0.45),
+      transparent
+    );
+
+  transform: skewX(-25deg);
+
+  transition: 0.8s;
+}
+
+.login-btn:hover::before {
+  left: 130%;
+}
+
+/* HOVER */
+.login-btn:hover {
+  transform: translateY(-1px);
+
+  border-color: rgba(212,175,55,0.35);
+
+  color: #b88917;
+
+  box-shadow:
+    0 10px 24px rgba(212,175,55,0.15);
+}
+
+/* ================= USER BOX ================= */
+.user-box {
+  height: 42px;
+
+  padding: 0 14px;
+
+  display: flex;
+  align-items: center;
+
   gap: 10px;
 
-  padding: 10px 14px;
-  border-radius: 12px;
+  border-radius: 14px;
 
-  background: rgba(243,244,246,0.7);
-  backdrop-filter: blur(10px);
+  background:
+    linear-gradient(
+      to bottom right,
+      rgba(255,255,255,0.75),
+      rgba(255,255,255,0.40)
+    );
 
-  transition: 0.25s;
+  backdrop-filter: blur(12px);
+
+  border: 1px solid rgba(212,175,55,0.18);
+
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.05);
+
+  transition: all 0.25s ease;
+
+  white-space: nowrap;
+
+  position: relative;
+  overflow: hidden;
 }
 
-.search-box input {
-  flex: 1;
-  border: none;
-  outline: none;
-  background: transparent;
-  font-size: 14px;
-  padding: 4px;
+/* SHIMMER */
+.user-box::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 70%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      120deg,
+      transparent,
+      rgba(255,255,255,0.45),
+      transparent
+    );
+
+  transform: skewX(-25deg);
+
+  transition: 0.8s;
 }
 
-.search-box:hover {
-  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+.user-box:hover::before {
+  left: 130%;
 }
 
-/* ================= RIGHT ================= */
+/* HOVER */
+.user-box:hover {
+  transform: translateY(-1px);
 
-/* ICON BUTTON */
-.icon-btn {
-  border: none;
-  background: transparent;
+  border-color: rgba(212,175,55,0.35);
+
+  box-shadow:
+    0 10px 24px rgba(212,175,55,0.12);
+}
+
+/* ================= ICON BUTTON ================= */
+.icon-btn,
+.menu-btn {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(212,175,55,0.18);
+
+  background:
+    linear-gradient(
+      to bottom right,
+      rgba(255,255,255,0.75),
+      rgba(255,255,255,0.40)
+    );
+
+  backdrop-filter: blur(12px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   cursor: pointer;
-
-  padding: 8px;
-  border-radius: 8px;
-
-  transition: 0.2s;
-}
-
-.icon-btn:hover {
-  background: rgba(0,0,0,0.05);
-}
-
-/* LOGIN BUTTON */
-.login-btn {
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: none;
-
-  font-weight: 600;
-  cursor: pointer;
-
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
-  color: white;
 
   transition: all 0.25s ease;
 }
 
-.login-btn:hover {
+/* HOVER */
+.icon-btn:hover,
+.menu-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(37,99,235,0.4);
-}
 
-/* MENU */
-.menu-btn {
-  border: none;
-  background: transparent;
-  cursor: pointer;
-}
+  border-color: rgba(212,175,55,0.35);
 
-/* ================= OVERLAY ================= */
-.overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 1500;
+  color: #b88917;
 
-  background: rgba(0,0,0,0.3);
-  backdrop-filter: blur(6px);
+  box-shadow:
+    0 10px 24px rgba(212,175,55,0.12);
 }
 
 /* ================= DRAWER ================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.35);
+
+  backdrop-filter: blur(6px);
+
+  z-index: 1500;
+}
+
 .drawer {
   position: fixed;
+
   top: 0;
   right: 0;
 
-  width: 280px;
+  width: 300px;
   height: 100vh;
 
-  padding: 25px 20px;
+  padding: 24px;
+
+  background: rgba(255,255,255,0.88);
+
+  backdrop-filter: blur(24px);
+
+  box-shadow:
+    -10px 0 30px rgba(0,0,0,0.10);
 
   z-index: 2000;
+}
 
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(25px);
-
-  box-shadow: -8px 0 25px rgba(0,0,0,0.15);
-
+.drawer-header {
   display: flex;
-  flex-direction: column;
+  justify-content: flex-end;
+
+  margin-bottom: 24px;
 }
 
-/* CLOSE BUTTON */
-.close-btn {
-  cursor: pointer;
-  margin-bottom: 20px;
-}
-
-/* ================= PROFILE ================= */
-.profile-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 12px;
-  border-radius: 10px;
-
-  margin-bottom: 20px;
-
-  background: rgba(59,130,246,0.1);
-}
-
-.profile-card p {
-  font-weight: 600;
-}
-
-.profile-card span {
-  font-size: 12px;
-  color: gray;
-}
-
-/* ================= NAV ITEMS ================= */
 .nav-item {
+  height: 46px;
+
   display: flex;
   align-items: center;
+
   gap: 10px;
 
-  padding: 12px;
-  border-radius: 10px;
+  padding: 0 14px;
 
-  font-size: 15px;
-  font-weight: 500;
+  border-radius: 14px;
 
   cursor: pointer;
+
+  font-weight: 600;
+
   transition: all 0.25s ease;
 }
 
 .nav-item:hover {
-  background: rgba(37,99,235,0.1);
-  transform: translateX(5px);
-}
+  background: rgba(212,175,55,0.10);
 
-/* ACTIVE ITEM */
-.nav-item.active {
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
-  color: white;
-}
-
-/* ================= SUB DRAWER ================= */
-.sub-drawer {
-  display: flex;
-  flex-direction: column;
-}
-
-.sub-drawer h3 {
-  margin: 10px 0 20px;
-}
-
-/* BACK BUTTON */
-.back-btn {
-  font-weight: 700;
-  text-decoration: underline;
-  cursor: pointer;
+  color: #b88917;
 }
 
 /* ================= DARK MODE ================= */
 body.dark .navbar {
-  background: rgba(2,6,23,0.7);
+  background: rgba(2, 6, 23, 0.75);
+}
+
+body.dark .nav-right a {
+  color: white;
+}
+
+body.dark .nav-right a:hover {
+  background: rgba(212,175,55,0.12);
+
+  color: #facc15;
+}
+
+body.dark .login-btn,
+body.dark .user-box,
+body.dark .icon-btn,
+body.dark .menu-btn {
+  background:
+    linear-gradient(
+      to bottom right,
+      rgba(15,23,42,0.80),
+      rgba(15,23,42,0.55)
+    );
+
+  color: white;
+
+  border: 1px solid rgba(212,175,55,0.15);
 }
 
 body.dark .drawer {
-  background: rgba(2,6,23,0.9);
-}
+  background: rgba(2,6,23,0.92);
 
-body.dark .search-box {
-  background: rgba(30,41,59,0.6);
+  color: white;
 }
 
 body.dark .nav-item:hover {
-  background: rgba(59,130,246,0.2);
+  background: rgba(212,175,55,0.12);
+
+  color: #facc15;
 }

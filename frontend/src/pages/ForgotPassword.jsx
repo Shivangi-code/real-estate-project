@@ -9,6 +9,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 
+import "../styles/forgotpassword.css";
+
 export default function ForgotPassword() {
 
   const [data, setData] =
@@ -184,70 +186,50 @@ export default function ForgotPassword() {
 
   return (
 
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-500 via-pink-500 to-purple-600 px-4">
+    <div className="forgot-page">
 
-      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-3xl w-full max-w-md shadow-2xl">
+      <div className="forgot-container">
 
         {/* TITLE */}
-        <h2 className="text-3xl font-bold text-white text-center mb-8">
-
-          Reset Password
-
+        <h2 className="forgot-title">
+          RESET PASSWORD
         </h2>
 
         {/* EMAIL */}
         <input
           name="email"
           placeholder="Email (optional)"
-          value={
-            data.email
-          }
-          onChange={
-            handleChange
-          }
-          className="w-full p-4 mb-4 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+          value={data.email}
+          onChange={handleChange}
+          className="forgot-input"
         />
 
         {/* MOBILE */}
         <input
           name="mobile"
           placeholder="Mobile (optional)"
-          value={
-            data.mobile
-          }
-          onChange={
-            handleChange
-          }
-          className="w-full p-4 mb-4 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+          value={data.mobile}
+          onChange={handleChange}
+          className="forgot-input"
         />
 
         {/* OTP */}
-        <div className="relative mb-4">
+        <div className="otp-wrapper">
 
           <input
             name="otp"
             placeholder="Enter OTP"
-            value={
-              data.otp
-            }
-            onChange={
-              handleChange
-            }
-            className="w-full p-4 pr-32 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+            value={data.otp}
+            onChange={handleChange}
+            className="forgot-input otp-input"
           />
 
           <button
-            onClick={
-              sendOtp
-            }
-            disabled={
-              timer > 0
-            }
-            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl text-sm ${
-              timer > 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-red-600 hover:bg-red-700"
-            } text-white`}
+            onClick={sendOtp}
+            disabled={timer > 0}
+            className={`otp-btn ${
+              timer > 0 ? "disabled" : ""
+            }`}
           >
 
             {timer > 0
@@ -265,24 +247,16 @@ export default function ForgotPassword() {
           type="password"
           name="newPassword"
           placeholder="New Password"
-          value={
-            data.newPassword
-          }
-          onChange={
-            handleChange
-          }
-          className="w-full p-4 mb-6 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+          value={data.newPassword}
+          onChange={handleChange}
+          className="forgot-input"
         />
 
         {/* BUTTON */}
         <button
-          onClick={
-            handleReset
-          }
-          disabled={
-            loading
-          }
-          className="w-full bg-white text-black font-semibold py-4 rounded-2xl hover:scale-105 transition"
+          onClick={handleReset}
+          disabled={loading}
+          className="reset-btn"
         >
 
           {loading
@@ -291,18 +265,15 @@ export default function ForgotPassword() {
 
         </button>
 
-        {/* LOGIN */}
-        <p className="text-center text-white text-sm mt-6">
+        {/* LOGIN LINK */}
+        <p className="forgot-bottom">
 
           Back to{" "}
 
           <span
             onClick={() =>
-              navigate(
-                "/login"
-              )
+              navigate("/login")
             }
-            className="underline cursor-pointer"
           >
             Login
           </span>

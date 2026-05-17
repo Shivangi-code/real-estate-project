@@ -23,9 +23,7 @@ export default function Login() {
   // ======================================================
 
   const [mode, setMode] =
-    useState(
-      "mobile-otp"
-    );
+    useState("email-password");
 
   // ======================================================
   // ================= FORM DATA ==========================
@@ -63,9 +61,7 @@ export default function Login() {
 
   useEffect(() => {
 
-    if (
-      isAuthenticated
-    ) {
+    if (isAuthenticated) {
 
       const user =
         JSON.parse(
@@ -74,34 +70,23 @@ export default function Login() {
           )
         );
 
-      if (
-        user?.role ===
-        "admin"
-      ) {
+      if (user?.role === "admin") {
 
-        navigate(
-          "/admin"
-        );
+        navigate("/admin");
       }
 
       else if (
-        user?.role ===
-        "seller"
+        user?.role === "seller"
       ) {
 
-        navigate(
-          "/seller"
-        );
+        navigate("/seller");
       }
 
       else if (
-        user?.role ===
-        "builder"
+        user?.role === "builder"
       ) {
 
-        navigate(
-          "/builder"
-        );
+        navigate("/builder");
       }
 
       else {
@@ -148,9 +133,7 @@ export default function Login() {
         setInterval(() => {
 
           setTimer(
-            (
-              prev
-            ) =>
+            (prev) =>
               prev - 1
           );
 
@@ -158,9 +141,7 @@ export default function Login() {
     }
 
     return () =>
-      clearInterval(
-        interval
-      );
+      clearInterval(interval);
 
   }, [timer]);
 
@@ -189,19 +170,36 @@ export default function Login() {
       try {
 
         if (
+          mode.includes("email") &&
+          !data.email
+        ) {
+
+          return alert(
+            "Enter email"
+          );
+        }
+
+        if (
+          mode.includes("mobile") &&
           !data.mobile
         ) {
 
           return alert(
-            "Enter mobile number"
+            "Enter mobile"
           );
         }
 
         await API.post(
           "/user-auth/send-otp",
+
           {
+            email:
+              data.email ||
+              undefined,
+
             mobile:
-              data.mobile,
+              data.mobile ||
+              undefined,
           }
         );
 
@@ -219,6 +217,7 @@ export default function Login() {
           err.response
             ?.data
             ?.message ||
+
             "Failed to send OTP"
         );
       }
@@ -233,7 +232,13 @@ export default function Login() {
 
       try {
 
-        // ================= VALIDATION =================
+        setLoading(true);
+
+        let payload = {
+          mode,
+        };
+
+        // ================= EMAIL PASSWORD =================
 
         if (
           mode ===
@@ -249,52 +254,6 @@ export default function Login() {
               "Email & password required"
             );
           }
-        }
-
-        if (
-          mode ===
-          "mobile-password"
-        ) {
-
-          if (
-            !data.mobile ||
-            !data.password
-          ) {
-
-            return alert(
-              "Mobile & password required"
-            );
-          }
-        }
-
-        if (
-          mode ===
-          "mobile-otp"
-        ) {
-
-          if (
-            !data.mobile ||
-            !data.otp
-          ) {
-
-            return alert(
-              "Mobile & OTP required"
-            );
-          }
-        }
-
-        setLoading(true);
-
-        let payload = {
-          mode,
-        };
-
-        // ================= EMAIL PASSWORD =================
-
-        if (
-          mode ===
-          "email-password"
-        ) {
 
           payload.email =
             data.email;
@@ -310,11 +269,45 @@ export default function Login() {
           "mobile-password"
         ) {
 
+          if (
+            !data.mobile ||
+            !data.password
+          ) {
+
+            return alert(
+              "Mobile & password required"
+            );
+          }
+
           payload.mobile =
             data.mobile;
 
           payload.password =
             data.password;
+        }
+
+        // ================= EMAIL OTP =================
+
+        if (
+          mode ===
+          "email-otp"
+        ) {
+
+          if (
+            !data.email ||
+            !data.otp
+          ) {
+
+            return alert(
+              "Email & OTP required"
+            );
+          }
+
+          payload.email =
+            data.email;
+
+          payload.otp =
+            data.otp;
         }
 
         // ================= MOBILE OTP =================
@@ -323,6 +316,16 @@ export default function Login() {
           mode ===
           "mobile-otp"
         ) {
+
+          if (
+            !data.mobile ||
+            !data.otp
+          ) {
+
+            return alert(
+              "Mobile & OTP required"
+            );
+          }
 
           payload.mobile =
             data.mobile;
@@ -346,6 +349,7 @@ export default function Login() {
         } = res.data;
 
         // ✅ GLOBAL LOGIN
+
         login(
           user,
           token,
@@ -359,9 +363,7 @@ export default function Login() {
           "admin"
         ) {
 
-          navigate(
-            "/admin"
-          );
+          navigate("/admin");
         }
 
         else if (
@@ -369,9 +371,7 @@ export default function Login() {
           "seller"
         ) {
 
-          navigate(
-            "/seller"
-          );
+          navigate("/seller");
         }
 
         else if (
@@ -379,9 +379,7 @@ export default function Login() {
           "builder"
         ) {
 
-          navigate(
-            "/builder"
-          );
+          navigate("/builder");
         }
 
         else {
@@ -395,14 +393,13 @@ export default function Login() {
           err.response
             ?.data
             ?.message ||
+
             "Login failed"
         );
 
       } finally {
 
-        setLoading(
-          false
-        );
+        setLoading(false);
       }
     };
 
@@ -410,144 +407,134 @@ export default function Login() {
 
     <div className="login-page">
 
-      <div className="backdrop-blur-xl bg-white/15 border border-white/30 p-8 rounded-3xl w-96 shadow-[0_20px_60px_rgba(0,0,0,0.25)]">
+      {/* CARD */}
 
-        {/* TITLE */}
-        <h2 className="housify-title">
-          HOUSIFY
-        </h2>
+      <div className="bg-transparent backdrop-blur-2xl border border-white/30 p-8 rounded-3xl w-96 shadow-[0_25px_80px_rgba(0,0,0,0.25)] -mt-[101px]">
 
-        {/* MODE SWITCH */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        <div className="mb-8">
 
-          {[
-            [
-              "email-password",
-              "Email",
-            ],
+          <h2 className="housify-title mb-6">
+            HOUSIFY
+          </h2>
 
-            [
-              "mobile-password",
-              "Mobile",
-            ],
+          {/* MODE SWITCH */}
 
-            [
-              "mobile-otp",
-              "OTP",
-            ],
-          ].map(
-            ([
-              key,
-              label,
-            ]) => (
+          <div className="grid grid-cols-2 gap-2">
 
-              <button
-                key={key}
-                onClick={() =>
-                  setMode(
-                    key
-                  )
-                }
-                className={`p-2 rounded text-white ${
-                  mode ===
-                  key
-                    ? "bg-blue-600"
-                    : "bg-white/20"
-                }`}
-              >
-                {label}
-              </button>
-            )
-          )}
+            {[
+              [
+                "email-password",
+                "Email",
+              ],
+
+              [
+                "mobile-password",
+                "Mobile",
+              ],
+
+              [
+                "email-otp",
+                "Email OTP",
+              ],
+
+              [
+                "mobile-otp",
+                "Mobile OTP",
+              ],
+            ].map(
+              ([
+                key,
+                label,
+              ]) => (
+
+                <button
+                  key={key}
+
+                  onClick={() =>
+                    setMode(key)
+                  }
+
+                  className={`premium-tab ${
+                    mode === key
+                      ? "active"
+                      : ""
+                  }`}
+                >
+                  {label}
+                </button>
+              )
+            )}
+
+          </div>
 
         </div>
 
         {/* EMAIL */}
-        {mode ===
-          "email-password" && (
+
+        {mode.includes("email") && (
 
           <input
             name="email"
             placeholder="Enter Email"
-            value={
-              data.email
-            }
-            onChange={
-              handleChange
-            }
-            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+            value={data.email}
+            onChange={handleChange}
+            className="premium-input mb-3"
           />
         )}
 
         {/* MOBILE */}
-        {(mode ===
-          "mobile-password" ||
-          mode ===
-            "mobile-otp") && (
+
+        {mode.includes("mobile") && (
 
           <input
             name="mobile"
             placeholder="Enter Mobile"
-            value={
-              data.mobile
-            }
-            onChange={
-              handleChange
-            }
-            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+            value={data.mobile}
+            onChange={handleChange}
+            className="premium-input mb-3"
           />
         )}
 
         {/* PASSWORD */}
-        {(mode ===
-          "email-password" ||
-          mode ===
-            "mobile-password") && (
+
+        {mode.includes("password") && (
 
           <input
             type="password"
             name="password"
             placeholder="Enter Password"
-            value={
-              data.password
-            }
-            onChange={
-              handleChange
-            }
-            className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+            value={data.password}
+            onChange={handleChange}
+            className="premium-input mb-3"
           />
         )}
 
         {/* OTP */}
-        {mode ===
-          "mobile-otp" && (
 
-          <div className="relative mb-4">
+        {mode.includes("otp") && (
+
+          <div className="premium-otp-wrapper mb-4">
 
             <input
               name="otp"
               placeholder="Enter OTP"
-              value={
-                data.otp
-              }
-              onChange={
-                handleChange
-              }
-              className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
+              value={data.otp}
+              onChange={handleChange}
+              className="premium-otp"
             />
 
             <button
-              onClick={
-                sendOtp
-              }
+              onClick={sendOtp}
+
               disabled={
                 timer > 0
               }
-              className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm ${
+
+              className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm text-white ${
                 timer > 0
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
-              } text-white`}
+              }`}
             >
 
               {timer > 0
@@ -562,14 +549,13 @@ export default function Login() {
         )}
 
         {/* LOGIN BUTTON */}
+
         <button
-          onClick={
-            handleLogin
-          }
-          disabled={
-            loading
-          }
-          className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
+          onClick={handleLogin}
+
+          disabled={loading}
+
+          className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg hover:scale-[1.02] transition"
         >
 
           {loading
@@ -579,29 +565,30 @@ export default function Login() {
         </button>
 
         {/* LINKS */}
-        <div className="text-center mt-4 text-white text-sm space-y-2">
 
-          <p
-            className="cursor-pointer underline hover:text-blue-200 transition"
+        <div className="mt-6 flex flex-col gap-2 text-center text-sm">
+
+          <button
             onClick={() =>
-              navigate(
-                "/signup"
-              )
+              navigate("/signup")
             }
+
+            className="text-white/80 hover:text-blue-300 transition hover:underline"
           >
             Create Account
-          </p>
+          </button>
 
-          <p
-            className="cursor-pointer underline hover:text-blue-200 transition"
+          <button
             onClick={() =>
               navigate(
                 "/forgot-password"
               )
             }
+
+            className="text-white/80 hover:text-blue-300 transition hover:underline"
           >
             Forgot Password
-          </p>
+          </button>
 
         </div>
 

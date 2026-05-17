@@ -9,14 +9,12 @@ import {
 } from "lucide-react";
 
 const SellerDashboard = () => {
-
   return (
-
     <div className="min-h-screen bg-slate-100 p-6 md:p-10">
 
-      {/* HERO */}
+      {/* HERO SECTION */}
       <div
-        className="hero-section relative overflow-hidden rounded-[32px] p-10 md:p-14 text-white mb-10"
+        className="hero-section rounded-[32px] p-10 md:p-14 text-white mb-10"
         style={{
           backgroundImage: `
             linear-gradient(
@@ -31,10 +29,10 @@ const SellerDashboard = () => {
       >
 
         {/* GLOW EFFECTS */}
-        <div className="hero-glow blue" />
-        <div className="hero-glow cyan" />
+        <div className="hero-glow blue"></div>
+        <div className="hero-glow cyan"></div>
 
-        {/* CONTENT */}
+        {/* HERO CONTENT */}
         <div className="relative z-10">
 
           <p className="uppercase tracking-[5px] text-blue-200 text-sm font-semibold mb-4">
@@ -82,7 +80,7 @@ const SellerDashboard = () => {
 
           <Link
             to="/add-property"
-            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300"
+            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-blue-600 hover:bg-blue-700 text-white px-5 py-3 rounded-xl font-semibold"
           >
             Add Property
             <ArrowRight size={18} />
@@ -113,7 +111,7 @@ const SellerDashboard = () => {
 
           <Link
             to="/seller/properties"
-            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300"
+            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-purple-600 hover:bg-purple-700 text-white px-5 py-3 rounded-xl font-semibold"
           >
             View Listings
             <ArrowRight size={18} />
@@ -121,7 +119,7 @@ const SellerDashboard = () => {
 
         </div>
 
-        {/* PENDING */}
+        {/* PENDING APPROVAL */}
         <div className="dashboard-card bg-white rounded-[28px] p-7 shadow-lg border border-slate-200">
 
           <div className="icon-box w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center mb-5">
@@ -144,7 +142,7 @@ const SellerDashboard = () => {
 
           <Link
             to="/seller/properties"
-            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-semibold transition-all duration-300"
+            className="dashboard-btn inline-flex items-center gap-2 mt-6 bg-green-600 hover:bg-green-700 text-white px-5 py-3 rounded-xl font-semibold"
           >
             Check Status
             <ArrowRight size={18} />
