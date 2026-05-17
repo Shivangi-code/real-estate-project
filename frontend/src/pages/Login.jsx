@@ -1,15 +1,35 @@
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
+
 import API from "../utils/api";
-import { useNavigate } from "react-router-dom";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import "../styles/login.css";
 
 // ✅ AUTH CONTEXT
-import { useAuth } from "../context/AuthContext";
+import {
+  useAuth,
+} from "../context/AuthContext";
 
 export default function Login() {
 
+  // ======================================================
+  // ================= MODE ===============================
+  // ======================================================
+
   const [mode, setMode] =
-    useState("email-password");
+    useState(
+      "mobile-otp"
+    );
+
+  // ======================================================
+  // ================= FORM DATA ==========================
+  // ======================================================
 
   const [data, setData] =
     useState({
@@ -28,41 +48,77 @@ export default function Login() {
   const [timer, setTimer] =
     useState(0);
 
-  const navigate = useNavigate();
+  const navigate =
+    useNavigate();
 
   // ✅ GLOBAL AUTH
-  const { login, isAuthenticated } =
-    useAuth();
+  const {
+    login,
+    isAuthenticated,
+  } = useAuth();
 
-  // ================= REDIRECT IF ALREADY LOGGED IN =================
+  // ======================================================
+  // ================= REDIRECT ===========================
+  // ======================================================
+
   useEffect(() => {
 
-    if (isAuthenticated) {
+    if (
+      isAuthenticated
+    ) {
 
-      const user = JSON.parse(
-        localStorage.getItem("user")
-      );
+      const user =
+        JSON.parse(
+          localStorage.getItem(
+            "user"
+          )
+        );
 
-      if (user?.role === "admin") {
-        navigate("/admin");
+      if (
+        user?.role ===
+        "admin"
+      ) {
+
+        navigate(
+          "/admin"
+        );
       }
 
-      else if (user?.role === "seller") {
-        navigate("/seller");
+      else if (
+        user?.role ===
+        "seller"
+      ) {
+
+        navigate(
+          "/seller"
+        );
       }
 
-      else if (user?.role === "builder") {
-        navigate("/builder");
+      else if (
+        user?.role ===
+        "builder"
+      ) {
+
+        navigate(
+          "/builder"
+        );
       }
 
       else {
+
         navigate("/");
       }
     }
 
-  }, [isAuthenticated, navigate]);
+  }, [
+    isAuthenticated,
+    navigate,
+  ]);
 
-  // ================= RESET ON MODE CHANGE =================
+  // ======================================================
+  // ================= RESET MODE =========================
+  // ======================================================
+
   useEffect(() => {
 
     setData({
@@ -78,252 +134,277 @@ export default function Login() {
 
   }, [mode]);
 
-  // ================= TIMER =================
+  // ======================================================
+  // ================= TIMER ==============================
+  // ======================================================
+
   useEffect(() => {
 
     let interval;
 
     if (timer > 0) {
 
-      interval = setInterval(() => {
+      interval =
+        setInterval(() => {
 
-        setTimer((prev) => prev - 1);
+          setTimer(
+            (
+              prev
+            ) =>
+              prev - 1
+          );
 
-      }, 1000);
+        }, 1000);
     }
 
-    return () => clearInterval(interval);
+    return () =>
+      clearInterval(
+        interval
+      );
 
   }, [timer]);
 
-  // ================= INPUT =================
-  const handleChange = (e) => {
+  // ======================================================
+  // ================= INPUT ==============================
+  // ======================================================
 
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleChange =
+    (e) => {
 
-  // ================= SEND OTP =================
-  const sendOtp = async () => {
-    try {
+      setData({
+        ...data,
 
-      if (
-        mode.includes("email") &&
-        !data.email
-      ) {
-        return alert("Enter email");
-      }
+        [e.target.name]:
+          e.target.value,
+      });
+    };
 
-      if (
-        mode.includes("mobile") &&
-        !data.mobile
-      ) {
-        return alert(
-          "Enter mobile number"
+  // ======================================================
+  // ================= SEND OTP ===========================
+  // ======================================================
+
+  const sendOtp =
+    async () => {
+
+      try {
+
+        if (
+          !data.mobile
+        ) {
+
+          return alert(
+            "Enter mobile number"
+          );
+        }
+
+        await API.post(
+          "/user-auth/send-otp",
+          {
+            mobile:
+              data.mobile,
+          }
+        );
+
+        setOtpSent(true);
+
+        setTimer(30);
+
+        alert(
+          "OTP sent ✅"
+        );
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+            "Failed to send OTP"
         );
       }
+    };
 
-      await API.post(
-        "/user-auth/send-otp",
-        {
-          email:
-            data.email || undefined,
+  // ======================================================
+  // ================= LOGIN ==============================
+  // ======================================================
 
-          mobile:
-            data.mobile || undefined,
-        }
-      );
+  const handleLogin =
+    async () => {
 
-      setOtpSent(true);
+      try {
 
-      setTimer(30);
-
-      alert("OTP sent ✅");
-
-    } catch (err) {
-
-      alert(
-        err.response?.data?.message ||
-          "Failed to send OTP"
-      );
-    }
-  };
-
-  // ================= LOGIN =================
-  const handleLogin = async () => {
-
-    try {
-
-      // ================= VALIDATION =================
-
-      if (
-        mode === "email-password"
-      ) {
+        // ================= VALIDATION =================
 
         if (
-          !data.email ||
-          !data.password
+          mode ===
+          "email-password"
         ) {
-          return alert(
-            "Email & password required"
-          );
-        }
-      }
 
-      if (
-        mode === "mobile-password"
-      ) {
+          if (
+            !data.email ||
+            !data.password
+          ) {
+
+            return alert(
+              "Email & password required"
+            );
+          }
+        }
 
         if (
-          !data.mobile ||
-          !data.password
+          mode ===
+          "mobile-password"
         ) {
-          return alert(
-            "Mobile & password required"
-          );
-        }
-      }
 
-      if (
-        mode === "email-otp"
-      ) {
+          if (
+            !data.mobile ||
+            !data.password
+          ) {
+
+            return alert(
+              "Mobile & password required"
+            );
+          }
+        }
 
         if (
-          !data.email ||
-          !data.otp
+          mode ===
+          "mobile-otp"
         ) {
-          return alert(
-            "Email & OTP required"
-          );
-        }
-      }
 
-      if (
-        mode === "mobile-otp"
-      ) {
+          if (
+            !data.mobile ||
+            !data.otp
+          ) {
+
+            return alert(
+              "Mobile & OTP required"
+            );
+          }
+        }
+
+        setLoading(true);
+
+        let payload = {
+          mode,
+        };
+
+        // ================= EMAIL PASSWORD =================
 
         if (
-          !data.mobile ||
-          !data.otp
+          mode ===
+          "email-password"
         ) {
-          return alert(
-            "Mobile & OTP required"
+
+          payload.email =
+            data.email;
+
+          payload.password =
+            data.password;
+        }
+
+        // ================= MOBILE PASSWORD =================
+
+        if (
+          mode ===
+          "mobile-password"
+        ) {
+
+          payload.mobile =
+            data.mobile;
+
+          payload.password =
+            data.password;
+        }
+
+        // ================= MOBILE OTP =================
+
+        if (
+          mode ===
+          "mobile-otp"
+        ) {
+
+          payload.mobile =
+            data.mobile;
+
+          payload.otp =
+            data.otp;
+        }
+
+        // ================= API =================
+
+        const res =
+          await API.post(
+            "/user-auth/login",
+            payload
+          );
+
+        const {
+          token,
+          refreshToken,
+          user,
+        } = res.data;
+
+        // ✅ GLOBAL LOGIN
+        login(
+          user,
+          token,
+          refreshToken
+        );
+
+        // ================= REDIRECT =================
+
+        if (
+          user.role ===
+          "admin"
+        ) {
+
+          navigate(
+            "/admin"
           );
         }
+
+        else if (
+          user.role ===
+          "seller"
+        ) {
+
+          navigate(
+            "/seller"
+          );
+        }
+
+        else if (
+          user.role ===
+          "builder"
+        ) {
+
+          navigate(
+            "/builder"
+          );
+        }
+
+        else {
+
+          navigate("/");
+        }
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+            "Login failed"
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
       }
-
-      setLoading(true);
-
-      let payload = { mode };
-
-      // ================= BUILD PAYLOAD =================
-
-      if (
-        mode === "email-password"
-      ) {
-
-        payload.email =
-          data.email;
-
-        payload.password =
-          data.password;
-      }
-
-      if (
-        mode === "mobile-password"
-      ) {
-
-        payload.mobile =
-          data.mobile;
-
-        payload.password =
-          data.password;
-      }
-
-      if (
-        mode === "email-otp"
-      ) {
-
-        payload.email =
-          data.email;
-
-        payload.otp =
-          data.otp;
-      }
-
-      if (
-        mode === "mobile-otp"
-      ) {
-
-        payload.mobile =
-          data.mobile;
-
-        payload.otp =
-          data.otp;
-      }
-
-      // ================= API =================
-
-      const res = await API.post(
-        "/user-auth/login",
-        payload
-      );
-
-      const {
-        token,
-        refreshToken,
-        user,
-      } = res.data;
-
-      // ✅ GLOBAL LOGIN
-      login(
-        user,
-        token,
-        refreshToken
-      );
-
-      // ================= REDIRECT =================
-
-      if (
-        user.role === "admin"
-      ) {
-
-        navigate("/admin");
-      }
-
-      else if (
-        user.role === "seller"
-      ) {
-
-        navigate("/seller");
-      }
-
-      else if (
-        user.role === "builder"
-      ) {
-
-        navigate("/builder");
-      }
-
-      else {
-
-        navigate("/");
-      }
-
-    } catch (err) {
-
-      alert(
-        err.response?.data?.message ||
-          "Login failed"
-      );
-
-    } finally {
-
-      setLoading(false);
-    }
-  };
+    };
 
   return (
 
@@ -337,105 +418,164 @@ export default function Login() {
         </h2>
 
         {/* MODE SWITCH */}
-        <div className="grid grid-cols-2 gap-2 mb-4">
+        <div className="grid grid-cols-3 gap-2 mb-4">
 
           {[
-            ["email-password", "Email"],
-            ["mobile-password", "Mobile"],
-            ["email-otp", "Email OTP"],
-            ["mobile-otp", "Mobile OTP"],
-          ].map(([key, label]) => (
+            [
+              "email-password",
+              "Email",
+            ],
 
-            <button
-              key={key}
-              onClick={() =>
-                setMode(key)
-              }
-              className={`p-2 rounded text-white ${
-                mode === key
-                  ? "bg-blue-600"
-                  : "bg-white/20"
-              }`}
-            >
-              {label}
-            </button>
+            [
+              "mobile-password",
+              "Mobile",
+            ],
 
-          ))}
+            [
+              "mobile-otp",
+              "OTP",
+            ],
+          ].map(
+            ([
+              key,
+              label,
+            ]) => (
+
+              <button
+                key={key}
+                onClick={() =>
+                  setMode(
+                    key
+                  )
+                }
+                className={`p-2 rounded text-white ${
+                  mode ===
+                  key
+                    ? "bg-blue-600"
+                    : "bg-white/20"
+                }`}
+              >
+                {label}
+              </button>
+            )
+          )}
+
         </div>
 
         {/* EMAIL */}
-        {mode.includes("email") && (
+        {mode ===
+          "email-password" && (
+
           <input
             name="email"
             placeholder="Enter Email"
-            value={data.email}
-            onChange={handleChange}
+            value={
+              data.email
+            }
+            onChange={
+              handleChange
+            }
             className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
         )}
 
         {/* MOBILE */}
-        {mode.includes("mobile") && (
+        {(mode ===
+          "mobile-password" ||
+          mode ===
+            "mobile-otp") && (
+
           <input
             name="mobile"
             placeholder="Enter Mobile"
-            value={data.mobile}
-            onChange={handleChange}
+            value={
+              data.mobile
+            }
+            onChange={
+              handleChange
+            }
             className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
         )}
 
         {/* PASSWORD */}
-        {mode.includes("password") && (
+        {(mode ===
+          "email-password" ||
+          mode ===
+            "mobile-password") && (
+
           <input
             type="password"
             name="password"
             placeholder="Enter Password"
-            value={data.password}
-            onChange={handleChange}
+            value={
+              data.password
+            }
+            onChange={
+              handleChange
+            }
             className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
         )}
 
         {/* OTP */}
-        {mode.includes("otp") && (
+        {mode ===
+          "mobile-otp" && (
+
           <div className="relative mb-4">
 
             <input
               name="otp"
               placeholder="Enter OTP"
-              value={data.otp}
-              onChange={handleChange}
+              value={
+                data.otp
+              }
+              onChange={
+                handleChange
+              }
               className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
             />
 
             <button
-              onClick={sendOtp}
-              disabled={timer > 0}
+              onClick={
+                sendOtp
+              }
+              disabled={
+                timer > 0
+              }
               className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm ${
                 timer > 0
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               } text-white`}
             >
+
               {timer > 0
                 ? `Resend ${timer}s`
                 : otpSent
                 ? "Resend OTP"
                 : "Send OTP"}
+
             </button>
+
           </div>
         )}
 
         {/* LOGIN BUTTON */}
         <button
-          onClick={handleLogin}
-          disabled={loading}
+          onClick={
+            handleLogin
+          }
+          disabled={
+            loading
+          }
           className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
         >
+
           {loading
             ? "Logging in..."
             : "Login"}
+
         </button>
 
         {/* LINKS */}
@@ -444,7 +584,9 @@ export default function Login() {
           <p
             className="cursor-pointer underline hover:text-blue-200 transition"
             onClick={() =>
-              navigate("/signup")
+              navigate(
+                "/signup"
+              )
             }
           >
             Create Account
@@ -462,7 +604,9 @@ export default function Login() {
           </p>
 
         </div>
+
       </div>
+
     </div>
   );
 }

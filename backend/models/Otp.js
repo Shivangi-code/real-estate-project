@@ -1,20 +1,195 @@
-const mongoose = require("mongoose");
+const mongoose =
+  require("mongoose");
 
-const otpSchema = new mongoose.Schema({
-  email: {
-    type: String,
+const otpSchema =
+  new mongoose.Schema(
+    {
+      // ======================================================
+      // ================= CONTACT ============================
+      // ======================================================
+
+      email: {
+        type: String,
+        default: null,
+        trim: true,
+        lowercase: true,
+      },
+
+      mobile: {
+        type: String,
+        default: null,
+        trim: true,
+      },
+
+      // ======================================================
+      // ================= OTP ================================
+      // ======================================================
+
+      otp: {
+        type: String,
+        required: true,
+      },
+
+      // ======================================================
+      // ================= TYPE ===============================
+      // ======================================================
+
+      type: {
+        type: String,
+
+        enum: [
+          "sms",
+          "email",
+        ],
+
+        required: true,
+      },
+
+      // ======================================================
+      // ================= PURPOSE ============================
+      // ======================================================
+
+      purpose: {
+        type: String,
+
+        enum: [
+          "signup",
+          "login",
+          "forgot-password",
+          "verify-mobile",
+          "verify-email",
+        ],
+
+        default: "login",
+      },
+
+      // ======================================================
+      // ================= STATUS =============================
+      // ======================================================
+
+      verified: {
+        type: Boolean,
+        default: false,
+      },
+
+      // ======================================================
+      // ================= SECURITY ===========================
+      // ======================================================
+
+      attempts: {
+        type: Number,
+        default: 0,
+      },
+
+      maxAttempts: {
+        type: Number,
+        default: 5,
+      },
+
+      resendCount: {
+        type: Number,
+        default: 0,
+      },
+
+      maxResends: {
+        type: Number,
+        default: 3,
+      },
+
+      blocked: {
+        type: Boolean,
+        default: false,
+      },
+
+      blockedUntil: {
+        type: Date,
+        default: null,
+      },
+
+      // ======================================================
+      // ================= COOLDOWN ===========================
+      // ======================================================
+
+      resendAvailableAt: {
+        type: Date,
+
+        default: () =>
+          new Date(
+            Date.now() +
+              30 * 1000
+          ),
+      },
+
+      // ======================================================
+      // ================= IP TRACKING ========================
+      // ======================================================
+
+      ipAddress: {
+        type: String,
+        default: "",
+      },
+
+      userAgent: {
+        type: String,
+        default: "",
+      },
+
+      // ======================================================
+      // ================= EXPIRY =============================
+      // ======================================================
+
+      expiresAt: {
+        type: Date,
+
+        default: () =>
+          new Date(
+            Date.now() +
+              5 * 60 * 1000
+          ),
+      },
+    },
+
+    {
+      timestamps: true,
+    }
+  );
+
+// ======================================================
+// ================= AUTO DELETE EXPIRED ================
+// ======================================================
+
+otpSchema.index(
+  {
+    expiresAt: 1,
   },
-  mobile: {
-    type: String,
-  },
-  otp: {
-    type: String,
-    required: true,
-  },
-  expiresAt: {
-    type: Date,
-    default: () => new Date(Date.now() + 5 * 60 * 1000),
-  },
+
+  {
+    expireAfterSeconds: 0,
+  }
+);
+
+// ======================================================
+// ================= QUERY INDEXES ======================
+// ======================================================
+
+otpSchema.index({
+  mobile: 1,
 });
 
-module.exports = mongoose.model("Otp", otpSchema);
+otpSchema.index({
+  email: 1,
+});
+
+otpSchema.index({
+  purpose: 1,
+});
+
+// ======================================================
+// ================= EXPORT =============================
+// ======================================================
+
+module.exports =
+  mongoose.model(
+    "Otp",
+    otpSchema
+  );

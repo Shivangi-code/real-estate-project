@@ -1,316 +1,391 @@
 const express = require("express");
 
-const router =
-  express.Router();
+const router = express.Router();
 
-const mongoose =
-  require("mongoose");
+const mongoose = require("mongoose");
 
-const Property =
-  require("../models/Property");
+const Property = require("../models/Property");
 
-const User =
-  require("../models/User");
+const User = require("../models/User");
 
-const upload =
-  require("../middleware/upload");
+const upload = require("../middleware/upload");
 
 const {
-  protect,
-  authorizeRoles,
-} = require(
-  "../middleware/authMiddleware"
-);
+protect,
+authorizeRoles,
+} = require("../middleware/authMiddleware");
 
 // ======================================================
 // ================= HELPERS ============================
 // ======================================================
 
-// ================= VALIDATE OBJECT ID =================
-const isValidId = (
-  id
-) =>
-  mongoose.Types.ObjectId.isValid(
-    id
-  );
+const isValidId = (id) =>
+mongoose.Types.ObjectId.isValid(id);
 
+// ======================================================
 // ================= REALTIME EMIT ======================
+// ======================================================
+
 const emitRealtimeUpdate = (
-  req,
-  property
+req,
+property
 ) => {
 
-  const io =
-    req.app.get("io");
+const io = req.app.get("io");
 
-  if (io) {
+if (io) {
 
-    io.emit(
-      "propertyUpdated",
-      {
-        propertyId:
-          property._id,
 
-        status:
-          property.status,
-
-        businessStatus:
-          property.businessStatus,
-
-        underNegotiation:
-          property.underNegotiation,
-
-        property,
-      }
-    );
+io.emit(
+  "propertyUpdated",
+  {
+    propertyId: property._id,
+    status: property.status,
+    businessStatus:
+      property.businessStatus,
+    underNegotiation:
+      property.underNegotiation,
+    property,
   }
+);
+
+
+}
 };
 
 // ======================================================
 // ================= APPROVED IMAGES ====================
 // ======================================================
 
-const getApprovedImages =
-  (property) =>
-    (
-      property.images ||
-      []
-    ).filter(
-      (image) =>
-        image.status ===
-        "approved"
-    );
+const getApprovedImages = (
+property
+) =>
+(
+property.images || []
+).filter(
+(image) =>
+image.status === "approved"
+);
 
 // ======================================================
 // ================= MAP PROPERTY =======================
 // ======================================================
 
-const mapApprovedImages =
-  (property) => {
+const mapApprovedImages = (
+property
+) => {
 
-    const doc =
-      property.toObject
-        ? property.toObject()
-        : property;
+const doc =
+property.toObject
+? property.toObject()
+: property;
 
-    const approvedImages =
-      getApprovedImages(
-        doc
-      );
+const approvedImages =
+getApprovedImages(doc);
 
-    return {
-      ...doc,
+return {
+...doc,
 
-      // ================= PRIMARY IMAGE =================
-      image:
-        approvedImages[0]
-          ?.url ||
-        doc.image ||
-        null,
 
-      // ================= GALLERY =================
-      images:
-        approvedImages,
-    };
+image:
+  approvedImages[0]?.url ||
+  doc.image ||
+  null,
+
+images: approvedImages,
+
+
+};
+};
+
+// ======================================================
+// ================= ADVANCED SEARCH ====================
+// ======================================================
+
+router.get(
+"/search",
+
+async (req, res) => {
+
+
+try {
+
+  const {
+    search,
+    type,
+    minPrice,
+    maxPrice,
+    businessStatus,
+    underNegotiation,
+    sort,
+  } = req.query;
+
+  const query = {
+    status: "approved",
   };
+
+  // ================= SEARCH =================
+  if (search) {
+
+    query.$or = [
+      {
+        title: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+
+      {
+        location: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+
+      {
+        subType: {
+          $regex: search,
+          $options: "i",
+        },
+      },
+    ];
+  }
+
+  // ================= TYPE =================
+  if (type) {
+
+    query.type = type;
+  }
+
+  // ================= PRICE =================
+  if (
+    minPrice ||
+    maxPrice
+  ) {
+
+    query.price = {};
+
+    if (minPrice) {
+
+      query.price.$gte =
+        Number(minPrice);
+    }
+
+    if (maxPrice) {
+
+      query.price.$lte =
+        Number(maxPrice);
+    }
+  }
+
+  // ================= BUSINESS STATUS =================
+  if (businessStatus) {
+
+    query.businessStatus =
+      businessStatus;
+  }
+
+  // ================= NEGOTIATION =================
+  if (
+    underNegotiation ===
+    "true"
+  ) {
+
+    query.underNegotiation = true;
+  }
+
+  // ================= SORT =================
+  let sortOption = {
+    createdAt: -1,
+  };
+
+  if (sort === "price-low") {
+
+    sortOption = {
+      price: 1,
+    };
+  }
+
+  if (sort === "price-high") {
+
+    sortOption = {
+      price: -1,
+    };
+  }
+
+  if (sort === "oldest") {
+
+    sortOption = {
+      createdAt: 1,
+    };
+  }
+
+  const properties =
+    await Property.find(query)
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .sort(sortOption);
+
+  const formatted =
+    properties.map(
+      mapApprovedImages
+    );
+
+  res.json(formatted);
+
+} catch (error) {
+
+  console.log(
+    "ADVANCED SEARCH ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
+);
 
 // ======================================================
 // ================= ADD PROPERTY =======================
 // ======================================================
 
 router.post(
-  "/add",
+"/add",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "seller",
-    "builder",
-    "admin"
-  ),
+authorizeRoles(
+"seller",
+"builder",
+"admin"
+),
 
-  // ✅ MULTI IMAGE SUPPORT
-  upload.array(
-    "images",
-    15
-  ),
+upload.array("images", 15),
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const isAdmin =
-        req.user.role ===
-        "admin";
+try {
 
-      // ======================================================
-      // ================= MULTI IMAGE FORMAT =================
-      // ======================================================
+  const isAdmin =
+    req.user.role === "admin";
 
-      const uploadedImages =
-        req.files || [];
+  const uploadedImages =
+    req.files || [];
 
-      const images =
-        uploadedImages.map(
-          (file) => ({
-            filename:
-              file.filename,
+  const images =
+    uploadedImages.map(
+      (file) => ({
+        filename:
+          file.filename,
 
-            url:
-              file.path,
+        url: file.path,
 
-            uploadedBy:
-              req.user._id,
+        uploadedBy:
+          req.user._id,
 
-            status:
-              // ✅ AUTO APPROVE FOR NOW
-              "approved",
+        status:
+          "approved",
 
-            verifiedBy:
-              isAdmin
-                ? req.user._id
-                : null,
-
-            verifiedAt:
-              isAdmin
-                ? new Date()
-                : null,
-          })
-        );
-
-      // ======================================================
-      // ================= PRIMARY IMAGE ======================
-      // ======================================================
-
-      const primaryImage =
-        images[0]?.url ||
-        null;
-
-      // ======================================================
-      // ================= CREATE PROPERTY ====================
-      // ======================================================
-
-      const property =
-        new Property({
-          title:
-            req.body.title,
-
-          price:
-            req.body.price,
-
-          location:
-            req.body.location,
-
-          type:
-            req.body.type,
-
-          subType:
-            req.body.subType,
-
-          constructionStatus:
-            req.body
-              .constructionStatus,
-
-          description:
-            req.body
-              .description,
-
-          // ================= PRIMARY IMAGE =================
-          image:
-            primaryImage,
-
-          // ================= GALLERY =======================
-          images,
-
-          // ================= STATUS ========================
-          status:
-            isAdmin
-              ? "approved"
-              : "pending",
-
-          createdBy:
-            req.user._id,
-
-          createdByRole:
-            req.user.role,
-
-          ownerUniqueId:
-            req.user
-              .uniqueUserId ||
-            "",
-
-          ownerName:
-            req.user.name ||
-            "",
-
-          verifiedBy:
-            isAdmin
-              ? req.user._id
-              : null,
-
-          verifiedAt:
-            isAdmin
-              ? new Date()
-              : null,
-
-          lastStatusChangedAt:
-            new Date(),
-
-          statusHistory: [
-            {
-              status:
-                isAdmin
-                  ? "approved"
-                  : "pending",
-
-              changedAt:
-                new Date(),
-
-              changedBy:
-                isAdmin
-                  ? req.user._id
-                  : null,
-            },
-          ],
-        });
-
-      await property.save();
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.status(201).json({
-        success: true,
-
-        message:
+        verifiedBy:
           isAdmin
-            ? "Property published instantly 🚀"
-            : "Property submitted for review",
+            ? req.user._id
+            : null,
 
-        property:
-          mapApprovedImages(
-            property
-          ),
-      });
+        verifiedAt:
+          isAdmin
+            ? new Date()
+            : null,
+      })
+    );
 
-    } catch (error) {
+  const primaryImage =
+    images[0]?.url || null;
 
-      console.log(
-        "ADD PROPERTY ERROR:",
-        error
-      );
+  const property =
+    new Property({
+      title: req.body.title,
+      price: req.body.price,
+      location:
+        req.body.location,
+      type: req.body.type,
+      subType:
+        req.body.subType,
+      constructionStatus:
+        req.body
+          .constructionStatus,
+      description:
+        req.body.description,
 
-      res.status(500).json({
-        success: false,
+      image: primaryImage,
 
-        message:
-          error.message ||
-          "Server error",
-      });
-    }
-  }
+      images,
+
+      status: isAdmin
+        ? "approved"
+        : "pending",
+
+      createdBy:
+        req.user._id,
+
+      createdByRole:
+        req.user.role,
+
+      ownerUniqueId:
+        req.user
+          .uniqueUserId ||
+        "",
+
+      ownerName:
+        req.user.name || "",
+
+      verifiedBy: isAdmin
+        ? req.user._id
+        : null,
+
+      verifiedAt: isAdmin
+        ? new Date()
+        : null,
+    });
+
+  await property.save();
+
+  emitRealtimeUpdate(
+    req,
+    property
+  );
+
+  res.status(201).json({
+    success: true,
+    message:
+      isAdmin
+        ? "Property approved & added"
+        : "Property submitted for review",
+    property,
+  });
+
+} catch (error) {
+
+  console.log(
+    "ADD PROPERTY ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
 // ======================================================
@@ -318,210 +393,117 @@ router.post(
 // ======================================================
 
 router.get(
-  "/approved",
+"/approved",
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const {
-        search,
-        type,
-        subType,
-        minPrice,
-        maxPrice,
-        location,
-        businessStatus,
-        sort,
-      } = req.query;
+try {
 
-      // ======================================================
-      // ================= BASE QUERY =========================
-      // ======================================================
-
-      const query = {
-        status:
-          "approved",
-      };
-
-      // ======================================================
-      // ================= SEARCH =============================
-      // ======================================================
-
-      if (search) {
-
-        query.$or = [
-          {
-            title: {
-              $regex:
-                search,
-
-              $options:
-                "i",
-            },
-          },
-
-          {
-            location: {
-              $regex:
-                search,
-
-              $options:
-                "i",
-            },
-          },
-
-          {
-            propertyUniqueId:
-              {
-                $regex:
-                  search,
-
-                $options:
-                  "i",
-              },
-          },
-        ];
-      }
-
-      // ======================================================
-      // ================= FILTERS ============================
-      // ======================================================
-
-      if (type) {
-
-        query.type = {
-          $regex: type,
-          $options: "i",
-        };
-      }
-
-      if (subType) {
-
-        query.subType = {
-          $regex:
-            subType,
-
-          $options:
-            "i",
-        };
-      }
-
-      if (location) {
-
-        query.location = {
-          $regex:
-            location,
-
-          $options:
-            "i",
-        };
-      }
-
-      if (
-        businessStatus
-      ) {
-
-        query.businessStatus =
-          businessStatus;
-      }
-
-      // ======================================================
-      // ================= PRICE ==============================
-      // ======================================================
-
-      if (
-        minPrice ||
-        maxPrice
-      ) {
-
-        query.price = {};
-
-        if (minPrice) {
-
-          query.price.$gte =
-            Number(
-              minPrice
-            );
-        }
-
-        if (maxPrice) {
-
-          query.price.$lte =
-            Number(
-              maxPrice
-            );
-        }
-      }
-
-      // ======================================================
-      // ================= SORT ===============================
-      // ======================================================
-
-      let sortOption = {
+  const properties =
+    await Property.find({
+      status: "approved",
+    })
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .sort({
         createdAt: -1,
-      };
+      });
 
-      if (
-        sort ===
-        "price-low-high"
-      ) {
+  const formatted =
+    properties.map(
+      mapApprovedImages
+    );
 
-        sortOption = {
-          price: 1,
-        };
-      }
+  res.json(formatted);
 
-      if (
-        sort ===
-        "price-high-low"
-      ) {
+} catch (error) {
 
-        sortOption = {
-          price: -1,
-        };
-      }
+  console.log(
+    "APPROVED FETCH ERROR:",
+    error
+  );
 
-      // ======================================================
-      // ================= FETCH ==============================
-      // ======================================================
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
 
-      const properties =
-        await Property.find(
-          query
-        )
 
-          .populate(
-            "createdBy",
-            "name role email uniqueUserId"
-          )
+}
+);
 
-          .sort(
-            sortOption
-          );
+// ======================================================
+// ================= GET PROPERTY DETAILS ===============
+// ======================================================
 
-      const updated =
-        properties.map(
-          mapApprovedImages
-        );
+router.get(
+"/:id",
 
-      res.json(updated);
+async (req, res) => {
 
-    } catch (err) {
 
-      console.log(
-        "GET APPROVED ERROR:",
-        err
+try {
+
+  if (
+    !isValidId(
+      req.params.id
+    )
+  ) {
+
+    return res.status(400).json({
+      success: false,
+      message:
+        "Invalid property ID",
+    });
+  }
+
+  const property =
+    await Property.findById(
+      req.params.id
+    )
+      .populate(
+        "createdBy",
+        "name role uniqueUserId"
+      )
+      .populate(
+        "verifiedBy",
+        "name uniqueUserId"
       );
 
-      res.status(500).json({
-        success: false,
+  if (!property) {
 
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      success: false,
+      message:
+        "Property not found",
+    });
   }
+
+  res.json(
+    mapApprovedImages(
+      property
+    )
+  );
+
+} catch (error) {
+
+  console.log(
+    "PROPERTY DETAILS ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
 // ======================================================
@@ -529,300 +511,40 @@ router.get(
 // ======================================================
 
 router.get(
-  "/my-properties",
+"/my-properties",
 
-  protect,
+protect,
 
-  authorizeRoles(
-    "seller",
-    "builder",
-    "agent",
-    "admin"
-  ),
+async (req, res) => {
 
-  async (req, res) => {
 
-    try {
+try {
 
-      const properties =
-        await Property.find({
-          createdBy:
-            req.user._id,
-        }).sort({
-          createdAt: -1,
-        });
+  const properties =
+    await Property.find({
+      createdBy:
+        req.user._id,
+    }).sort({
+      createdAt: -1,
+    });
 
-      res.json(
-        properties.map(
-          mapApprovedImages
-        )
-      );
+  res.json(properties);
 
-    } catch (error) {
+} catch (error) {
 
-      console.log(
-        "MY PROPERTIES ERROR:",
-        error
-      );
+  console.log(
+    "MY PROPERTIES ERROR:",
+    error
+  );
 
-      res.status(500).json({
-        success: false,
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
 
-        message:
-          "Server error",
-      });
-    }
-  }
-);
 
-// ======================================================
-// ================= DASHBOARD STATS ====================
-// ======================================================
-
-router.get(
-  "/my-dashboard-stats",
-
-  protect,
-
-  authorizeRoles(
-    "seller",
-    "builder",
-    "agent",
-    "admin"
-  ),
-
-  async (req, res) => {
-
-    try {
-
-      const ownerQuery = {
-        createdBy:
-          req.user._id,
-      };
-
-      const totalProperties =
-        await Property.countDocuments(
-          ownerQuery
-        );
-
-      const approvedProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            status:
-              "approved",
-          }
-        );
-
-      const pendingProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            status:
-              "pending",
-          }
-        );
-
-      const rejectedProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            status:
-              "rejected",
-          }
-        );
-
-      const soldProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            businessStatus:
-              "sold",
-          }
-        );
-
-      const availableProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            businessStatus:
-              "available",
-          }
-        );
-
-      const underNegotiationProperties =
-        await Property.countDocuments(
-          {
-            ...ownerQuery,
-            underNegotiation:
-              true,
-          }
-        );
-
-      const totalViewsData =
-        await Property.aggregate(
-          [
-            {
-              $match:
-                ownerQuery,
-            },
-
-            {
-              $group: {
-                _id: null,
-
-                totalViews:
-                  {
-                    $sum:
-                      "$totalViews",
-                  },
-              },
-            },
-          ]
-        );
-
-      const totalViews =
-        totalViewsData[0]
-          ?.totalViews || 0;
-
-      const totalInquiryData =
-        await Property.aggregate(
-          [
-            {
-              $match:
-                ownerQuery,
-            },
-
-            {
-              $group: {
-                _id: null,
-
-                totalInquiries:
-                  {
-                    $sum:
-                      "$totalInquiries",
-                  },
-              },
-            },
-          ]
-        );
-
-      const totalInquiries =
-        totalInquiryData[0]
-          ?.totalInquiries ||
-        0;
-
-      res.json({
-        totalProperties,
-
-        approvedProperties,
-
-        pendingProperties,
-
-        rejectedProperties,
-
-        soldProperties,
-
-        availableProperties,
-
-        underNegotiationProperties,
-
-        totalViews,
-
-        totalInquiries,
-      });
-
-    } catch (error) {
-
-      console.log(
-        "DASHBOARD STATS ERROR:",
-        error
-      );
-
-      res.status(500).json({
-        success: false,
-
-        message:
-          "Server error",
-      });
-    }
-  }
-);
-
-// ======================================================
-// ================= SINGLE PROPERTY ====================
-// ======================================================
-
-router.get(
-  "/:id",
-
-  async (req, res) => {
-
-    try {
-
-      const { id } =
-        req.params;
-
-      if (
-        !isValidId(id)
-      ) {
-
-        return res
-          .status(400)
-          .json({
-            success: false,
-
-            message:
-              "Invalid property ID",
-          });
-      }
-
-      const property =
-        await Property.findById(
-          id
-        ).populate(
-          "createdBy",
-          "name role email uniqueUserId"
-        );
-
-      if (!property) {
-
-        return res
-          .status(404)
-          .json({
-            success: false,
-
-            message:
-              "Property not found",
-          });
-      }
-
-      // ================= TRACK VIEWS =================
-      property.totalViews += 1;
-
-      await property.save();
-
-      res.json(
-        mapApprovedImages(
-          property
-        )
-      );
-
-    } catch (error) {
-
-      console.log(
-        "GET PROPERTY ERROR:",
-        error
-      );
-
-      res.status(500).json({
-        success: false,
-
-        message:
-          "Server error",
-      });
-    }
-  }
+}
 );
 
 // ======================================================
@@ -830,86 +552,72 @@ router.get(
 // ======================================================
 
 router.delete(
-  "/:id",
+"/:id",
 
-  protect,
+protect,
 
-  async (req, res) => {
+async (req, res) => {
 
-    try {
 
-      const property =
-        await Property.findById(
-          req.params.id
-        );
+try {
 
-      if (!property) {
+  const property =
+    await Property.findById(
+      req.params.id
+    );
 
-        return res
-          .status(404)
-          .json({
-            success: false,
+  if (!property) {
 
-            message:
-              "Property not found",
-          });
-      }
-
-      const isOwner =
-        property.createdBy.toString() ===
-        req.user._id.toString();
-
-      const isAdmin =
-        req.user.role ===
-        "admin";
-
-      if (
-        !isOwner &&
-        !isAdmin
-      ) {
-
-        return res
-          .status(403)
-          .json({
-            success: false,
-
-            message:
-              "Access denied",
-          });
-      }
-
-      await Property.findByIdAndDelete(
-        req.params.id
-      );
-
-      emitRealtimeUpdate(
-        req,
-        property
-      );
-
-      res.json({
-        success: true,
-
-        message:
-          "Property deleted successfully",
-      });
-
-    } catch (error) {
-
-      console.log(
-        "DELETE PROPERTY ERROR:",
-        error
-      );
-
-      res.status(500).json({
-        success: false,
-
-        message:
-          "Server error",
-      });
-    }
+    return res.status(404).json({
+      success: false,
+      message:
+        "Property not found",
+    });
   }
+
+  const isOwner =
+    property.createdBy.toString() ===
+    req.user._id.toString();
+
+  const isAdmin =
+    req.user.role === "admin";
+
+  if (
+    !isOwner &&
+    !isAdmin
+  ) {
+
+    return res.status(403).json({
+      success: false,
+      message: "Access denied",
+    });
+  }
+
+  await Property.findByIdAndDelete(
+    req.params.id
+  );
+
+  res.json({
+    success: true,
+    message:
+      "Property deleted successfully",
+  });
+
+} catch (error) {
+
+  console.log(
+    "DELETE PROPERTY ERROR:",
+    error
+  );
+
+  res.status(500).json({
+    success: false,
+    message: "Server error",
+  });
+}
+
+
+}
 );
 
-module.exports =
-  router;
+module.exports = router;

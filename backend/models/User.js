@@ -1,113 +1,195 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
+const mongoose =
+  require("mongoose");
 
-// ================= USER SCHEMA =================
-const userSchema = new mongoose.Schema(
-  {
-    // ================= BASIC INFO =================
-    name: {
-      type: String,
-      required: true,
-      trim: true,
+const bcrypt =
+  require("bcryptjs");
+
+// ======================================================
+// ================= USER SCHEMA ========================
+// ======================================================
+
+const userSchema =
+  new mongoose.Schema(
+    {
+      // ======================================================
+      // ================= BASIC INFO =========================
+      // ======================================================
+
+      name: {
+        type: String,
+        trim: true,
+        default: "",
+      },
+
+      // ======================================================
+      // ================= EMAIL ==============================
+      // ======================================================
+
+      email: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+        lowercase: true,
+        default: null,
+      },
+
+      // ======================================================
+      // ================= MOBILE =============================
+      // ======================================================
+
+      mobile: {
+        type: String,
+        unique: true,
+        sparse: true,
+        trim: true,
+        default: null,
+      },
+
+      // ======================================================
+      // ================= PASSWORD ===========================
+      // ======================================================
+
+      password: {
+        type: String,
+        minlength: 6,
+        default: null,
+        select: false,
+      },
+
+      // ======================================================
+      // ================= AUTH PROVIDER ======================
+      // ======================================================
+
+      authProvider: {
+        type: String,
+
+        enum: [
+          "email",
+          "otp",
+          "google",
+        ],
+
+        default: "email",
+      },
+
+      // ======================================================
+      // ================= USER ROLE ==========================
+      // ======================================================
+
+      role: {
+        type: String,
+
+        enum: [
+          "buyer",
+          "seller",
+          "builder",
+        ],
+
+        default: "buyer",
+      },
+
+      // ======================================================
+      // ================= UNIQUE USER ID =====================
+      // ======================================================
+
+      userUniqueId: {
+        type: String,
+        unique: true,
+        trim: true,
+      },
+
+      // ======================================================
+      // ================= GOOGLE =============================
+      // ======================================================
+
+      googleId: {
+        type: String,
+        default: null,
+      },
+
+      // ======================================================
+      // ================= PROFILE ============================
+      // ======================================================
+
+      profileImage: {
+        type: String,
+        default: "",
+      },
+
+      // ======================================================
+      // ================= VERIFICATION =======================
+      // ======================================================
+
+      isEmailVerified: {
+        type: Boolean,
+        default: false,
+      },
+
+      isMobileVerified: {
+        type: Boolean,
+        default: false,
+      },
+
+      isBlocked: {
+        type: Boolean,
+        default: false,
+      },
+
+      // ======================================================
+      // ================= BUSINESS ===========================
+      // ======================================================
+
+      whatsappNumber: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+
+      companyName: {
+        type: String,
+        default: "",
+        trim: true,
+      },
+
+      businessAddress: {
+        type: String,
+        default: "",
+        trim: true,
+      },
     },
 
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true,
-      lowercase: true,
-    },
+    {
+      timestamps: true,
+    }
+  );
 
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
-    },
+// ======================================================
+// ================= HASH PASSWORD ======================
+// ======================================================
 
-    // ================= USER ROLE =================
-    role: {
-      type: String,
-
-      enum: [
-        "user",
-        "seller",
-        "builder",
-        "agent",
-        "admin",
-      ],
-
-      default: "user",
-    },
-
-    // ================= UNIQUE USER ID =================
-    userUniqueId: {
-      type: String,
-      unique: true,
-      trim: true,
-    },
-
-    // ================= PROFILE =================
-    profileImage: {
-      type: String,
-      default: "",
-    },
-
-    phone: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    // ================= ACCOUNT STATUS =================
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
-
-    isBlocked: {
-      type: Boolean,
-      default: false,
-    },
-
-    // ================= FUTURE FEATURES =================
-    whatsappNumber: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    companyName: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-
-    businessAddress: {
-      type: String,
-      default: "",
-      trim: true,
-    },
-  },
-
-  {
-    timestamps: true,
-  }
-);
-
-// ================= AUTO GENERATE USER ID =================
 userSchema.pre(
   "save",
 
-  async function (next) {
+  async function (
+    next
+  ) {
 
     try {
 
       // ================= HASH PASSWORD =================
-      if (this.isModified("password")) {
+
+      if (
+        this.isModified(
+          "password"
+        ) &&
+        this.password
+      ) {
 
         const salt =
-          await bcrypt.genSalt(10);
+          await bcrypt.genSalt(
+            10
+          );
 
         this.password =
           await bcrypt.hash(
@@ -116,8 +198,11 @@ userSchema.pre(
           );
       }
 
-      // ================= GENERATE UNIQUE USER ID =================
-      if (!this.userUniqueId) {
+      // ================= UNIQUE USER ID =================
+
+      if (
+        !this.userUniqueId
+      ) {
 
         const random =
           Math.random()
@@ -138,11 +223,21 @@ userSchema.pre(
   }
 );
 
-// ================= PASSWORD MATCH =================
+// ======================================================
+// ================= MATCH PASSWORD =====================
+// ======================================================
+
 userSchema.methods.matchPassword =
   async function (
     enteredPassword
   ) {
+
+    if (
+      !this.password
+    ) {
+
+      return false;
+    }
 
     return await bcrypt.compare(
       enteredPassword,
@@ -150,16 +245,21 @@ userSchema.methods.matchPassword =
     );
   };
 
-// ================= INDEXES =================
-
+// ======================================================
+// ================= INDEXES ============================
+// ======================================================
 
 userSchema.index({
   role: 1,
 });
 
-// ================= EXPORT =================
+// ======================================================
+// ================= EXPORT =============================
+// ======================================================
+
 module.exports =
   mongoose.models.User ||
+
   mongoose.model(
     "User",
     userSchema
