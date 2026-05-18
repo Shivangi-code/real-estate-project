@@ -10,7 +10,12 @@
 
   padding: 0 40px;
 
-  background: linear-gradient(135deg, #0b3aa4, #062c7a);
+  background: linear-gradient(
+  135deg,
+  #0f172a,
+  #172554,
+  #1e3a8a
+);
 
   color: white;
   font-size: 13px;

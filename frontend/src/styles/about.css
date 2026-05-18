@@ -1,114 +1,35 @@
-/* ================= ABOUT PAGE CSS ================= */
+/* ================= ABOUT PAGE ================= */
 
-/* Base about page */
-.about {
-  background: #f9fafb;
-  font-family: Arial, sans-serif;
-  color: #333;
+.about-page {
+  width: 100%;
 }
 
-/* Main container for normal sections */
-.about-container {
-  max-width: 900px;
-  margin: auto;
-  padding: 40px 20px;
-  text-align: center;
+/* Smooth transitions */
+.about-page * {
+  transition: all 0.3s ease;
 }
 
-/* Paragraphs */
-.desc {
-  color: #555;
-  margin-bottom: 15px;
-  line-height: 1.7;
-}
-
-/* Boxes */
-.about-box {
-  background: white;
-  padding: 25px;
-  margin-top: 30px;
-  border-radius: 12px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
-  text-align: left;
-  transition: 0.3s;
-}
-
-.about-box:hover {
+/* Optional custom hover effect */
+.about-card:hover {
   transform: translateY(-5px);
 }
 
-.about-box h2 {
-  color: #1e3a8a;
-  margin-bottom: 10px;
+/* Better text rendering */
+.about-page h1,
+.about-page h2,
+.about-page h3 {
+  letter-spacing: -0.5px;
 }
 
-.about-box ul {
-  padding-left: 20px;
-}
-
-.about-box li {
-  margin-bottom: 10px;
-}
-
-/* Highlight box */
-.highlight {
-  background: linear-gradient(135deg, #1e3a8a, #2563eb);
-  color: white;
-  padding: 25px;
-  border-radius: 12px;
-  text-align: center;
-  margin-top: 30px;
-}
-
-.highlight h2 {
-  color: white;
-}
-
-/* ================= BLUE FULL WIDTH SECTIONS ================= */
-
-/* Full-width blue section wrapper */
-.blue-bg-full {
-  width: 100vw;                 /* full viewport width */
-  background-color: #007bff;    /* solid blue background */
-  color: white;
-  padding: 80px 20px;           /* top/bottom padding */
-  box-sizing: border-box;
-  display: flex;
-  justify-content: center;      /* horizontal centering */
-}
-
-/* Inner content inside full-width blue section */
-.blue-bg-content {
-  max-width: 1200px;            /* center content */
-  width: 100%;
-  text-align: center;
-}
-
-.blue-bg-content h1,
-.blue-bg-content h2 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-}
-
-.blue-bg-content p {
-  font-size: 1.3rem;
-  line-height: 1.6;
-  margin: 0 auto;
-}
-
-/* ================= RESPONSIVE ================= */
+/* Responsive */
 @media (max-width: 768px) {
-  .blue-bg-content h1,
-  .blue-bg-content h2 {
+
+  .about-page h1 {
+    font-size: 2.7rem;
+  }
+
+  .about-page h2 {
     font-size: 2rem;
   }
 
-  .blue-bg-content p {
-    font-size: 1rem;
-  }
-
-  .about-box,
-  .highlight {
-    padding: 20px;
-  }
 }

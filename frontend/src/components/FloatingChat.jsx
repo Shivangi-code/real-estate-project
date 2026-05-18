@@ -1,11 +1,18 @@
 import React from "react";
-import { FaComments } from "react-icons/fa";
-import "../styles/FloatingChat.css";   // ✅ correct path (styles folder)
+import { Home } from "lucide-react";
+import "../styles/FloatingChat.css";
 
 const FloatingChat = ({ onClick }) => {
   return (
     <div className="floating-chat" onClick={onClick}>
-      <FaComments size={22} />
+      
+      <div className="border-animate"></div>
+
+      <div className="content">
+        <Home size={22} />
+        <span className="label">Ask</span>
+      </div>
+
     </div>
   );
 };

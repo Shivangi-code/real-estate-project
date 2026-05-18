@@ -17,9 +17,46 @@
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
 
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(212,175,55,0.15);
 
   white-space: nowrap;
+
+  overflow: hidden;
+}
+
+/* ================= GOLDEN MOVING LIGHT ================= */
+.navbar::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -35%;
+
+  width: 35%;
+  height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(212,175,55,0.00),
+    rgba(212,175,55,0.12),
+    rgba(255,244,176,0.35),
+    rgba(212,175,55,0.12),
+    rgba(212,175,55,0.00),
+    transparent
+  );
+
+  filter: blur(10px);
+
+  animation: goldenMove 5s linear infinite;
+
+  pointer-events: none;
+}
+
+/* ================= ANIMATION ================= */
+@keyframes goldenMove {
+  0% { left: -35%; }
+  100% { left: 135%; }
 }
 
 /* ================= LEFT / CENTER / RIGHT ================= */
@@ -39,7 +76,7 @@
   flex: 1;
 }
 
-/* ================= RIGHT SIDE ONLY UPDATED ================= */
+/* ================= RIGHT SIDE ================= */
 .nav-right {
   flex: 3;
 
@@ -47,20 +84,26 @@
   align-items: center;
   justify-content: flex-end;
 
-  gap: 12px;
+  gap: 16px;
 
   flex-wrap: nowrap;
+
+  position: relative;
+  z-index: 2;
 }
 
-/* ================= LOGO WRAPPER (UNCHANGED) ================= */
+/* ================= LOGO WRAPPER ================= */
 .logo-wrapper {
   display: flex;
   align-items: center;
   gap: 1px;
   cursor: pointer;
+
+  position: relative;
+  z-index: 2;
 }
 
-/* ================= YOUR LOGO (UNCHANGED) ================= */
+/* ================= LOGO ================= */
 .nav-logo {
   height: 80px;
   width: auto;
@@ -68,7 +111,7 @@
   display: block;
 }
 
-/* ================= YOUR BRAND NAME IMAGE (UNCHANGED) ================= */
+/* ================= BRAND NAME IMAGE ================= */
 .brand-name-img {
   height: 80px;
   width: auto;
@@ -80,65 +123,79 @@
 
 /* ================= NAV LINKS ================= */
 .nav-right a {
-  height: 42px;
+  height: 48px;
 
-  padding: 0 16px;
+  padding: 0 22px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
   text-decoration: none;
 
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 
   color: #1e293b;
 
   position: relative;
   overflow: hidden;
 
-  transition: all 0.25s ease;
-
   white-space: nowrap;
+
+  background: linear-gradient(
+    to bottom right,
+    rgba(255,255,255,0.85),
+    rgba(255,255,255,0.55)
+  );
+
+  border: 1px solid rgba(212,175,55,0.18);
+
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+
+  transition: all 0.28s ease;
 }
 
-/* GOLD HOVER EFFECT */
+/* ================= NAV LINK HOVER ================= */
 .nav-right a:hover {
-  background: rgba(212,175,55,0.10);
+  transform: translateY(-2px);
 
   color: #b88917;
 
-  box-shadow:
-    0 6px 18px rgba(212,175,55,0.12);
+  border-color: rgba(212,175,55,0.35);
+
+  box-shadow: 0 12px 28px rgba(212,175,55,0.16);
 }
 
 /* ================= PREMIUM BUTTONS ================= */
 .login-btn {
-  height: 42px;
+  height: 48px;
 
-  padding: 0 18px;
+  padding: 0 24px;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
   border: 1px solid rgba(212,175,55,0.18);
 
-  background:
-    linear-gradient(
-      to bottom right,
-      rgba(255,255,255,0.75),
-      rgba(255,255,255,0.40)
-    );
+  background: linear-gradient(
+    to bottom right,
+    rgba(255,255,255,0.88),
+    rgba(255,255,255,0.55)
+  );
 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 
   color: #1e293b;
 
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
 
   cursor: pointer;
 
@@ -146,150 +203,77 @@
   align-items: center;
   justify-content: center;
 
-  gap: 8px;
+  gap: 10px;
 
   white-space: nowrap;
 
-  transition: all 0.25s ease;
+  transition: all 0.28s ease;
 
-  box-shadow:
-    0 4px 14px rgba(0,0,0,0.05);
-
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
-/* GOLD SHIMMER */
-.login-btn::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: -120%;
-
-  width: 70%;
-  height: 100%;
-
-  background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(255,255,255,0.45),
-      transparent
-    );
-
-  transform: skewX(-25deg);
-
-  transition: 0.8s;
-}
-
-.login-btn:hover::before {
-  left: 130%;
-}
-
-/* HOVER */
+/* ================= GOLDEN SHIMMER ================= */
 .login-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 
   border-color: rgba(212,175,55,0.35);
 
   color: #b88917;
 
-  box-shadow:
-    0 10px 24px rgba(212,175,55,0.15);
+  box-shadow: 0 14px 32px rgba(212,175,55,0.18);
 }
 
 /* ================= USER BOX ================= */
 .user-box {
-  height: 42px;
+  height: 48px;
 
-  padding: 0 14px;
+  padding: 0 18px;
 
   display: flex;
   align-items: center;
 
-  gap: 10px;
+  gap: 12px;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
-  background:
-    linear-gradient(
-      to bottom right,
-      rgba(255,255,255,0.75),
-      rgba(255,255,255,0.40)
-    );
+  background: linear-gradient(
+    to bottom right,
+    rgba(255,255,255,0.88),
+    rgba(255,255,255,0.55)
+  );
 
   backdrop-filter: blur(12px);
 
   border: 1px solid rgba(212,175,55,0.18);
 
-  box-shadow:
-    0 4px 14px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 
-  transition: all 0.25s ease;
+  transition: all 0.28s ease;
 
   white-space: nowrap;
-
-  position: relative;
-  overflow: hidden;
 }
 
-/* SHIMMER */
-.user-box::before {
-  content: "";
-
-  position: absolute;
-
-  top: 0;
-  left: -120%;
-
-  width: 70%;
-  height: 100%;
-
-  background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(255,255,255,0.45),
-      transparent
-    );
-
-  transform: skewX(-25deg);
-
-  transition: 0.8s;
-}
-
-.user-box:hover::before {
-  left: 130%;
-}
-
-/* HOVER */
 .user-box:hover {
-  transform: translateY(-1px);
-
+  transform: translateY(-2px);
   border-color: rgba(212,175,55,0.35);
-
-  box-shadow:
-    0 10px 24px rgba(212,175,55,0.12);
+  box-shadow: 0 14px 32px rgba(212,175,55,0.16);
 }
 
-/* ================= ICON BUTTON ================= */
+/* ================= MENU BUTTON ================= */
 .icon-btn,
 .menu-btn {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
 
-  border-radius: 14px;
+  border-radius: 16px;
 
   border: 1px solid rgba(212,175,55,0.18);
 
-  background:
-    linear-gradient(
-      to bottom right,
-      rgba(255,255,255,0.75),
-      rgba(255,255,255,0.40)
-    );
+  background: linear-gradient(
+    to bottom right,
+    rgba(255,255,255,0.88),
+    rgba(255,255,255,0.55)
+  );
 
   backdrop-filter: blur(12px);
 
@@ -299,126 +283,18 @@
 
   cursor: pointer;
 
-  transition: all 0.25s ease;
+  transition: all 0.28s ease;
+
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
 }
 
-/* HOVER */
 .icon-btn:hover,
 .menu-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+
+  color: #b88917;
 
   border-color: rgba(212,175,55,0.35);
 
-  color: #b88917;
-
-  box-shadow:
-    0 10px 24px rgba(212,175,55,0.12);
-}
-
-/* ================= DRAWER ================= */
-.overlay {
-  position: fixed;
-  inset: 0;
-
-  background: rgba(0,0,0,0.35);
-
-  backdrop-filter: blur(6px);
-
-  z-index: 1500;
-}
-
-.drawer {
-  position: fixed;
-
-  top: 0;
-  right: 0;
-
-  width: 300px;
-  height: 100vh;
-
-  padding: 24px;
-
-  background: rgba(255,255,255,0.88);
-
-  backdrop-filter: blur(24px);
-
-  box-shadow:
-    -10px 0 30px rgba(0,0,0,0.10);
-
-  z-index: 2000;
-}
-
-.drawer-header {
-  display: flex;
-  justify-content: flex-end;
-
-  margin-bottom: 24px;
-}
-
-.nav-item {
-  height: 46px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 0 14px;
-
-  border-radius: 14px;
-
-  cursor: pointer;
-
-  font-weight: 600;
-
-  transition: all 0.25s ease;
-}
-
-.nav-item:hover {
-  background: rgba(212,175,55,0.10);
-
-  color: #b88917;
-}
-
-/* ================= DARK MODE ================= */
-body.dark .navbar {
-  background: rgba(2, 6, 23, 0.75);
-}
-
-body.dark .nav-right a {
-  color: white;
-}
-
-body.dark .nav-right a:hover {
-  background: rgba(212,175,55,0.12);
-
-  color: #facc15;
-}
-
-body.dark .login-btn,
-body.dark .user-box,
-body.dark .icon-btn,
-body.dark .menu-btn {
-  background:
-    linear-gradient(
-      to bottom right,
-      rgba(15,23,42,0.80),
-      rgba(15,23,42,0.55)
-    );
-
-  color: white;
-
-  border: 1px solid rgba(212,175,55,0.15);
-}
-
-body.dark .drawer {
-  background: rgba(2,6,23,0.92);
-
-  color: white;
-}
-
-body.dark .nav-item:hover {
-  background: rgba(212,175,55,0.12);
-
-  color: #facc15;
+  box-shadow: 0 14px 32px rgba(212,175,55,0.16);
 }

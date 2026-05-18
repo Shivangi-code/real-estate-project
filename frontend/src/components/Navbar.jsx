@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 import {
   useNavigate,
@@ -8,20 +8,8 @@ import {
 
 import {
   Menu,
-  X,
-  User,
-  Home,
   LayoutDashboard,
-  Moon,
-  Sun,
-  ShieldCheck,
-  Building2,
 } from "lucide-react";
-
-import {
-  motion,
-  AnimatePresence,
-} from "framer-motion";
 
 import logo from "../assets/logo.png";
 import brandName from "../assets/brand-text.png";
@@ -30,9 +18,12 @@ import "../styles/navbar.css";
 
 import { useAuth } from "../context/AuthContext";
 
+// ✅ IMPORT DRAWER
+import Drawer from "./Drawer";
+
 function Navbar() {
+
   const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,10 +32,6 @@ function Navbar() {
 
   const role = user?.role;
 
-  useEffect(() => {
-    document.body.classList.toggle("dark", dark);
-  }, [dark]);
-
   const closeAll = () => setOpen(false);
 
   const goTo = (path) => {
@@ -52,7 +39,8 @@ function Navbar() {
     navigate(path);
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) =>
+    location.pathname === path;
 
   const handleLogout = () => {
     logout();
@@ -61,10 +49,12 @@ function Navbar() {
   };
 
   const getDashboardRoute = () => {
+
     if (role === "admin") return "/admin";
     if (role === "seller") return "/seller-dashboard";
     if (role === "builder") return "/builder-dashboard";
     if (role === "agent") return "/seller-dashboard";
+
     return "/";
   };
 
@@ -75,8 +65,11 @@ function Navbar() {
 
         {/* LEFT */}
         <div className="nav-left">
-          <div className="logo-wrapper" onClick={() => navigate("/")}>
-            
+
+          <div
+            className="logo-wrapper"
+            onClick={() => navigate("/")}
+          >
             <img
               src={logo}
               className="nav-logo"
@@ -88,25 +81,20 @@ function Navbar() {
               className="brand-name-img"
               alt="brand"
             />
-
           </div>
-        </div>
 
-        {/* CENTER */}
-        <div className="nav-center"></div>
+        </div>
 
         {/* RIGHT */}
         <div className="nav-right">
 
-          {/* DARK MODE */}
-          <button
-            className="icon-btn"
-            onClick={() => setDark(!dark)}
+          <Link
+            to="/"
+            className={isActive("/") ? "active" : ""}
           >
-            {dark ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+            Home
+          </Link>
 
-          {/* ABOUT */}
           <Link
             to="/about"
             className={isActive("/about") ? "active" : ""}
@@ -114,41 +102,12 @@ function Navbar() {
             About
           </Link>
 
-          {/* CONTACT */}
           <Link
             to="/contact"
             className={isActive("/contact") ? "active" : ""}
           >
             Contact
           </Link>
-
-          {/* MY PROPERTIES */}
-          {isAuthenticated && role !== "buyer" && (
-            <button
-              className="login-btn"
-              onClick={() => navigate("/my-properties")}
-            >
-              <Building2 size={16} />
-              My Properties
-            </button>
-          )}
-
-          {/* USER PANEL */}
-          {isAuthenticated && (
-            <motion.div className="user-box">
-
-              <div className="bg-slate-100 p-2 rounded-xl">
-                <User size={18} />
-              </div>
-
-              <div className="leading-tight">
-                <div className="font-semibold text-sm">
-                  {user?.name || "User"}
-                </div>
-              </div>
-
-            </motion.div>
-          )}
 
           {/* DASHBOARD */}
           {isAuthenticated && role !== "buyer" && (
@@ -161,24 +120,17 @@ function Navbar() {
             </button>
           )}
 
-          {/* LOGIN / LOGOUT */}
-          {!isAuthenticated ? (
+          {/* LOGIN */}
+          {!isAuthenticated && (
             <button
               className="login-btn"
               onClick={() => navigate("/login")}
             >
               Login
             </button>
-          ) : (
-            <button
-              className="login-btn"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
           )}
 
-          {/* MENU */}
+          {/* MENU BUTTON */}
           <button
             className="menu-btn"
             onClick={() => setOpen(true)}
@@ -189,107 +141,17 @@ function Navbar() {
         </div>
       </div>
 
-      {/* ================= DRAWER ================= */}
-      <AnimatePresence>
-
-        {open && (
-          <>
-
-            <motion.div
-              className="overlay"
-              onClick={closeAll}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            />
-
-            <motion.div
-              className="drawer"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-            >
-
-              <div className="drawer-header">
-                <X
-                  size={26}
-                  onClick={closeAll}
-                />
-              </div>
-
-              <div
-                className="nav-item"
-                onClick={() => goTo("/")}
-              >
-                <Home size={18} />
-                Home
-              </div>
-
-              <div
-                className="nav-item"
-                onClick={() => goTo("/about")}
-              >
-                About
-              </div>
-
-              <div
-                className="nav-item"
-                onClick={() => goTo("/contact")}
-              >
-                Contact
-              </div>
-
-              {isAuthenticated && role !== "buyer" && (
-                <div
-                  className="nav-item"
-                  onClick={() => goTo("/my-properties")}
-                >
-                  <Building2 size={18} />
-                  My Properties
-                </div>
-              )}
-
-              {isAuthenticated && role !== "buyer" && (
-                <div
-                  className="nav-item"
-                  onClick={() => goTo(getDashboardRoute())}
-                >
-                  <LayoutDashboard size={18} />
-                  Dashboard
-                </div>
-              )}
-
-              {isAuthenticated && (
-                <div className="nav-item">
-                  <ShieldCheck
-                    size={18}
-                    className="text-green-600"
-                  />
-                  Verified User
-                </div>
-              )}
-
-              {isAuthenticated ? (
-                <button
-                  className="drawer-btn logout-btn"
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              ) : (
-                <div
-                  className="nav-item"
-                  onClick={() => goTo("/login")}
-                >
-                  Login
-                </div>
-              )}
-
-            </motion.div>
-          </>
-        )}
-
-      </AnimatePresence>
+      {/* ================= DRAWER (FIXED CONNECTION) ================= */}
+      <Drawer
+        open={open}
+        closeAll={closeAll}
+        goTo={goTo}
+        isAuthenticated={isAuthenticated}
+        role={role}
+        user={user}
+        getDashboardRoute={getDashboardRoute}
+        handleLogout={handleLogout}
+      />
     </>
   );
 }
