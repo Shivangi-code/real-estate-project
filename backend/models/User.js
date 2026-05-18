@@ -84,6 +84,7 @@ const userSchema =
           "buyer",
           "seller",
           "builder",
+          "admin",
         ],
 
         default: "buyer",
