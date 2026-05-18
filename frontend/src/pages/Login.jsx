@@ -11,7 +11,6 @@ import {
 
 import "../styles/login.css";
 
-// ✅ AUTH CONTEXT
 import {
   useAuth,
 } from "../context/AuthContext";
@@ -49,7 +48,6 @@ export default function Login() {
   const navigate =
     useNavigate();
 
-  // ✅ GLOBAL AUTH
   const {
     login,
     isAuthenticated,
@@ -133,7 +131,9 @@ export default function Login() {
         setInterval(() => {
 
           setTimer(
-            (prev) =>
+            (
+              prev
+            ) =>
               prev - 1
           );
 
@@ -141,7 +141,9 @@ export default function Login() {
     }
 
     return () =>
-      clearInterval(interval);
+      clearInterval(
+        interval
+      );
 
   }, [timer]);
 
@@ -170,36 +172,22 @@ export default function Login() {
       try {
 
         if (
-          mode.includes("email") &&
-          !data.email
-        ) {
-
-          return alert(
-            "Enter email"
-          );
-        }
-
-        if (
-          mode.includes("mobile") &&
           !data.mobile
         ) {
 
           return alert(
-            "Enter mobile"
+            "Enter mobile number"
           );
         }
+
+        setLoading(true);
 
         await API.post(
           "/user-auth/send-otp",
 
           {
-            email:
-              data.email ||
-              undefined,
-
             mobile:
-              data.mobile ||
-              undefined,
+              data.mobile,
           }
         );
 
@@ -208,7 +196,7 @@ export default function Login() {
         setTimer(30);
 
         alert(
-          "OTP sent ✅"
+          "OTP sent successfully ✅"
         );
 
       } catch (err) {
@@ -220,6 +208,10 @@ export default function Login() {
 
             "Failed to send OTP"
         );
+
+      } finally {
+
+        setLoading(false);
       }
     };
 
@@ -238,7 +230,9 @@ export default function Login() {
           mode,
         };
 
-        // ================= EMAIL PASSWORD =================
+        // ======================================================
+        // ================= EMAIL PASSWORD =====================
+        // ======================================================
 
         if (
           mode ===
@@ -262,7 +256,9 @@ export default function Login() {
             data.password;
         }
 
-        // ================= MOBILE PASSWORD =================
+        // ======================================================
+        // ================= MOBILE PASSWORD ====================
+        // ======================================================
 
         if (
           mode ===
@@ -286,31 +282,9 @@ export default function Login() {
             data.password;
         }
 
-        // ================= EMAIL OTP =================
-
-        if (
-          mode ===
-          "email-otp"
-        ) {
-
-          if (
-            !data.email ||
-            !data.otp
-          ) {
-
-            return alert(
-              "Email & OTP required"
-            );
-          }
-
-          payload.email =
-            data.email;
-
-          payload.otp =
-            data.otp;
-        }
-
-        // ================= MOBILE OTP =================
+        // ======================================================
+        // ================= MOBILE OTP =========================
+        // ======================================================
 
         if (
           mode ===
@@ -334,7 +308,9 @@ export default function Login() {
             data.otp;
         }
 
-        // ================= API =================
+        // ======================================================
+        // ================= API ================================
+        // ======================================================
 
         const res =
           await API.post(
@@ -344,19 +320,17 @@ export default function Login() {
 
         const {
           token,
-          refreshToken,
           user,
         } = res.data;
 
-        // ✅ GLOBAL LOGIN
-
         login(
           user,
-          token,
-          refreshToken
+          token
         );
 
-        // ================= REDIRECT =================
+        // ======================================================
+        // ================= REDIRECT ===========================
+        // ======================================================
 
         if (
           user.role ===
@@ -407,8 +381,6 @@ export default function Login() {
 
     <div className="login-page">
 
-      {/* CARD */}
-
       <div className="bg-transparent backdrop-blur-2xl border border-white/30 p-8 rounded-3xl w-96 shadow-[0_25px_80px_rgba(0,0,0,0.25)] -mt-[101px]">
 
         <div className="mb-8">
@@ -419,7 +391,7 @@ export default function Login() {
 
           {/* MODE SWITCH */}
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-3 gap-2">
 
             {[
               [
@@ -433,13 +405,8 @@ export default function Login() {
               ],
 
               [
-                "email-otp",
-                "Email OTP",
-              ],
-
-              [
                 "mobile-otp",
-                "Mobile OTP",
+                "OTP",
               ],
             ].map(
               ([
@@ -471,7 +438,8 @@ export default function Login() {
 
         {/* EMAIL */}
 
-        {mode.includes("email") && (
+        {mode ===
+          "email-password" && (
 
           <input
             name="email"
@@ -484,7 +452,11 @@ export default function Login() {
 
         {/* MOBILE */}
 
-        {mode.includes("mobile") && (
+        {(mode ===
+          "mobile-password" ||
+
+          mode ===
+            "mobile-otp") && (
 
           <input
             name="mobile"
@@ -497,7 +469,11 @@ export default function Login() {
 
         {/* PASSWORD */}
 
-        {mode.includes("password") && (
+        {(mode ===
+          "email-password" ||
+
+          mode ===
+            "mobile-password") && (
 
           <input
             type="password"
@@ -511,7 +487,8 @@ export default function Login() {
 
         {/* OTP */}
 
-        {mode.includes("otp") && (
+        {mode ===
+          "mobile-otp" && (
 
           <div className="premium-otp-wrapper mb-4">
 
@@ -527,7 +504,8 @@ export default function Login() {
               onClick={sendOtp}
 
               disabled={
-                timer > 0
+                timer > 0 ||
+                loading
               }
 
               className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm text-white ${
@@ -551,44 +529,48 @@ export default function Login() {
         {/* LOGIN BUTTON */}
 
         <button
-          onClick={handleLogin}
+          onClick={
+            handleLogin
+          }
 
-          disabled={loading}
+          disabled={
+            loading
+          }
 
-          className="w-full py-3 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-500 shadow-lg hover:scale-[1.02] transition"
+          className="premium-btn"
         >
 
           {loading
-            ? "Logging in..."
+            ? "Please wait..."
             : "Login"}
 
         </button>
 
         {/* LINKS */}
 
-        <div className="mt-6 flex flex-col gap-2 text-center text-sm">
+        <div className="flex justify-between mt-5 text-sm text-white">
 
-          <button
+          <span
             onClick={() =>
-              navigate("/signup")
+              navigate(
+                "/signup"
+              )
             }
-
-            className="text-white/80 hover:text-blue-300 transition hover:underline"
+            className="cursor-pointer hover:underline"
           >
             Create Account
-          </button>
+          </span>
 
-          <button
+          <span
             onClick={() =>
               navigate(
                 "/forgot-password"
               )
             }
-
-            className="text-white/80 hover:text-blue-300 transition hover:underline"
+            className="cursor-pointer hover:underline"
           >
-            Forgot Password
-          </button>
+            Forgot Password?
+          </span>
 
         </div>
 
