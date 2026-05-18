@@ -1,5 +1,19 @@
+const crypto =
+  require("crypto");
+
+// ======================================================
+// ================= GENERATE OTP =======================
+// ======================================================
+
 function generateOtp() {
-  return Math.floor(100000 + Math.random() * 900000).toString();
+
+  return crypto
+    .randomInt(
+      100000,
+      999999
+    )
+    .toString();
 }
 
-module.exports = generateOtp;
+module.exports =
+  generateOtp;

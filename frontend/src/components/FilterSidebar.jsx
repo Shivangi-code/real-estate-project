@@ -1,112 +1,329 @@
-import { useState } from "react";
+import {
+  useState,
+} from "react";
 
-function FilterSidebar() {
+import {
+  Filter,
+  IndianRupee,
+  Building2,
+  BadgeCheck,
+} from "lucide-react";
 
-  const [openSection, setOpenSection] = useState("type");
+function FilterSidebar({
+  filters,
+  setFilters,
+}) {
 
-  const toggleSection = (section) => {
-    setOpenSection(openSection === section ? "" : section);
-  };
+  const [
+    openSection,
+    setOpenSection,
+  ] = useState(
+    "type"
+  );
+
+  const toggleSection =
+    (section) => {
+
+      setOpenSection(
+        openSection ===
+          section
+          ? ""
+          : section
+      );
+    };
 
   return (
-    <div className="filter-sidebar">
+    <div className="bg-white rounded-[32px] shadow-sm border border-slate-200 p-6 sticky top-6">
 
-      <h3 className="filter-title">Filters</h3>
+      {/* HEADER */}
+      <div className="flex items-center gap-3 mb-8">
 
-      {/* PROPERTY TYPE */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("type")}>
+        <div className="bg-blue-100 p-3 rounded-2xl">
+
+          <Filter className="text-blue-700" />
+
+        </div>
+
+        <div>
+
+          <h2 className="text-2xl font-bold">
+
+            Filters
+
+          </h2>
+
+          <p className="text-slate-500 text-sm">
+
+            Advanced property search
+
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* TYPE */}
+      <div className="mb-6">
+
+        <button
+          onClick={() =>
+            toggleSection(
+              "type"
+            )
+          }
+          className="font-bold text-lg mb-4 flex items-center gap-2"
+        >
+
+          <Building2 size={18} />
+
           Property Type
-        </div>
 
-        {openSection === "type" && (
-          <div className="section-body">
-            <label><input type="checkbox" /> Residential</label>
-            <label><input type="checkbox" /> Commercial</label>
-            <label><input type="checkbox" /> Plot / Land</label>
-            <label><input type="checkbox" /> Farmhouse</label>
+        </button>
+
+        {openSection ===
+          "type" && (
+
+          <div className="space-y-3">
+
+            {[
+              "Residential",
+              "Commercial",
+              "Agriculture",
+            ].map(
+              (
+                item
+              ) => (
+
+                <button
+                  key={
+                    item
+                  }
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      type:
+                        filters.type ===
+                        item
+                          ? ""
+                          : item,
+                    })
+                  }
+                  className={`w-full text-left px-4 py-3 rounded-2xl border transition ${
+                    filters.type ===
+                    item
+                      ? "bg-blue-600 text-white border-blue-600"
+                      : "border-slate-200 hover:border-blue-400"
+                  }`}
+                >
+
+                  {item}
+
+                </button>
+              )
+            )}
+
           </div>
         )}
+
       </div>
 
-      {/* BUDGET */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("budget")}>
-          Budget (₹ Lakhs)
-        </div>
+      {/* PRICE */}
+      <div className="mb-6">
 
-        {openSection === "budget" && (
-          <div className="section-body row-inputs">
-            <input type="number" placeholder="Min" />
-            <input type="number" placeholder="Max" />
+        <button
+          onClick={() =>
+            toggleSection(
+              "price"
+            )
+          }
+          className="font-bold text-lg mb-4 flex items-center gap-2"
+        >
+
+          <IndianRupee size={18} />
+
+          Budget
+
+        </button>
+
+        {openSection ===
+          "price" && (
+
+          <div className="space-y-4">
+
+            <input
+              type="number"
+              placeholder="Minimum Price"
+              value={
+                filters.minPrice
+              }
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  minPrice:
+                    e.target
+                      .value,
+                })
+              }
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none"
+            />
+
+            <input
+              type="number"
+              placeholder="Maximum Price"
+              value={
+                filters.maxPrice
+              }
+              onChange={(e) =>
+                setFilters({
+                  ...filters,
+                  maxPrice:
+                    e.target
+                      .value,
+                })
+              }
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none"
+            />
+
           </div>
         )}
+
       </div>
 
-      {/* AREA */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("area")}>
-          Area (sq ft)
-        </div>
+      {/* STATUS */}
+      <div className="mb-6">
 
-        {openSection === "area" && (
-          <div className="section-body row-inputs">
-            <input type="number" placeholder="Min" />
-            <input type="number" placeholder="Max" />
+        <button
+          onClick={() =>
+            toggleSection(
+              "status"
+            )
+          }
+          className="font-bold text-lg mb-4 flex items-center gap-2"
+        >
+
+          <BadgeCheck size={18} />
+
+          Business Status
+
+        </button>
+
+        {openSection ===
+          "status" && (
+
+          <div className="space-y-3">
+
+            {[
+              "available",
+              "sold",
+            ].map(
+              (
+                item
+              ) => (
+
+                <button
+                  key={
+                    item
+                  }
+                  onClick={() =>
+                    setFilters({
+                      ...filters,
+                      businessStatus:
+                        filters.businessStatus ===
+                        item
+                          ? ""
+                          : item,
+                    })
+                  }
+                  className={`w-full text-left px-4 py-3 rounded-2xl border capitalize transition ${
+                    filters.businessStatus ===
+                    item
+                      ? "bg-green-600 text-white border-green-600"
+                      : "border-slate-200 hover:border-green-400"
+                  }`}
+                >
+
+                  {item}
+
+                </button>
+              )
+            )}
+
+            {/* NEGOTIATION */}
+            <button
+              onClick={() =>
+                setFilters({
+                  ...filters,
+                  underNegotiation:
+                    filters.underNegotiation ===
+                    "true"
+                      ? ""
+                      : "true",
+                })
+              }
+              className={`w-full text-left px-4 py-3 rounded-2xl border transition ${
+                filters.underNegotiation ===
+                "true"
+                  ? "bg-yellow-500 text-white border-yellow-500"
+                  : "border-slate-200 hover:border-yellow-400"
+              }`}
+            >
+
+              Under Negotiation
+
+            </button>
+
           </div>
         )}
+
       </div>
 
-      {/* CONSTRUCTION STATUS */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("status")}>
-          Construction Status
-        </div>
+      {/* SORT */}
+      <div>
 
-        {openSection === "status" && (
-          <div className="section-body">
-            <label><input type="checkbox" /> Ready to Move</label>
-            <label><input type="checkbox" /> Under Construction</label>
-            <label><input type="checkbox" /> New Launch</label>
-          </div>
-        )}
-      </div>
+        <h3 className="font-bold text-lg mb-4">
 
-      {/* LOCALITY */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("locality")}>
-          Locality
-        </div>
+          Sort By
 
-        {openSection === "locality" && (
-          <div className="section-body">
-            <input type="text" placeholder="Search locality..." />
-            <label><input type="checkbox" /> Vijay Nagar</label>
-            <label><input type="checkbox" /> Napier Town</label>
-            <label><input type="checkbox" /> Adhartal</label>
-            <label><input type="checkbox" /> Tilhari</label>
-          </div>
-        )}
-      </div>
+        </h3>
 
-      {/* MORE FILTERS */}
-      <div className="filter-section">
-        <div className="section-header" onClick={() => toggleSection("more")}>
-          More Filters
-        </div>
+        <select
+          value={
+            filters.sort
+          }
+          onChange={(e) =>
+            setFilters({
+              ...filters,
+              sort:
+                e.target
+                  .value,
+            })
+          }
+          className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none"
+        >
 
-        {openSection === "more" && (
-          <div className="section-body">
-            <label><input type="checkbox" /> Parking</label>
-            <label><input type="checkbox" /> Lift</label>
-            <label><input type="checkbox" /> Furnished</label>
-            <label><input type="checkbox" /> Corner Property</label>
-          </div>
-        )}
+          <option value="">
+            Latest
+          </option>
+
+          <option value="oldest">
+            Oldest
+          </option>
+
+          <option value="price-low">
+            Price Low → High
+          </option>
+
+          <option value="price-high">
+            Price High → Low
+          </option>
+
+        </select>
+
       </div>
 
     </div>
   );
 }
 
-export default FilterSidebar;
+export default
+  FilterSidebar;

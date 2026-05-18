@@ -1,83 +1,219 @@
-import { useState } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
+
 import API from "../utils/api";
-import { useNavigate } from "react-router-dom";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import "../styles/signup.css";
 
 export default function Signup() {
 
-  const [data, setData] = useState({
-    name: "",
-    email: "",
-    mobile: "",
-    password: "",
-    role: "buyer",
-  });
-
-  const [loading, setLoading] = useState(false);
-
-  const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setData({
-      ...data,
-      [e.target.name]: e.target.value,
+  const [data, setData] =
+    useState({
+      name: "",
+      email: "",
+      mobile: "",
+      password: "",
+      otp: "",
+      role: "buyer",
     });
-  };
 
-  const handleSignup = async () => {
+  const [loading, setLoading] =
+    useState(false);
 
-    try {
+  const [otpSent, setOtpSent] =
+    useState(false);
 
-      if (!data.name || !data.password) {
-        return alert("Name & password required");
-      }
+  const [timer, setTimer] =
+    useState(0);
 
-      if (!data.mobile) {
-        return alert("Mobile number required");
-      }
+  const navigate =
+    useNavigate();
 
-      setLoading(true);
+  // ======================================================
+  // ================= TIMER ==============================
+  // ======================================================
 
-      await API.post("/user-auth/register", {
-        name: data.name,
-        email: data.email,
-        mobile: data.mobile,
-        password: data.password,
-        role: data.role,
-      });
+  useEffect(() => {
 
-      alert(`Signup successful as ${data.role} 🎉`);
+    let interval;
 
-      navigate("/login");
+    if (timer > 0) {
 
-    } catch (err) {
+      interval =
+        setInterval(() => {
 
-      alert(
-        err.response?.data?.message ||
-        "Signup failed"
+          setTimer(
+            (prev) =>
+              prev - 1
+          );
+
+        }, 1000);
+    }
+
+    return () =>
+      clearInterval(
+        interval
       );
 
-    } finally {
+  }, [timer]);
 
-      setLoading(false);
-    }
-  };
+  // ======================================================
+  // ================= INPUT ==============================
+  // ======================================================
+
+  const handleChange =
+    (e) => {
+
+      setData({
+        ...data,
+
+        [e.target.name]:
+          e.target.value,
+      });
+    };
+
+  // ======================================================
+  // ================= SEND OTP ===========================
+  // ======================================================
+
+  const sendOtp =
+    async () => {
+
+      try {
+
+        if (
+          !data.mobile
+        ) {
+
+          return alert(
+            "Mobile number required"
+          );
+        }
+
+        await API.post(
+          "/user-auth/send-otp",
+
+          {
+            mobile:
+              data.mobile,
+          }
+        );
+
+        setOtpSent(true);
+
+        setTimer(30);
+
+        alert(
+          "OTP sent successfully ✅"
+        );
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+
+            "Failed to send OTP"
+        );
+      }
+    };
+
+  // ======================================================
+  // ================= SIGNUP =============================
+  // ======================================================
+
+  const handleSignup =
+    async () => {
+
+      try {
+
+        if (
+          !data.name ||
+          !data.mobile ||
+          !data.password ||
+          !data.otp
+        ) {
+
+          return alert(
+            "All required fields must be filled"
+          );
+        }
+
+        setLoading(true);
+
+        await API.post(
+          "/user-auth/register",
+
+          {
+            name:
+              data.name,
+
+            email:
+              data.email,
+
+            mobile:
+              data.mobile,
+
+            password:
+              data.password,
+
+            otp:
+              data.otp,
+
+            role:
+              data.role,
+          }
+        );
+
+        alert(
+          `Signup successful as ${data.role} 🎉`
+        );
+
+        navigate(
+          "/login"
+        );
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+
+            "Signup failed"
+        );
+
+      } finally {
+
+        setLoading(false);
+      }
+    };
 
   return (
 
     <div className="signup-page">
 
       {/* ORBS */}
+
       <div className="orb orb1"></div>
       <div className="orb orb2"></div>
       <div className="orb orb3"></div>
 
       {/* LIGHT LINES */}
+
       <div className="light-line line1"></div>
       <div className="light-line line2"></div>
       <div className="light-line line3"></div>
 
       {/* FLOATING LABELS */}
+
       <div className="floating-card card1">
         📍 Jabalpur Plots
       </div>
@@ -95,9 +231,11 @@ export default function Signup() {
       </div>
 
       {/* CARD */}
+
       <div className="signup-container">
 
         {/* TITLE */}
+
         <div className="text-center mb-3">
 
           <div className="house-icon">
@@ -115,11 +253,17 @@ export default function Signup() {
         </div>
 
         {/* NAME */}
+
         <div className="mb-2">
 
           <label className="text-white text-sm mb-1 block">
+
             Full Name
-            <span className="text-red-400 ml-1 animate-pulse">*</span>
+
+            <span className="text-red-400 ml-1 animate-pulse">
+              *
+            </span>
+
           </label>
 
           <input
@@ -133,6 +277,7 @@ export default function Signup() {
         </div>
 
         {/* EMAIL */}
+
         <div className="mb-2">
 
           <label className="text-white text-sm mb-1 block">
@@ -150,11 +295,17 @@ export default function Signup() {
         </div>
 
         {/* MOBILE */}
+
         <div className="mb-2">
 
           <label className="text-white text-sm mb-1 block">
+
             Mobile Number
-            <span className="text-red-400 ml-1 animate-pulse">*</span>
+
+            <span className="text-red-400 ml-1 animate-pulse">
+              *
+            </span>
+
           </label>
 
           <input
@@ -167,12 +318,54 @@ export default function Signup() {
 
         </div>
 
+        {/* OTP */}
+
+        <div className="relative mb-4">
+
+          <input
+            name="otp"
+            placeholder="Enter OTP"
+            value={data.otp}
+            onChange={handleChange}
+            className="w-full p-4 pr-32 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+          />
+
+          <button
+            onClick={sendOtp}
+
+            disabled={
+              timer > 0
+            }
+
+            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl text-sm text-white ${
+              timer > 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
+          >
+
+            {timer > 0
+              ? `Resend ${timer}s`
+              : otpSent
+              ? "Resend OTP"
+              : "Send OTP"}
+
+          </button>
+
+        </div>
+
         {/* PASSWORD */}
+
         <div className="mb-2">
 
           <label className="text-white text-sm mb-1 block">
+
             Password
-            <span className="text-red-400 ml-1 animate-pulse">*</span>
+
+            <span className="text-red-400 ml-1 animate-pulse">
+              *
+            </span>
+
           </label>
 
           <input
@@ -187,11 +380,17 @@ export default function Signup() {
         </div>
 
         {/* ROLE */}
+
         <div className="mb-3">
 
           <label className="text-white text-sm mb-1 block">
+
             Select Role
-            <span className="text-red-400 ml-1 animate-pulse">*</span>
+
+            <span className="text-red-400 ml-1 animate-pulse">
+              *
+            </span>
+
           </label>
 
           <select
@@ -200,15 +399,25 @@ export default function Signup() {
             onChange={handleChange}
             className="signup-input"
           >
-            <option value="buyer" className="text-black">
+
+            <option
+              value="buyer"
+              className="text-black"
+            >
               Buyer
             </option>
 
-            <option value="seller" className="text-black">
+            <option
+              value="seller"
+              className="text-black"
+            >
               Seller
             </option>
 
-            <option value="builder" className="text-black">
+            <option
+              value="builder"
+              className="text-black"
+            >
               Builder
             </option>
 
@@ -217,21 +426,32 @@ export default function Signup() {
         </div>
 
         {/* BUTTON */}
+
         <button
           onClick={handleSignup}
+
           disabled={loading}
+
           className="w-full bg-white text-black font-semibold py-2.5 rounded-xl hover:scale-105 transition"
         >
-          {loading ? "Creating..." : "Create Account"}
+
+          {loading
+            ? "Creating..."
+            : "Create Account"}
+
         </button>
 
         {/* LOGIN */}
+
         <p className="text-center text-white text-sm mt-3">
 
           Already have an account?{" "}
 
           <span
-            onClick={() => navigate("/login")}
+            onClick={() =>
+              navigate("/login")
+            }
+
             className="underline cursor-pointer hover:text-blue-200 transition"
           >
             Login
@@ -240,6 +460,7 @@ export default function Signup() {
         </p>
 
       </div>
+
     </div>
   );
 }

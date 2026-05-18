@@ -1,83 +1,191 @@
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+} from "react";
+
 import API from "../utils/api";
-import { useNavigate } from "react-router-dom";
+
+import {
+  useNavigate,
+} from "react-router-dom";
+
 import "../styles/forgotpassword.css";
 
 export default function ForgotPassword() {
 
-  const [data, setData] = useState({
-    email: "",
-    mobile: "",
-    otp: "",
-    newPassword: "",
-  });
+  const [data, setData] =
+    useState({
+      email: "",
+      mobile: "",
+      otp: "",
+      newPassword: "",
+    });
 
-  const [timer, setTimer] = useState(0);
-  const [otpSent, setOtpSent] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] =
+    useState(0);
 
-  const navigate = useNavigate();
+  const [otpSent, setOtpSent] =
+    useState(false);
 
-  // TIMER
+  const [loading, setLoading] =
+    useState(false);
+
+  const navigate =
+    useNavigate();
+
+  // ======================================================
+  // ================= TIMER ==============================
+  // ======================================================
+
   useEffect(() => {
+
     let interval;
+
     if (timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
+
+      interval =
+        setInterval(() => {
+
+          setTimer(
+            (
+              prev
+            ) =>
+              prev - 1
+          );
+
+        }, 1000);
     }
-    return () => clearInterval(interval);
+
+    return () =>
+      clearInterval(
+        interval
+      );
+
   }, [timer]);
 
-  const handleChange = (e) => {
-    setData({ ...data, [e.target.name]: e.target.value });
-  };
+  // ======================================================
+  // ================= INPUT ==============================
+  // ======================================================
 
-  // SEND OTP
-  const sendOtp = async () => {
-    try {
-      if (!data.email && !data.mobile) {
-        return alert("Enter email or mobile");
-      }
+  const handleChange =
+    (e) => {
 
-      await API.post("/user-auth/send-otp", {
-        email: data.email || undefined,
-        mobile: data.mobile || undefined,
+      setData({
+        ...data,
+
+        [e.target.name]:
+          e.target.value,
       });
+    };
 
-      setOtpSent(true);
-      setTimer(30);
+  // ======================================================
+  // ================= SEND OTP ===========================
+  // ======================================================
 
-      alert("OTP sent ✅");
+  const sendOtp =
+    async () => {
 
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to send OTP");
-    }
-  };
+      try {
 
-  // RESET PASSWORD
-  const handleReset = async () => {
-    try {
-      if (!data.otp || !data.newPassword) {
-        return alert("OTP & new password required");
+        if (
+          !data.email &&
+          !data.mobile
+        ) {
+
+          return alert(
+            "Enter email or mobile"
+          );
+        }
+
+        await API.post(
+          "/user-auth/forgot-password/send-otp",
+
+          {
+            email:
+              data.email ||
+              undefined,
+
+            mobile:
+              data.mobile ||
+              undefined,
+          }
+        );
+
+        setOtpSent(true);
+
+        setTimer(30);
+
+        alert(
+          "OTP sent ✅"
+        );
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+
+            "Failed to send OTP"
+        );
       }
+    };
 
-      setLoading(true);
+  // ======================================================
+  // ================= RESET PASSWORD =====================
+  // ======================================================
 
-      await API.post("/user-auth/reset-password", data);
+  const handleReset =
+    async () => {
 
-      alert("Password updated 🎉");
+      try {
 
-      navigate("/login");
+        if (
+          !data.otp ||
+          !data.newPassword
+        ) {
 
-    } catch (err) {
-      alert(err.response?.data?.message || "Reset failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+          return alert(
+            "OTP & new password required"
+          );
+        }
+
+        setLoading(true);
+
+        await API.post(
+          "/user-auth/reset-password",
+
+          data
+        );
+
+        alert(
+          "Password updated 🎉"
+        );
+
+        navigate(
+          "/login"
+        );
+
+      } catch (err) {
+
+        alert(
+          err.response
+            ?.data
+            ?.message ||
+
+            "Reset failed"
+        );
+
+      } finally {
+
+        setLoading(
+          false
+        );
+      }
+    };
 
   return (
+
     <div className="forgot-page">
 
       <div className="forgot-container">
@@ -123,11 +231,13 @@ export default function ForgotPassword() {
               timer > 0 ? "disabled" : ""
             }`}
           >
+
             {timer > 0
               ? `Resend ${timer}s`
               : otpSent
               ? "Resend OTP"
               : "Send OTP"}
+
           </button>
 
         </div>
@@ -148,15 +258,26 @@ export default function ForgotPassword() {
           disabled={loading}
           className="reset-btn"
         >
-          {loading ? "Updating..." : "Reset Password"}
+
+          {loading
+            ? "Updating..."
+            : "Reset Password"}
+
         </button>
 
         {/* LOGIN LINK */}
         <p className="forgot-bottom">
+
           Back to{" "}
-          <span onClick={() => navigate("/login")}>
+
+          <span
+            onClick={() =>
+              navigate("/login")
+            }
+          >
             Login
           </span>
+
         </p>
 
       </div>
