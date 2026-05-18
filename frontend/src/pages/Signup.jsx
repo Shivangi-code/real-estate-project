@@ -97,7 +97,7 @@ export default function Signup() {
         }
 
         await API.post(
-          "/user-auth/send-otp",
+          "/user-auth/register-send-otp",
 
           {
             mobile:
