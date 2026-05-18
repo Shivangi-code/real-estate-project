@@ -9,7 +9,7 @@ const User = require("../models/User");
 const Otp = require("../models/Otp");
 
 const generateOtp = require("../utils/generateOtp");
-
+const sendSMS = require("../utils/sendSMS");
 // ======================================================
 // ================= JWT TOKEN ==========================
 // ======================================================
@@ -162,8 +162,9 @@ router.post("/send-otp", async (req, res) => {
         ],
     });
 
-    console.log(
-      `\n📲 LOGIN OTP for ${mobile}: ${otp}\n`
+    await sendSMS(
+      mobile,
+      otp
     );
 
     res.json({
@@ -177,6 +178,8 @@ router.post("/send-otp", async (req, res) => {
 
     console.log(
       "SEND OTP ERROR:",
+      error.response?.data ||
+      error.message ||
       error
     );
 
@@ -450,6 +453,8 @@ router.post("/login", async (req, res) => {
 
     console.log(
       "LOGIN ERROR:",
+      error.response?.data ||
+      error.message ||
       error
     );
 
@@ -552,8 +557,9 @@ router.post(
           ],
       });
 
-      console.log(
-        `\n📲 SIGNUP OTP for ${mobile}: ${otp}\n`
+      await sendSMS(
+        mobile,
+        otp
       );
 
       res.json({
@@ -566,6 +572,8 @@ router.post(
 
       console.log(
         "REGISTER OTP ERROR:",
+        error.response?.data ||
+        error.message ||
         error
       );
 
@@ -700,6 +708,8 @@ router.post("/register", async (req, res) => {
 
     console.log(
       "REGISTER ERROR:",
+      error.response?.data ||
+      error.message ||
       error
     );
 
@@ -820,8 +830,9 @@ router.post(
           ],
       });
 
-      console.log(
-        `\n🔐 RESET OTP: ${otp}\n`
+      await sendSMS(
+        mobile,
+        otp
       );
 
       res.json({
@@ -832,9 +843,9 @@ router.post(
 
     } catch (error) {
 
-      console.log(
-        "FORGOT PASSWORD OTP ERROR:",
-        error
+      await sendSMS(
+        mobile,
+        otp
       );
 
       res.status(500).json({
@@ -945,6 +956,8 @@ router.post(
 
       console.log(
         "RESET PASSWORD ERROR:",
+        error.response?.data ||
+        error.message ||
         error
       );
 

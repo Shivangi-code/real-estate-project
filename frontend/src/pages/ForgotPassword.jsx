@@ -9,9 +9,11 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-import "../styles/forgotpassword.css";
-
 export default function ForgotPassword() {
+
+  // ======================================================
+  // ================= FORM ===============================
+  // ======================================================
 
   const [data, setData] =
     useState({
@@ -88,14 +90,16 @@ export default function ForgotPassword() {
       try {
 
         if (
-          !data.email &&
-          !data.mobile
+          !data.mobile &&
+          !data.email
         ) {
 
           return alert(
-            "Enter email or mobile"
+            "Enter mobile or email"
           );
         }
+
+        setLoading(true);
 
         await API.post(
           "/user-auth/forgot-password/send-otp",
@@ -116,7 +120,7 @@ export default function ForgotPassword() {
         setTimer(30);
 
         alert(
-          "OTP sent ✅"
+          "OTP sent successfully ✅"
         );
 
       } catch (err) {
@@ -128,6 +132,10 @@ export default function ForgotPassword() {
 
             "Failed to send OTP"
         );
+
+      } finally {
+
+        setLoading(false);
       }
     };
 
@@ -155,11 +163,25 @@ export default function ForgotPassword() {
         await API.post(
           "/user-auth/reset-password",
 
-          data
+          {
+            email:
+              data.email ||
+              undefined,
+
+            mobile:
+              data.mobile ||
+              undefined,
+
+            otp:
+              data.otp,
+
+            newPassword:
+              data.newPassword,
+          }
         );
 
         alert(
-          "Password updated 🎉"
+          "Password updated successfully 🎉"
         );
 
         navigate(
@@ -178,57 +200,72 @@ export default function ForgotPassword() {
 
       } finally {
 
-        setLoading(
-          false
-        );
+        setLoading(false);
       }
     };
 
+  // ======================================================
+  // ================= UI =================================
+  // ======================================================
+
   return (
 
-    <div className="forgot-page">
+    <div className="h-screen flex items-center justify-center bg-gradient-to-br from-red-500 via-pink-500 to-purple-600">
 
-      <div className="forgot-container">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-2xl w-96 shadow-2xl">
 
         {/* TITLE */}
-        <h2 className="forgot-title">
-          RESET PASSWORD
+
+        <h2 className="text-3xl font-bold text-white text-center mb-6">
+
+          Reset Password
+
         </h2>
 
         {/* EMAIL */}
+
         <input
           name="email"
           placeholder="Email (optional)"
           value={data.email}
           onChange={handleChange}
-          className="forgot-input"
+          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
         {/* MOBILE */}
+
         <input
           name="mobile"
           placeholder="Mobile (optional)"
           value={data.mobile}
           onChange={handleChange}
-          className="forgot-input"
+          className="w-full p-3 mb-3 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
         {/* OTP */}
-        <div className="otp-wrapper">
+
+        <div className="relative mb-3">
 
           <input
             name="otp"
             placeholder="Enter OTP"
             value={data.otp}
             onChange={handleChange}
-            className="forgot-input otp-input"
+            className="w-full p-3 pr-32 rounded-lg bg-white/20 text-white placeholder-white outline-none"
           />
 
           <button
             onClick={sendOtp}
-            disabled={timer > 0}
-            className={`otp-btn ${
-              timer > 0 ? "disabled" : ""
+
+            disabled={
+              timer > 0 ||
+              loading
+            }
+
+            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm text-white ${
+              timer > 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-red-600 hover:bg-red-700"
             }`}
           >
 
@@ -243,20 +280,28 @@ export default function ForgotPassword() {
         </div>
 
         {/* NEW PASSWORD */}
+
         <input
           type="password"
           name="newPassword"
           placeholder="New Password"
           value={data.newPassword}
           onChange={handleChange}
-          className="forgot-input"
+          className="w-full p-3 mb-4 rounded-lg bg-white/20 text-white placeholder-white outline-none"
         />
 
-        {/* BUTTON */}
+        {/* RESET BUTTON */}
+
         <button
-          onClick={handleReset}
-          disabled={loading}
-          className="reset-btn"
+          onClick={
+            handleReset
+          }
+
+          disabled={
+            loading
+          }
+
+          className="w-full bg-white text-black font-semibold py-3 rounded-lg hover:scale-105 transition"
         >
 
           {loading
@@ -266,16 +311,23 @@ export default function ForgotPassword() {
         </button>
 
         {/* LOGIN LINK */}
-        <p className="forgot-bottom">
+
+        <p className="text-center text-white text-sm mt-4">
 
           Back to{" "}
 
           <span
             onClick={() =>
-              navigate("/login")
+              navigate(
+                "/login"
+              )
             }
+
+            className="underline cursor-pointer"
           >
+
             Login
+
           </span>
 
         </p>
