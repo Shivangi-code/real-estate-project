@@ -17,16 +17,8 @@ import {
 
 export default function Login() {
 
-  // ======================================================
-  // ================= MODE ===============================
-  // ======================================================
-
   const [mode, setMode] =
     useState("email-password");
-
-  // ======================================================
-  // ================= FORM DATA ==========================
-  // ======================================================
 
   const [data, setData] =
     useState({
@@ -54,54 +46,56 @@ export default function Login() {
   } = useAuth();
 
   // ======================================================
-  // ================= REDIRECT ===========================
+  // ENTER KEY LOGIN (ONLY CHANGE ADDED)
   // ======================================================
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Enter") {
+        handleLogin();
+      }
+    };
 
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [data, mode]);
+
+  // ======================================================
+  // REDIRECT
+  // ======================================================
   useEffect(() => {
 
     if (isAuthenticated) {
 
       const user =
         JSON.parse(
-          localStorage.getItem(
-            "user"
-          )
+          localStorage.getItem("user")
         );
 
       if (user?.role === "admin") {
-
         navigate("/admin");
       }
 
-      else if (
-        user?.role === "seller"
-      ) {
-
+      else if (user?.role === "seller") {
         navigate("/seller");
       }
 
-      else if (
-        user?.role === "builder"
-      ) {
-
+      else if (user?.role === "builder") {
         navigate("/builder");
       }
 
       else {
-
         navigate("/");
       }
     }
 
-  }, [
-    isAuthenticated,
-    navigate,
-  ]);
+  }, [isAuthenticated, navigate]);
 
   // ======================================================
-  // ================= RESET MODE =========================
+  // RESET MODE
   // ======================================================
-
   useEffect(() => {
 
     setData({
@@ -112,15 +106,13 @@ export default function Login() {
     });
 
     setOtpSent(false);
-
     setTimer(0);
 
   }, [mode]);
 
   // ======================================================
-  // ================= TIMER ==============================
+  // TIMER
   // ======================================================
-
   useEffect(() => {
 
     let interval;
@@ -130,252 +122,121 @@ export default function Login() {
       interval =
         setInterval(() => {
 
-          setTimer(
-            (
-              prev
-            ) =>
-              prev - 1
-          );
+          setTimer((prev) => prev - 1);
 
         }, 1000);
     }
 
-    return () =>
-      clearInterval(
-        interval
-      );
+    return () => clearInterval(interval);
 
   }, [timer]);
 
   // ======================================================
-  // ================= INPUT ==============================
+  // INPUT
   // ======================================================
+  const handleChange = (e) => {
 
-  const handleChange =
-    (e) => {
+    setData({
+      ...data,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-      setData({
-        ...data,
+  // ======================================================
+  // SEND OTP
+  // ======================================================
+  const sendOtp = async () => {
 
-        [e.target.name]:
-          e.target.value,
+    try {
+
+      if (!data.mobile) {
+        return alert("Enter mobile number");
+      }
+
+      setLoading(true);
+
+      await API.post("/user-auth/send-otp", {
+        mobile: data.mobile,
       });
-    };
+
+      setOtpSent(true);
+      setTimer(30);
+
+      alert("OTP sent successfully ✅");
+
+    } catch (err) {
+
+      alert(
+        err.response?.data?.message ||
+        "Failed to send OTP"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ======================================================
-  // ================= SEND OTP ===========================
+  // LOGIN
   // ======================================================
+  const handleLogin = async () => {
 
-  const sendOtp =
-    async () => {
+    try {
 
-      try {
+      setLoading(true);
 
-        if (
-          !data.mobile
-        ) {
+      let payload = { mode };
 
-          return alert(
-            "Enter mobile number"
-          );
-        }
+      if (mode === "email-password") {
 
-        setLoading(true);
+        if (!data.email || !data.password)
+          return alert("Email & password required");
 
-        await API.post(
-          "/user-auth/send-otp",
-
-          {
-            mobile:
-              data.mobile,
-          }
-        );
-
-        setOtpSent(true);
-
-        setTimer(30);
-
-        alert(
-          "OTP sent successfully ✅"
-        );
-
-      } catch (err) {
-
-        alert(
-          err.response
-            ?.data
-            ?.message ||
-
-            "Failed to send OTP"
-        );
-
-      } finally {
-
-        setLoading(false);
+        payload.email = data.email;
+        payload.password = data.password;
       }
-    };
 
-  // ======================================================
-  // ================= LOGIN ==============================
-  // ======================================================
+      if (mode === "mobile-password") {
 
-  const handleLogin =
-    async () => {
+        if (!data.mobile || !data.password)
+          return alert("Mobile & password required");
 
-      try {
-
-        setLoading(true);
-
-        let payload = {
-          mode,
-        };
-
-        // ======================================================
-        // ================= EMAIL PASSWORD =====================
-        // ======================================================
-
-        if (
-          mode ===
-          "email-password"
-        ) {
-
-          if (
-            !data.email ||
-            !data.password
-          ) {
-
-            return alert(
-              "Email & password required"
-            );
-          }
-
-          payload.email =
-            data.email;
-
-          payload.password =
-            data.password;
-        }
-
-        // ======================================================
-        // ================= MOBILE PASSWORD ====================
-        // ======================================================
-
-        if (
-          mode ===
-          "mobile-password"
-        ) {
-
-          if (
-            !data.mobile ||
-            !data.password
-          ) {
-
-            return alert(
-              "Mobile & password required"
-            );
-          }
-
-          payload.mobile =
-            data.mobile;
-
-          payload.password =
-            data.password;
-        }
-
-        // ======================================================
-        // ================= MOBILE OTP =========================
-        // ======================================================
-
-        if (
-          mode ===
-          "mobile-otp"
-        ) {
-
-          if (
-            !data.mobile ||
-            !data.otp
-          ) {
-
-            return alert(
-              "Mobile & OTP required"
-            );
-          }
-
-          payload.mobile =
-            data.mobile;
-
-          payload.otp =
-            data.otp;
-        }
-
-        // ======================================================
-        // ================= API ================================
-        // ======================================================
-
-        const res =
-          await API.post(
-            "/user-auth/login",
-            payload
-          );
-
-        const {
-          token,
-          user,
-        } = res.data;
-
-        login(
-          user,
-          token
-        );
-
-        // ======================================================
-        // ================= REDIRECT ===========================
-        // ======================================================
-
-        if (
-          user.role ===
-          "admin"
-        ) {
-
-          navigate("/admin");
-        }
-
-        else if (
-          user.role ===
-          "seller"
-        ) {
-
-          navigate("/seller");
-        }
-
-        else if (
-          user.role ===
-          "builder"
-        ) {
-
-          navigate("/builder");
-        }
-
-        else {
-
-          navigate("/");
-        }
-
-      } catch (err) {
-
-        alert(
-          err.response
-            ?.data
-            ?.message ||
-
-            "Login failed"
-        );
-
-      } finally {
-
-        setLoading(false);
+        payload.mobile = data.mobile;
+        payload.password = data.password;
       }
-    };
+
+      if (mode === "mobile-otp") {
+
+        if (!data.mobile || !data.otp)
+          return alert("Mobile & OTP required");
+
+        payload.mobile = data.mobile;
+        payload.otp = data.otp;
+      }
+
+      const res =
+        await API.post("/user-auth/login", payload);
+
+      const { token, user } = res.data;
+
+      login(user, token);
+
+      if (user.role === "admin") navigate("/admin");
+      else if (user.role === "seller") navigate("/seller");
+      else if (user.role === "builder") navigate("/builder");
+      else navigate("/");
+
+    } catch (err) {
+
+      alert(
+        err.response?.data?.message ||
+        "Login failed"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
 
@@ -389,58 +250,29 @@ export default function Login() {
             HOUSIFY
           </h2>
 
-          {/* MODE SWITCH */}
-
           <div className="grid grid-cols-3 gap-2">
 
             {[
-              [
-                "email-password",
-                "Email",
-              ],
+              ["email-password", "Email"],
+              ["mobile-password", "Mobile"],
+              ["mobile-otp", "OTP"],
+            ].map(([key, label]) => (
 
-              [
-                "mobile-password",
-                "Mobile",
-              ],
+              <button
+                key={key}
+                onClick={() => setMode(key)}
+                className={`premium-tab ${mode === key ? "active" : ""}`}
+              >
+                {label}
+              </button>
 
-              [
-                "mobile-otp",
-                "OTP",
-              ],
-            ].map(
-              ([
-                key,
-                label,
-              ]) => (
-
-                <button
-                  key={key}
-
-                  onClick={() =>
-                    setMode(key)
-                  }
-
-                  className={`premium-tab ${
-                    mode === key
-                      ? "active"
-                      : ""
-                  }`}
-                >
-                  {label}
-                </button>
-              )
-            )}
+            ))}
 
           </div>
 
         </div>
 
-        {/* EMAIL */}
-
-        {mode ===
-          "email-password" && (
-
+        {mode === "email-password" && (
           <input
             name="email"
             placeholder="Enter Email"
@@ -450,14 +282,7 @@ export default function Login() {
           />
         )}
 
-        {/* MOBILE */}
-
-        {(mode ===
-          "mobile-password" ||
-
-          mode ===
-            "mobile-otp") && (
-
+        {(mode === "mobile-password" || mode === "mobile-otp") && (
           <input
             name="mobile"
             placeholder="Enter Mobile"
@@ -467,14 +292,7 @@ export default function Login() {
           />
         )}
 
-        {/* PASSWORD */}
-
-        {(mode ===
-          "email-password" ||
-
-          mode ===
-            "mobile-password") && (
-
+        {(mode === "email-password" || mode === "mobile-password") && (
           <input
             type="password"
             name="password"
@@ -485,11 +303,7 @@ export default function Login() {
           />
         )}
 
-        {/* OTP */}
-
-        {mode ===
-          "mobile-otp" && (
-
+        {mode === "mobile-otp" && (
           <div className="premium-otp-wrapper mb-4">
 
             <input
@@ -502,71 +316,42 @@ export default function Login() {
 
             <button
               onClick={sendOtp}
-
-              disabled={
-                timer > 0 ||
-                loading
-              }
-
+              disabled={timer > 0 || loading}
               className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm text-white ${
                 timer > 0
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-blue-600 hover:bg-blue-700"
               }`}
             >
-
               {timer > 0
                 ? `Resend ${timer}s`
                 : otpSent
                 ? "Resend OTP"
                 : "Send OTP"}
-
             </button>
 
           </div>
         )}
 
-        {/* LOGIN BUTTON */}
-
         <button
-          onClick={
-            handleLogin
-          }
-
-          disabled={
-            loading
-          }
-
+          onClick={handleLogin}
+          disabled={loading}
           className="premium-btn"
         >
-
-          {loading
-            ? "Please wait..."
-            : "Login"}
-
+          {loading ? "Please wait..." : "Login"}
         </button>
-
-        {/* LINKS */}
 
         <div className="flex justify-between mt-5 text-sm text-white">
 
           <span
-            onClick={() =>
-              navigate(
-                "/signup"
-              )
-            }
+            onClick={() => navigate("/signup")}
             className="cursor-pointer hover:underline"
           >
             Create Account
           </span>
 
           <span
-            onClick={() =>
-              navigate(
-                "/forgot-password"
-              )
-            }
+            onClick={() => navigate("/forgot-password")}
             className="cursor-pointer hover:underline"
           >
             Forgot Password?
