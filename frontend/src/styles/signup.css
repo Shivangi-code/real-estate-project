@@ -153,15 +153,15 @@
   100% { transform: translateY(0px); }
 }
 
-/* ================= SIGNUP CARD (TRANSPARENT GLASS LIKE LOGIN) ================= */
+/* ================= SIGNUP CARD ================= */
 
 .signup-container {
 
-  width: 470px;
+  width: 430px;
 
-  padding: 18px;
+  padding: 15px;
 
-  border-radius: 24px;
+  border-radius: 22px;
 
   background: rgba(255, 255, 255, 0);
 
@@ -170,32 +170,21 @@
 
   border: 1px solid rgba(255, 255, 255, 0.25);
 
-  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.30);
 
-  transform: scale(0.90);
+  transform: scale(0.84);
 
-  margin-top: -112px;
+  margin-top: -138px;
 }
 
-/* ================= HOUSE ICON ================= */
+/* ================= HOUSE ICON REMOVED ================= */
 
 .house-icon {
 
-  font-size: 42px;
-
-  margin-bottom: 4px;
-
-  animation: houseBounce 3s ease-in-out infinite;
+  display: none;
 }
 
-@keyframes houseBounce {
-
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
-}
-
-/* ================= TITLE (LOGIN STYLE MATCHED) ================= */
+/* ================= TITLE ================= */
 
 .signup-title {
 
@@ -268,9 +257,10 @@
   box-shadow: 0 0 18px rgba(96,165,250,0.4);
 }
 
-/* ================= PREMIUM ANIMATIONS (FROM LOGIN) ================= */
+/* ================= PREMIUM ANIMATIONS ================= */
 
 @keyframes luxuryFlow {
+
   0% {
     background-position: 0% 50%;
   }
@@ -285,6 +275,7 @@
 }
 
 @keyframes riseIn {
+
   0% {
     opacity: 0;
     transform: translateY(20px);

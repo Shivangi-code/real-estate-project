@@ -76,7 +76,7 @@ function Drawer({
 
                 <div>
                   <div className="profile-name">
-                    {user?.name || "User"}
+                    {(user?.name || "User").toUpperCase()}
                   </div>
                   <div className="profile-role">
                     {role}

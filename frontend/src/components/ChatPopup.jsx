@@ -18,7 +18,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
   // 👋 Greeting check
   const isGreeting = (text) => {
     const msg = text.toLowerCase().trim();
-    return ["hi", "hii", "hiii", "hello", "hey", "heyy"].includes(msg);
+    return ["hi", "hii", "hiii", "hello", "hey","hiee","hie","hye","hlo","ho","heyy"].includes(msg);
   };
 
   // 🏡 Property intent check
@@ -119,7 +119,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { text: "📧 Email: pragyanverma.9871@gmail.com", sender: "bot" }
+          { text: "📧 Email: housifyrealty.info@gmail.com", sender: "bot" }
         ]);
       }, 1100);
 

@@ -167,14 +167,6 @@ export default function Home() {
                   Browse Properties
                 </button>
 
-                <button
-                  onClick={() =>
-                    navigate("/signup")
-                  }
-                  className="border border-white bg-white/10 backdrop-blur-xl px-7 py-3 rounded-xl hover:bg-white/20 transition-all duration-300"
-                >
-                  List Property
-                </button>
               </div>
             </div>
 
