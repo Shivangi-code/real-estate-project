@@ -32,34 +32,40 @@ export default function Properties() {
     setSearchParams,
   ] = useSearchParams();
 
-  const [properties, setProperties] =
+  const [properties,
+    setProperties] =
     useState([]);
 
-  const [loading, setLoading] =
+  const [loading,
+    setLoading] =
     useState(true);
 
-  const [search, setSearch] =
+  const [search,
+    setSearch] =
     useState(
       searchParams.get(
         "search"
       ) || ""
     );
 
-  const [type, setType] =
+  const [type,
+    setType] =
     useState(
       searchParams.get(
         "type"
       ) || ""
     );
 
-  const [maxPrice, setMaxPrice] =
+  const [maxPrice,
+    setMaxPrice] =
     useState(
       searchParams.get(
         "maxPrice"
       ) || ""
     );
 
-  const [sort, setSort] =
+  const [sort,
+    setSort] =
     useState(
       searchParams.get(
         "sort"
@@ -67,6 +73,7 @@ export default function Properties() {
     );
 
   // ================= UPDATE URL =================
+
   useEffect(() => {
 
     const params = {};
@@ -94,6 +101,7 @@ export default function Properties() {
   ]);
 
   // ================= FETCH =================
+
   const fetchProperties =
     async () => {
 
@@ -105,6 +113,7 @@ export default function Properties() {
           new URLSearchParams();
 
         if (search) {
+
           params.append(
             "search",
             search
@@ -112,6 +121,7 @@ export default function Properties() {
         }
 
         if (type) {
+
           params.append(
             "type",
             type
@@ -119,23 +129,33 @@ export default function Properties() {
         }
 
         if (maxPrice) {
+
           params.append(
             "maxPrice",
             maxPrice
           );
         }
 
-        const res = await fetch(
-          `http://localhost:5000/api/properties/approved?${params.toString()}`
-        );
+        // ================= API =================
+
+        const res =
+          await fetch(
+            `http://localhost:5000/api/properties?${params.toString()}`
+          );
 
         const data =
           await res.json();
 
+        // ================= IMPORTANT FIX =================
+
         let updated =
-          Array.isArray(data)
-            ? data
+          Array.isArray(
+            data?.properties
+          )
+            ? data.properties
             : [];
+
+        // ================= SORT =================
 
         if (
           sort === "low-high"
@@ -159,9 +179,16 @@ export default function Properties() {
           );
         }
 
-        setProperties(updated);
+        setProperties(
+          updated
+        );
 
-      } catch {
+      } catch (error) {
+
+        console.log(
+          "Fetch Error ❌",
+          error
+        );
 
         setProperties([]);
 
@@ -172,6 +199,7 @@ export default function Properties() {
     };
 
   // ================= FETCH EFFECT =================
+
   useEffect(() => {
 
     const timer =
@@ -192,16 +220,19 @@ export default function Properties() {
   ]);
 
   // ================= REALTIME =================
+
   useEffect(() => {
 
     socket.on(
       "propertyUpdated",
       () => {
+
         fetchProperties();
       }
     );
 
     return () => {
+
       socket.off(
         "propertyUpdated"
       );
@@ -215,19 +246,22 @@ export default function Properties() {
   ]);
 
   // ================= CLEAR FILTERS =================
-  const clearFilters = () => {
 
-    setSearch("");
-    setType("");
-    setMaxPrice("");
-    setSort("");
-  };
+  const clearFilters =
+    () => {
+
+      setSearch("");
+      setType("");
+      setMaxPrice("");
+      setSort("");
+    };
 
   return (
 
     <div className="bg-slate-50 min-h-screen">
 
       {/* HERO ANIMATION */}
+
       <style>
         {`
           @keyframes heroZoom {
@@ -257,6 +291,7 @@ export default function Properties() {
       </style>
 
       {/* HERO SECTION */}
+
       <section
         className="text-white px-6 md:px-10 py-24 relative overflow-hidden"
         style={{
@@ -275,10 +310,12 @@ export default function Properties() {
         }}
       >
 
-        {/* DARK OVERLAY */}
+        {/* OVERLAY */}
+
         <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
 
         {/* LIGHT EFFECTS */}
+
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
 
           <div className="absolute top-[-120px] left-[-120px] w-[300px] h-[300px] bg-blue-500/20 blur-3xl rounded-full" />
@@ -288,6 +325,7 @@ export default function Properties() {
         </div>
 
         {/* CONTENT */}
+
         <div className="max-w-7xl mx-auto relative z-10">
 
           <div
@@ -307,13 +345,17 @@ export default function Properties() {
             <h1 className="text-5xl md:text-7xl font-black leading-tight">
 
               <span className="text-white">
+
                 Find Your Perfect
+
               </span>
 
               <br />
 
               <span className="bg-gradient-to-r from-blue-200 via-white to-cyan-300 bg-clip-text text-transparent">
+
                 Property
+
               </span>
 
             </h1>
@@ -323,7 +365,9 @@ export default function Properties() {
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
 
               <span className="text-sm text-slate-200">
+
                 Trusted by 1,000+ users across India
+
               </span>
 
             </div>
@@ -347,15 +391,19 @@ export default function Properties() {
             </div>
 
           </div>
+
         </div>
+
       </section>
 
       {/* FILTER BAR */}
+
       <section className="max-w-7xl mx-auto px-6 md:px-10 -mt-12 relative z-20">
 
         <div className="bg-white rounded-3xl shadow-xl p-5 grid lg:grid-cols-4 gap-4">
 
           {/* SEARCH */}
+
           <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
 
             <Search
@@ -374,9 +422,11 @@ export default function Properties() {
               }
               className="w-full outline-none"
             />
+
           </div>
 
           {/* TYPE */}
+
           <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
 
             <Building2
@@ -411,9 +461,11 @@ export default function Properties() {
               </option>
 
             </select>
+
           </div>
 
           {/* PRICE */}
+
           <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
 
             <IndianRupee
@@ -432,9 +484,11 @@ export default function Properties() {
               }
               className="w-full outline-none"
             />
+
           </div>
 
           {/* SORT */}
+
           <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
 
             <SlidersHorizontal
@@ -465,165 +519,15 @@ export default function Properties() {
               </option>
 
             </select>
-          </div>
-        </div>
-
-        {/* ACTIVE FILTERS */}
-        {(search ||
-          type ||
-          maxPrice ||
-          sort) && (
-
-          <div className="flex flex-wrap gap-3 mt-5">
-
-            {search && (
-              <div className="bg-white shadow-sm rounded-full px-4 py-2 text-sm flex items-center gap-2">
-                Search:
-                {" "}
-                <b>{search}</b>
-
-                <button
-                  onClick={() =>
-                    setSearch("")
-                  }
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-
-            {type && (
-              <div className="bg-white shadow-sm rounded-full px-4 py-2 text-sm flex items-center gap-2 capitalize">
-                {type}
-
-                <button
-                  onClick={() =>
-                    setType("")
-                  }
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-
-            {maxPrice && (
-              <div className="bg-white shadow-sm rounded-full px-4 py-2 text-sm flex items-center gap-2">
-                Max ₹
-                {maxPrice}
-
-                <button
-                  onClick={() =>
-                    setMaxPrice(
-                      ""
-                    )
-                  }
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-
-            {sort && (
-              <div className="bg-white shadow-sm rounded-full px-4 py-2 text-sm flex items-center gap-2">
-                {sort}
-
-                <button
-                  onClick={() =>
-                    setSort("")
-                  }
-                >
-                  <X size={14} />
-                </button>
-              </div>
-            )}
-
-            <button
-              onClick={
-                clearFilters
-              }
-              className="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-full text-sm font-medium transition"
-            >
-              Clear Filters
-            </button>
 
           </div>
-        )}
-      </section>
-
-      {/* CATEGORY PILLS */}
-      <section className="max-w-7xl mx-auto px-6 md:px-10 mt-8">
-
-        <div className="flex flex-wrap gap-4">
-
-          <button
-            onClick={() =>
-              setType("")
-            }
-            className={`px-5 py-3 rounded-2xl font-medium transition ${
-              type === ""
-                ? "bg-slate-900 text-white"
-                : "bg-white hover:bg-slate-100"
-            }`}
-          >
-            <Home size={16} className="inline mr-2" />
-            All
-          </button>
-
-          <button
-            onClick={() =>
-              setType(
-                "residential"
-              )
-            }
-            className={`px-5 py-3 rounded-2xl font-medium transition ${
-              type ===
-              "residential"
-                ? "bg-blue-600 text-white"
-                : "bg-white hover:bg-slate-100"
-            }`}
-          >
-            <Home size={16} className="inline mr-2" />
-            Residential
-          </button>
-
-          <button
-            onClick={() =>
-              setType(
-                "commercial"
-              )
-            }
-            className={`px-5 py-3 rounded-2xl font-medium transition ${
-              type ===
-              "commercial"
-                ? "bg-green-600 text-white"
-                : "bg-white hover:bg-slate-100"
-            }`}
-          >
-            <Building2 size={16} className="inline mr-2" />
-            Commercial
-          </button>
-
-          <button
-            onClick={() =>
-              setType(
-                "agriculture"
-              )
-            }
-            className={`px-5 py-3 rounded-2xl font-medium transition ${
-              type ===
-              "agriculture"
-                ? "bg-yellow-500 text-white"
-                : "bg-white hover:bg-slate-100"
-            }`}
-          >
-            <Trees size={16} className="inline mr-2" />
-            Agriculture
-          </button>
 
         </div>
+
       </section>
 
       {/* LISTINGS */}
+
       <section className="max-w-7xl mx-auto px-6 md:px-10 py-12">
 
         <div className="flex justify-between items-center mb-8">
@@ -631,30 +535,29 @@ export default function Properties() {
           <div>
 
             <h2 className="text-2xl font-bold">
+
               Available Properties
+
             </h2>
 
             <p className="text-slate-500">
+
               {properties.length}
               {" "}
               properties found
+
             </p>
 
           </div>
 
-          <div className="bg-green-100 text-green-700 px-4 py-2 rounded-2xl text-sm font-semibold flex items-center gap-2">
-
-            <div className="w-2 h-2 rounded-full bg-green-600 animate-pulse" />
-
-            Live Sync Active
-
-          </div>
         </div>
 
         {loading ? (
 
           <div className="text-center py-20">
+
             Loading properties...
+
           </div>
 
         ) : properties.length === 0 ? (
@@ -662,11 +565,15 @@ export default function Properties() {
           <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
 
             <h3 className="text-2xl font-bold">
+
               No Properties Found
+
             </h3>
 
             <p className="text-slate-500 mt-3">
+
               Try changing your filters
+
             </p>
 
           </div>
@@ -690,9 +597,13 @@ export default function Properties() {
                 />
               )
             )}
+
           </div>
         )}
+
       </section>
+
     </div>
   );
 }
+

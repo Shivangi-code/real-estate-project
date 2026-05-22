@@ -1,123 +1,6 @@
 const mongoose = require("mongoose");
 
 // ======================================================
-// ================= STATUS HISTORY =====================
-// ======================================================
-
-const statusHistorySchema =
-  new mongoose.Schema(
-    {
-      status: {
-        type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-          "deleted",
-        ],
-
-        required: true,
-
-        trim: true,
-
-        lowercase: true,
-      },
-
-      changedAt: {
-        type: Date,
-
-        default: Date.now,
-      },
-
-      changedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
-    },
-
-    {
-      _id: false,
-    }
-  );
-
-// ======================================================
-// ================= PROPERTY IMAGE =====================
-// ======================================================
-
-const propertyImageSchema =
-  new mongoose.Schema(
-    {
-      filename: {
-        type: String,
-
-        required: true,
-
-        trim: true,
-      },
-
-      url: {
-        type: String,
-
-        required: true,
-
-        trim: true,
-      },
-
-      status: {
-        type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-        ],
-
-        default: "pending",
-
-        trim: true,
-
-        lowercase: true,
-      },
-
-      uploadedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
-
-      verifiedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
-      },
-
-      verifiedAt: {
-        type: Date,
-
-        default: null,
-      },
-    },
-
-    {
-      timestamps: true,
-    }
-  );
-
-// ======================================================
 // ================= PROPERTY SCHEMA ====================
 // ======================================================
 
@@ -125,71 +8,91 @@ const propertySchema =
   new mongoose.Schema(
     {
       // ================= UNIQUE PROPERTY ID =================
+
       propertyUniqueId: {
         type: String,
-
         unique: true,
-
         trim: true,
       },
 
       // ================= BASIC INFO =================
+
       title: {
         type: String,
-
         required: true,
-
         trim: true,
       },
 
       price: {
         type: Number,
-
+        required: true,
+        min: 0,
         default: 0,
       },
 
-      location: {
-        type: String,
+      // ================= AREA =================
 
-        required: true,
-
-        trim: true,
+      area: {
+        type: Number,
+        min: 0,
+        default: 0,
       },
 
-      // ================= CATEGORY =================
-      type: {
+      // ================= AREA UNIT =================
+
+      areaUnit: {
         type: String,
 
-        trim: true,
+        enum: [
+          "sqft",
+          "acre",
+        ],
+
+        default: "sqft",
 
         lowercase: true,
       },
+
+      // ================= LOCATION =================
+
+      location: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+
+      // ================= TYPE =================
+
+      type: {
+        type: String,
+        trim: true,
+        lowercase: true,
+      },
+
+      // ================= SUB TYPE =================
 
       subType: {
         type: String,
-
         trim: true,
-
-        lowercase: true,
+        default: "",
       },
+
+      // ================= CONSTRUCTION =================
 
       constructionStatus: {
         type: String,
-
         trim: true,
-
         lowercase: true,
       },
 
+      // ================= DESCRIPTION =================
+
       description: {
         type: String,
-
         trim: true,
       },
 
-      // ======================================================
-      // ================= BUSINESS STATUS ====================
-      // ======================================================
+      // ================= BUSINESS STATUS =================
 
       businessStatus: {
         type: String,
@@ -204,41 +107,45 @@ const propertySchema =
         lowercase: true,
       },
 
-      // ======================================================
-      // ================= NEGOTIATION ========================
-      // ======================================================
+      // ================= NEGOTIATION =================
 
       underNegotiation: {
         type: Boolean,
-
         default: false,
       },
 
-      // ======================================================
-      // ================= MAIN IMAGE =========================
-      // ======================================================
+      // ================= MAIN IMAGE =================
 
       image: {
         type: String,
-
         default: "",
       },
 
-      // ======================================================
-      // ================= MULTIPLE IMAGES ====================
-      // ======================================================
+      // ================= MULTIPLE IMAGES =================
 
-      images: {
-        type: [
-          propertyImageSchema,
-        ],
+      images: [
+        {
+          filename: String,
 
-        default: [],
-      },
+          url: String,
 
-      // ======================================================
-      // ================= ADMIN MODERATION ===================
-      // ======================================================
+          uploadedBy: {
+            type:
+              mongoose.Schema.Types
+                .ObjectId,
+
+            ref: "User",
+          },
+
+          status: {
+            type: String,
+            default:
+              "approved",
+          },
+        },
+      ],
+
+      // ================= STATUS =================
 
       status: {
         type: String,
@@ -247,26 +154,12 @@ const propertySchema =
           "pending",
           "approved",
           "rejected",
-          "deleted",
         ],
 
-        default:
-          function () {
-
-            return this.createdByRole ===
-              "admin"
-              ? "approved"
-              : "pending";
-          },
-
-        lowercase: true,
-
-        trim: true,
+        default: "approved",
       },
 
-      // ======================================================
-      // ================= PROPERTY OWNER =====================
-      // ======================================================
+      // ================= OWNER =================
 
       createdBy: {
         type:
@@ -280,128 +173,43 @@ const propertySchema =
 
       createdByRole: {
         type: String,
-
-        enum: [
-          "seller",
-          "builder",
-          "agent",
-          "admin",
-        ],
-
-        default: "seller",
-
-        lowercase: true,
+        default: "",
       },
-
-      // ======================================================
-      // ================= OWNER SNAPSHOT =====================
-      // ======================================================
 
       ownerUniqueId: {
         type: String,
-
-        trim: true,
-
         default: "",
       },
 
       ownerName: {
         type: String,
-
-        trim: true,
-
         default: "",
       },
 
-      // ======================================================
-      // ================= VERIFICATION =======================
-      // ======================================================
+      // ================= FEATURED =================
 
-      verifiedBy: {
-        type:
-          mongoose.Schema.Types
-            .ObjectId,
-
-        ref: "User",
-
-        default: null,
+      featured: {
+        type: Boolean,
+        default: false,
       },
 
-      verifiedAt: {
-        type: Date,
+      // ================= PREMIUM =================
 
-        default: null,
+      premiumListing: {
+        type: Boolean,
+        default: false,
       },
 
-      // ======================================================
-      // ================= STATUS TRACKING ====================
-      // ======================================================
-
-      lastStatusChangedAt: {
-        type: Date,
-
-        default: Date.now,
-      },
-
-      statusHistory: {
-        type: [
-          statusHistorySchema,
-        ],
-
-        default:
-          function () {
-
-            return [
-              {
-                status:
-                  this.createdByRole ===
-                  "admin"
-                    ? "approved"
-                    : "pending",
-
-                changedAt:
-                  new Date(),
-              },
-            ];
-          },
-      },
-
-      // ======================================================
-      // ================= ANALYTICS ==========================
-      // ======================================================
+      // ================= ANALYTICS =================
 
       totalViews: {
         type: Number,
-
         default: 0,
       },
 
       totalInquiries: {
         type: Number,
-
         default: 0,
-      },
-
-      // ======================================================
-      // ================= PREMIUM FEATURES ==================
-      // ======================================================
-
-      featured: {
-        type: Boolean,
-
-        default: false,
-      },
-
-      premiumListing: {
-        type: Boolean,
-
-        default: false,
-      },
-
-      whatsappEnabled: {
-        type: Boolean,
-
-        default: false,
       },
     },
 
@@ -411,7 +219,7 @@ const propertySchema =
   );
 
 // ======================================================
-// ================= AUTO GENERATE PROPERTY ID ==========
+// ================= AUTO PROPERTY ID ===================
 // ======================================================
 
 propertySchema.pre(
@@ -423,7 +231,6 @@ propertySchema.pre(
 
     try {
 
-      // ================= GENERATE UNIQUE ID =================
       if (
         !this.propertyUniqueId
       ) {
@@ -446,30 +253,6 @@ propertySchema.pre(
     }
   }
 );
-
-// ======================================================
-// ================= INDEXES ============================
-// ======================================================
-
-propertySchema.index({
-  status: 1,
-});
-
-propertySchema.index({
-  businessStatus: 1,
-});
-
-propertySchema.index({
-  underNegotiation: 1,
-});
-
-propertySchema.index({
-  createdBy: 1,
-});
-
-propertySchema.index({
-  createdAt: -1,
-});
 
 // ======================================================
 // ================= EXPORT =============================

@@ -1,192 +1,392 @@
 /* ================= PROPERTY CARD ================= */
-.property-card {
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(16px);
 
-  border-radius: 16px;
+.property-card {
+  background: #ffffff;
+
+  border-radius: 18px;
   overflow: hidden;
 
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid #e5e7eb;
 
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06);
 
-  transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
 
   display: flex;
   flex-direction: column;
+
   height: 100%;
 
   cursor: pointer;
 }
 
-/* 🔥 HOVER EFFECT */
+/* ================= HOVER ================= */
+
 .property-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
+  transform: translateY(-5px);
+
+  box-shadow:
+    0 14px 28px rgba(0,0,0,0.12);
 }
 
-/* ================= IMAGE SECTION ================= */
+/* ================= IMAGE ================= */
+
 .card-image {
   position: relative;
-  height: 220px;
+
   width: 100%;
+  height: 190px;
+
   overflow: hidden;
+
   background: #f3f4f6;
 }
 
-/* IMAGE */
 .card-img {
   width: 100%;
   height: 100%;
+
   object-fit: cover;
 
   transition: transform 0.4s ease;
 }
 
-/* IMAGE ZOOM */
 .property-card:hover .card-img {
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
-/* OVERLAY GRADIENT */
+/* ================= OVERLAY ================= */
+
 .card-image::after {
   content: "";
+
   position: absolute;
   inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
-  opacity: 0;
-  transition: 0.3s;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0,0,0,0.22),
+      transparent
+    );
 }
 
-.property-card:hover .card-image::after {
-  opacity: 1;
-}
+/* ================= VERIFIED ================= */
 
-/* ================= PLACEHOLDER ================= */
-.card-placeholder {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  color: #666;
-}
-
-/* ================= BADGE ================= */
 .badge {
   position: absolute;
+
   top: 12px;
   left: 12px;
 
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  z-index: 10;
+
+  background: #05b334;
   color: white;
 
-  padding: 5px 10px;
+  padding: 6px 12px;
+
+  border-radius: 999px;
+
   font-size: 12px;
-  border-radius: 6px;
+  font-weight: 600;
 
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* ================= HEART ================= */
-.heart-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+/* ================= VIEW BTN ================= */
 
-  background: rgba(255,255,255,0.9);
-  border: none;
-  border-radius: 50%;
-
-  padding: 6px;
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.heart-btn:hover {
-  transform: scale(1.15);
-  background: white;
-}
-
-/* ================= VIEW BUTTON ================= */
 .view-btn {
   position: absolute;
+
+  bottom: 12px;
+  left: 12px;
+
+  z-index: 10;
+
+  background: #071133;
+  color: white;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ================= STATUS ================= */
+
+.status-pill {
+  position: absolute;
+
   bottom: 12px;
   right: 12px;
 
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
-  color: white;
+  z-index: 10;
 
-  padding: 6px 14px;
-  font-size: 12px;
+  background: #dcfce7;
+  color: #15803d;
 
-  border-radius: 20px;
+  padding: 7px 14px;
 
-  opacity: 0;
-  transform: translateY(10px);
+  border-radius: 999px;
 
-  transition: 0.3s ease;
-}
-
-/* SHOW ON HOVER */
-.property-card:hover .view-btn {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ================= BODY ================= */
-.card-body {
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-/* TITLE */
-.card-body h3 {
-  margin: 0;
-  font-size: 18px;
+  font-size: 11px;
   font-weight: 600;
 }
 
-/* LOCATION */
-.location {
-  color: #6b7280;
-  font-size: 14px;
-  margin: 6px 0;
-}
+/* ================= BODY ================= */
 
-/* TYPE TAG */
-.type {
-  background: rgba(37,99,235,0.1);
-  color: #1e3a8a;
+.card-body {
+  padding: 14px;
 
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-
-  display: inline-block;
-  margin-bottom: 10px;
-}
-
-/* DETAILS */
-.details {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+
+  flex: 1;
+}
+
+/* ================= PROPERTY ID ================= */
+
+.property-id {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+/* ================= TITLE ================= */
+
+.card-body h3 {
+  margin-top: 10px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  color: #071133;
+
+  line-height: 1.2;
+}
+
+/* ================= LOCATION ================= */
+
+.location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  margin-top: 8px;
+
+  color: #64748b;
+
+  font-size: 13px;
+}
+
+/* ================= TAGS ================= */
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.type {
+  background: #f1f5f9;
+
+  color: #475569;
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 500;
+
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ================= DESCRIPTION ================= */
+
+.description {
+  margin-top: 10px;
+
+  color: #64748b;
+
   font-size: 13px;
 
-  margin-top: auto;
+  line-height: 1.4;
 }
 
-/* BOTTOM */
+/* ================= PRICE ================= */
+
 .bottom {
   margin-top: 12px;
 }
 
-/* PRICE */
 .price {
-  font-size: 20px;
+  font-size: 22px;
+  font-weight: 800;
+
+  color: #071133;
+
+  line-height: 1;
+}
+
+.price-subtitle {
+  margin-top: 4px;
+
+  font-size: 11px;
+
+  color: #94a3b8;
+}
+
+/* ================= STATS ================= */
+
+.stats-box {
+  margin-top: 14px;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  background: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px;
+
+  min-height: 65px;
+
+  border-right: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.stat-item:nth-child(2n) {
+  border-right: none;
+}
+
+.stat-item:nth-last-child(-n + 2) {
+  border-bottom: none;
+}
+
+/* ================= ICON ================= */
+
+.stat-icon {
+  width: 34px;
+  height: 34px;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.stat-icon.blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.stat-icon.green {
+  background: #ecfdf5;
+  color: #16a34a;
+}
+
+.stat-icon.purple {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.stat-icon.yellow {
+  background: #fefce8;
+  color: #ca8a04;
+}
+
+/* ================= TEXT ================= */
+
+.stat-label {
+  color: #64748b;
+
+  font-size: 11px;
+
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  color: #0f172a;
+
+  font-size: 13px;
   font-weight: 700;
-  color: #1e3a8a;
+
+  line-height: 1.2;
+}
+
+/* ================= BUTTON ================= */
+
+.details-btn {
+  width: 100%;
+
+  margin-top: 16px;
+
+  border: none;
+
+  background: #071133;
+  color: white;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  transition: 0.3s ease;
+}
+
+.details-btn:hover {
+  background: #0b1d57;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .card-image {
+    height: 180px;
+  }
+
+  .price {
+    font-size: 20px;
+  }
 }

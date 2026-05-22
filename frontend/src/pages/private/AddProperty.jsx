@@ -1,458 +1,218 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-import {
-  useNavigate,
-} from "react-router-dom";
-
-import {
-  Upload,
-  X,
-  ImagePlus,
-  Loader2,
-  ArrowLeft,
-  Building2,
-  IndianRupee,
-  MapPin,
-  FileText,
-} from "lucide-react";
-
-const AddProperty = () => {
+function AddProperty() {
 
   const navigate =
     useNavigate();
 
-  const [loading, setLoading] =
-    useState(false);
+  // ================= FORM DATA =================
 
-  // ======================================================
-  // ================= USER ===============================
-  // ======================================================
-
-  const user =
-    JSON.parse(
-      localStorage.getItem(
-        "user"
-      )
-    );
-
-  // ======================================================
-  // ================= ROLE CHECK =========================
-  // ======================================================
-
-  useEffect(() => {
-
-    if (
-      !user ||
-      ![
-        "seller",
-        "builder",
-        "admin",
-        "agent",
-      ].includes(
-        user.role
-      )
-    ) {
-
-      navigate("/login");
-    }
-
-  }, [user, navigate]);
-
-  // ======================================================
-  // ================= FORM ===============================
-  // ======================================================
-
-  const [formData, setFormData] =
+  const [formData,
+    setFormData] =
     useState({
+
       title: "",
+
+      // PRICE
       price: "",
+      priceUnit: "lac",
+
+      // AREA
+      area: "",
+      areaUnit: "sqft",
+
       location: "",
+
       type: "",
-      subType: "",
-      constructionStatus:
-        "",
+
+      constructionStatus: "",
+
       description: "",
     });
 
-  // ======================================================
-  // ================= IMAGES =============================
-  // ======================================================
+  // ================= IMAGES =================
 
-  const [images, setImages] =
+  const [images,
+    setImages] =
     useState([]);
 
-  const [previews, setPreviews] =
-    useState([]);
+  // ================= LOADING =================
 
-  // ======================================================
-  // ================= HANDLE CHANGE ======================
-  // ======================================================
+  const [loading,
+    setLoading] =
+    useState(false);
 
-  const handleChange = (
-    e
-  ) => {
+  // ================= HANDLE CHANGE =================
 
-    const {
-      name,
-      value,
-    } = e.target;
-
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  // ======================================================
-  // ================= IMAGE CHANGE =======================
-  // ======================================================
-
-  const handleImageChange =
+  const handleChange =
     (e) => {
 
-      const files =
+      setFormData({
+
+        ...formData,
+
+        [e.target.name]:
+          e.target.value,
+      });
+    };
+
+  // ================= HANDLE IMAGES =================
+
+  const handleImage =
+    (e) => {
+
+      setImages(
         Array.from(
           e.target.files
-        );
-
-      if (
-        images.length +
-          files.length >
-        15
-      ) {
-
-        alert(
-          "Maximum 15 images allowed"
-        );
-
-        return;
-      }
-
-      // ================= STORE FILES =================
-      setImages(
-        (prev) => [
-          ...prev,
-          ...files,
-        ]
-      );
-
-      // ================= PREVIEW =====================
-      const newPreviews =
-        files.map((file) =>
-          URL.createObjectURL(
-            file
-          )
-        );
-
-      setPreviews(
-        (prev) => [
-          ...prev,
-          ...newPreviews,
-        ]
+        )
       );
     };
 
-  // ======================================================
-  // ================= REMOVE IMAGE =======================
-  // ======================================================
-
-  const removeImage = (
-    index
-  ) => {
-
-    const updatedImages =
-      [...images];
-
-    const updatedPreviews =
-      [...previews];
-
-    updatedImages.splice(
-      index,
-      1
-    );
-
-    updatedPreviews.splice(
-      index,
-      1
-    );
-
-    setImages(
-      updatedImages
-    );
-
-    setPreviews(
-      updatedPreviews
-    );
-  };
-
-  // ======================================================
-  // ================= SUBMIT =============================
-  // ======================================================
+  // ================= SUBMIT =================
 
   const handleSubmit =
     async (e) => {
 
       e.preventDefault();
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      if (!token) {
-
-        alert(
-          "Please login first"
-        );
-
-        navigate(
-          "/login"
-        );
-
-        return;
-      }
-
-      if (
-        images.length ===
-        0
-      ) {
-
-        alert(
-          "Please upload at least one image"
-        );
-
-        return;
-      }
-
       try {
 
         setLoading(true);
 
-        // ======================================================
-        // ================= FORMDATA ===========================
-        // ======================================================
+        const token =
+          localStorage.getItem(
+            "token"
+          );
 
         const data =
           new FormData();
 
-        // ================= TEXT FIELDS =================
+        // ================= APPEND FORM DATA =================
+
         Object.keys(
           formData
-        ).forEach(
-          (key) => {
+        ).forEach((key) => {
 
-            data.append(
-              key,
-              formData[
-                key
-              ]
-            );
-          }
-        );
+          data.append(
+            key,
+            formData[key]
+          );
+        });
 
-        // ================= MULTI IMAGES =================
-        images.forEach(
-          (image) => {
+        // ================= MULTIPLE IMAGES =================
 
-            data.append(
-              "images",
-              image
-            );
-          }
-        );
+        images.forEach((img) => {
 
-        // ======================================================
-        // ================= API ================================
-        // ======================================================
+          data.append(
+            "images",
+            img
+          );
+        });
+
+        // ================= API =================
 
         const res =
-          await fetch(
-            "http://localhost:5000/api/properties/add",
-            {
-              method:
-                "POST",
+          await axios.post(
 
+            "http://localhost:5000/api/properties/add",
+
+            data,
+
+            {
               headers: {
+
                 Authorization:
                   `Bearer ${token}`,
-              },
 
-              body: data,
+                "Content-Type":
+                  "multipart/form-data",
+              },
             }
           );
 
-        const result =
-          await res.json();
-
-        // ======================================================
-        // ================= SUCCESS ============================
-        // ======================================================
-
-        if (res.ok) {
-
-          if (
-            user?.role ===
-            "admin"
-          ) {
-
-            alert(
-              "Property published instantly 🚀"
-            );
-
-          } else {
-
-            alert(
-              "Property submitted successfully ✅"
-            );
-          }
-
-          // ================= RESET =================
-          setFormData({
-            title: "",
-            price: "",
-            location: "",
-            type: "",
-            subType: "",
-            constructionStatus:
-              "",
-            description:
-              "",
-          });
-
-          setImages([]);
-
-          setPreviews([]);
-
-          // ================= REDIRECT =================
-          if (
-            user?.role ===
-            "admin"
-          ) {
-
-            navigate(
-              "/admin/properties/approved"
-            );
-
-          } else {
-
-            navigate(
-              "/my-properties"
-            );
-          }
-
-        } else {
+        if (
+          res.data.success
+        ) {
 
           alert(
-            result.message ||
-              "Failed to add property"
+            "Property Added Successfully 🚀"
+          );
+
+          navigate(
+            "/properties"
           );
         }
 
       } catch (error) {
 
-        console.log(
-          error
-        );
+        console.log(error);
 
         alert(
-          "Server error"
+          error?.response?.data
+            ?.message ||
+          "Something went wrong"
         );
 
       } finally {
 
-        setLoading(
-          false
-        );
+        setLoading(false);
       }
     };
 
   return (
-    <div className="min-h-screen bg-slate-100 py-10 px-4">
+    <div className="min-h-screen bg-slate-50 py-10 px-4">
 
-      <div className="max-w-6xl mx-auto bg-white rounded-[32px] shadow-xl overflow-hidden border border-slate-200">
+      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-lg p-8">
 
-        {/* ====================================================== */}
-        {/* ================= HEADER ============================= */}
-        {/* ====================================================== */}
+        <h1 className="text-3xl font-bold text-[#071133] mb-8">
 
-        <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-slate-900 text-white p-8">
+          Add New Property
 
-          <button
-            onClick={() =>
-              navigate(-1)
-            }
-            className="flex items-center gap-2 bg-white/10 hover:bg-white/20 px-4 py-2 rounded-2xl transition mb-6"
-          >
-
-            <ArrowLeft size={18} />
-
-            Back
-
-          </button>
-
-          <h1 className="text-4xl font-bold">
-
-            Add New Property
-
-          </h1>
-
-          <p className="text-blue-100 mt-3 text-lg">
-
-            Create premium property listings with image galleries
-
-          </p>
-
-        </div>
-
-        {/* ====================================================== */}
-        {/* ================= FORM =============================== */}
-        {/* ====================================================== */}
+        </h1>
 
         <form
           onSubmit={
             handleSubmit
           }
-          className="p-8 md:p-10"
+          className="space-y-6"
         >
 
-          <div className="grid md:grid-cols-2 gap-6">
+          {/* ================= TITLE ================= */}
 
-            {/* TITLE */}
-            <div>
+          <div>
 
-              <label className="font-semibold flex items-center gap-2 mb-2">
+            <label className="block mb-2 font-semibold">
 
-                <Building2 size={18} />
+              Property Title
 
-                Property Title
+            </label>
 
-              </label>
+            <input
+              type="text"
+              name="title"
+              value={
+                formData.title
+              }
+              onChange={
+                handleChange
+              }
+              className="w-full border rounded-2xl px-4 py-3"
+              required
+            />
 
-              <input
-                type="text"
-                name="title"
-                value={
-                  formData.title
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="Luxury 3BHK Apartment"
-                required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
+          </div>
 
-            </div>
+          {/* ================= PRICE ================= */}
+
+          <div className="grid grid-cols-2 gap-4">
 
             {/* PRICE */}
+
             <div>
 
-              <label className="font-semibold flex items-center gap-2 mb-2">
-
-                <IndianRupee size={18} />
+              <label className="block mb-2 font-semibold">
 
                 Price
 
@@ -467,141 +227,40 @@ const AddProperty = () => {
                 onChange={
                   handleChange
                 }
-                placeholder="5000000"
+                placeholder="Enter property price"
+                className="w-full border rounded-2xl px-4 py-3"
                 required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
               />
 
             </div>
 
-            {/* LOCATION */}
+            {/* PRICE UNIT */}
+
             <div>
 
-              <label className="font-semibold flex items-center gap-2 mb-2">
+              <label className="block mb-2 font-semibold">
 
-                <MapPin size={18} />
-
-                Location
-
-              </label>
-
-              <input
-                type="text"
-                name="location"
-                value={
-                  formData.location
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="Mumbai"
-                required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-            </div>
-
-            {/* TYPE */}
-            <div>
-
-              <label className="font-semibold mb-2 block">
-
-                Property Type
+                Price Unit
 
               </label>
 
               <select
-                name="type"
+                name="priceUnit"
                 value={
-                  formData.type
+                  formData.priceUnit
                 }
                 onChange={
                   handleChange
                 }
-                required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border rounded-2xl px-4 py-3 bg-white"
               >
 
-                <option value="">
-                  Select Type
+                <option value="lac">
+                  Lac
                 </option>
 
-                <option value="Residential">
-                  Residential
-                </option>
-
-                <option value="Commercial">
-                  Commercial
-                </option>
-
-                <option value="Agriculture">
-                  Agriculture
-                </option>
-
-              </select>
-
-            </div>
-
-            {/* SUBTYPE */}
-            <div>
-
-              <label className="font-semibold mb-2 block">
-
-                Sub Type
-
-              </label>
-
-              <input
-                type="text"
-                name="subType"
-                value={
-                  formData.subType
-                }
-                onChange={
-                  handleChange
-                }
-                placeholder="3BHK / Office / Villa"
-                required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              />
-
-            </div>
-
-            {/* CONSTRUCTION */}
-            <div>
-
-              <label className="font-semibold mb-2 block">
-
-                Construction Status
-
-              </label>
-
-              <select
-                name="constructionStatus"
-                value={
-                  formData.constructionStatus
-                }
-                onChange={
-                  handleChange
-                }
-                required
-                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-              >
-
-                <option value="">
-                  Select Status
-                </option>
-
-                <option value="Ready to Move">
-                  Ready to Move
-                </option>
-
-                <option value="Under Construction">
-                  Under Construction
-                </option>
-
-                <option value="New Launch">
-                  New Launch
+                <option value="cr">
+                  Cr
                 </option>
 
               </select>
@@ -610,167 +269,248 @@ const AddProperty = () => {
 
           </div>
 
-          {/* ====================================================== */}
-          {/* ================= DESCRIPTION ======================== */}
-          {/* ====================================================== */}
+          {/* ================= AREA ================= */}
 
-          <div className="mt-8">
+          <div className="grid grid-cols-2 gap-4">
 
-            <label className="font-semibold flex items-center gap-2 mb-2">
+            {/* AREA */}
 
-              <FileText size={18} />
+            <div>
+
+              <label className="block mb-2 font-semibold">
+
+                Area
+
+              </label>
+
+              <input
+                type="number"
+                name="area"
+                value={
+                  formData.area
+                }
+                onChange={
+                  handleChange
+                }
+                placeholder="Enter area"
+                className="w-full border rounded-2xl px-4 py-3"
+              />
+
+            </div>
+
+            {/* AREA UNIT */}
+
+            <div>
+
+              <label className="block mb-2 font-semibold">
+
+                Area Unit
+
+              </label>
+
+              <select
+                name="areaUnit"
+                value={
+                  formData.areaUnit
+                }
+                onChange={
+                  handleChange
+                }
+                className="w-full border rounded-2xl px-4 py-3 bg-white"
+              >
+
+                <option value="sqft">
+                  Sq Ft
+                </option>
+
+                <option value="acre">
+                  Acre
+                </option>
+
+              </select>
+
+            </div>
+
+          </div>
+
+          {/* ================= LOCATION ================= */}
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
+
+              Location
+
+            </label>
+
+            <input
+              type="text"
+              name="location"
+              value={
+                formData.location
+              }
+              onChange={
+                handleChange
+              }
+              className="w-full border rounded-2xl px-4 py-3"
+              required
+            />
+
+          </div>
+
+          {/* ================= TYPE ================= */}
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
+
+              Property Type
+
+            </label>
+
+            <select
+              name="type"
+              value={
+                formData.type
+              }
+              onChange={
+                handleChange
+              }
+              className="w-full border rounded-2xl px-4 py-3 bg-white"
+            >
+
+              <option value="">
+                Select Type
+              </option>
+
+              <option value="flat">
+                Flat
+              </option>
+
+              <option value="villa">
+                Villa
+              </option>
+
+              <option value="house">
+                House
+              </option>
+
+              <option value="plot">
+                Plot
+              </option>
+
+              <option value="farm land">
+                Farm Land
+              </option>
+
+              <option value="office">
+                Office
+              </option>
+
+            </select>
+
+          </div>
+
+          {/* ================= CONSTRUCTION ================= */}
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
+
+              Construction Status
+
+            </label>
+
+            <select
+              name="constructionStatus"
+              value={
+                formData.constructionStatus
+              }
+              onChange={
+                handleChange
+              }
+              className="w-full border rounded-2xl px-4 py-3 bg-white"
+            >
+
+              <option value="">
+                Select Status
+              </option>
+
+              <option value="ready to move">
+                Ready To Move
+              </option>
+
+              <option value="under construction">
+                Under Construction
+              </option>
+
+              <option value="new launch">
+                New Launch
+              </option>
+
+            </select>
+
+          </div>
+
+          {/* ================= DESCRIPTION ================= */}
+
+          <div>
+
+            <label className="block mb-2 font-semibold">
 
               Description
 
             </label>
 
             <textarea
+              rows="4"
               name="description"
-              rows="5"
               value={
                 formData.description
               }
               onChange={
                 handleChange
               }
-              placeholder="Describe your property..."
-              required
-              className="w-full border border-slate-300 rounded-2xl px-4 py-4 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              className="w-full border rounded-2xl px-4 py-3"
             />
 
           </div>
 
-          {/* ====================================================== */}
-          {/* ================= MULTI IMAGE ======================== */}
-          {/* ====================================================== */}
+          {/* ================= MULTIPLE IMAGES ================= */}
 
-          <div className="mt-10">
+          <div>
 
-            <div className="flex items-center justify-between mb-4">
+            <label className="block mb-2 font-semibold">
 
-              <div>
-
-                <h2 className="text-2xl font-bold">
-
-                  Property Gallery
-
-                </h2>
-
-                <p className="text-slate-500 mt-1">
-
-                  Upload up to 15 high quality images
-
-                </p>
-
-              </div>
-
-              <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-2xl text-sm font-semibold">
-
-                {images.length}/15 Images
-
-              </div>
-
-            </div>
-
-            {/* UPLOAD BOX */}
-            <label className="border-2 border-dashed border-slate-300 hover:border-blue-500 transition rounded-[28px] p-10 flex flex-col items-center justify-center cursor-pointer bg-slate-50">
-
-              <div className="bg-blue-100 p-5 rounded-full mb-5">
-
-                <ImagePlus className="text-blue-700" size={38} />
-
-              </div>
-
-              <h3 className="text-xl font-bold">
-
-                Upload Property Images
-
-              </h3>
-
-              <p className="text-slate-500 mt-2 text-center">
-
-                JPG, PNG, WEBP supported
-
-              </p>
-
-              <div className="mt-5 bg-blue-600 text-white px-6 py-3 rounded-2xl font-semibold flex items-center gap-2">
-
-                <Upload size={18} />
-
-                Select Images
-
-              </div>
-
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={
-                  handleImageChange
-                }
-                className="hidden"
-              />
+              Property Images
 
             </label>
 
-            {/* ====================================================== */}
-            {/* ================= PREVIEWS =========================== */}
-            {/* ====================================================== */}
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={
+                handleImage
+              }
+              className="w-full border rounded-2xl px-4 py-3"
+            />
 
-            {previews.length >
-              0 && (
+            {/* IMAGE PREVIEW */}
 
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5 mt-8">
+            {images.length > 0 && (
 
-                {previews.map(
-                  (
-                    preview,
-                    index
-                  ) => (
+              <div className="mt-4 grid grid-cols-3 gap-3">
 
-                    <div
-                      key={
-                        index
-                      }
-                      className="relative group rounded-3xl overflow-hidden shadow-lg border border-slate-200"
-                    >
+                {images.map(
+                  (img, i) => (
 
-                      {/* PRIMARY */}
-                      {index ===
-                        0 && (
-
-                        <div className="absolute top-3 left-3 z-10 bg-blue-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-
-                          Primary
-
-                        </div>
-                      )}
-
-                      {/* REMOVE */}
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeImage(
-                            index
-                          )
-                        }
-                        className="absolute top-3 right-3 z-10 bg-red-600 hover:bg-red-700 text-white p-2 rounded-full shadow-lg transition"
-                      >
-
-                        <X size={16} />
-
-                      </button>
-
-                      {/* IMAGE */}
-                      <img
-                        src={
-                          preview
-                        }
-                        alt="preview"
-                        className="w-full h-52 object-cover group-hover:scale-105 transition duration-300"
-                      />
-
-                    </div>
+                    <img
+                      key={i}
+                      src={URL.createObjectURL(img)}
+                      alt="preview"
+                      className="h-24 w-full object-cover rounded-xl border"
+                    />
                   )
                 )}
 
@@ -779,33 +519,17 @@ const AddProperty = () => {
 
           </div>
 
-          {/* ====================================================== */}
-          {/* ================= SUBMIT ============================= */}
-          {/* ====================================================== */}
+          {/* ================= BUTTON ================= */}
 
           <button
             type="submit"
-            disabled={
-              loading
-            }
-            className={`w-full mt-10 py-4 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 transition ${
-              loading
-                ? "bg-slate-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 text-white"
-            }`}
+            disabled={loading}
+            className="w-full bg-[#071133] text-white py-4 rounded-2xl font-semibold"
           >
 
-            {loading ? (
-              <>
-                <Loader2 className="animate-spin" size={22} />
-                Uploading Property...
-              </>
-            ) : (
-              <>
-                <Upload size={22} />
-                Submit Property
-              </>
-            )}
+            {loading
+              ? "Adding..."
+              : "Add Property"}
 
           </button>
 
@@ -815,6 +539,6 @@ const AddProperty = () => {
 
     </div>
   );
-};
+}
 
 export default AddProperty;

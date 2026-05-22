@@ -1,50 +1,127 @@
 const Property = require("../models/Property");
 
-exports.getFilteredProperties = async (req, res) => {
+// ======================================================
+// ================= ADD PROPERTY =======================
+// ======================================================
+
+exports.addProperty = async (req, res) => {
   try {
-    const {
-      type,
-      minPrice,
-      maxPrice,
-      minArea,
-      maxArea,
-      constructionStatus,
-      location
-    } = req.query;
+    console.log("REQ BODY =>", req.body);
 
-    let filter = {
-      status: "approved"   // only approved visible
-    };
+    // ================= IMAGES =================
 
-    if (type) {
-      filter.type = type;
-    }
+    const uploadedFiles = req.files || [];
 
-    if (constructionStatus) {
-      filter.constructionStatus = constructionStatus;
-    }
+    const images = uploadedFiles.map((file) => ({
+      filename: file.filename,
 
-    if (location) {
-      filter.location = { $regex: location, $options: "i" };
-    }
+      url: file.path,
 
-    if (minPrice || maxPrice) {
-      filter.price = {};
-      if (minPrice) filter.price.$gte = Number(minPrice);
-      if (maxPrice) filter.price.$lte = Number(maxPrice);
-    }
+      uploadedBy: req.user.id,
 
-    if (minArea || maxArea) {
-      filter.area = {};
-      if (minArea) filter.area.$gte = Number(minArea);
-      if (maxArea) filter.area.$lte = Number(maxArea);
-    }
+      status: "approved",
+    }));
 
-    const properties = await Property.find(filter).sort({ createdAt: -1 });
+    // ================= MAIN IMAGE =================
 
-    res.json(properties);
+    const imageUrl = images[0]?.url || "";
 
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    // ================= CREATE PROPERTY =================
+
+    const property = await Property.create({
+      title: req.body.title,
+
+      price: Number(req.body.price) || 0,
+
+      // AREA
+      area: Number(req.body.area) || 0,
+
+      areaUnit: req.body.areaUnit || "sqft",
+
+      // LOCATION
+      location: req.body.location,
+
+      // TYPE
+      type: req.body.type,
+
+      subType: req.body.subType || "",
+
+      // CONSTRUCTION
+      constructionStatus: req.body.constructionStatus,
+
+      // DESCRIPTION
+      description: req.body.description,
+
+      // STATUS
+      businessStatus: "available",
+
+      underNegotiation: false,
+
+      // IMAGES
+      image: imageUrl,
+
+      images,
+
+      // OWNER
+      createdBy: req.user.id,
+
+      createdByRole: req.user.role || "",
+
+      ownerUniqueId: req.user.uniqueUserId || "",
+
+      ownerName: req.user.name || "",
+    });
+
+    res.status(201).json({
+      success: true,
+
+      message: "Property added successfully 🚀",
+
+      property,
+    });
+  } catch (error) {
+    console.log("Add Property Error ❌", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };
+
+// ======================================================
+// ================= GET FILTERED PROPERTIES ============
+// ======================================================
+
+exports.getFilteredProperties =
+  async (req, res) => {
+
+    try {
+
+      const properties =
+        await Property.find()
+          .sort({
+            createdAt: -1,
+          });
+
+      // IMPORTANT:
+      // OLD FRONTEND EXPECTS DIRECT ARRAY
+
+      res.status(200).json(
+        properties
+      );
+
+    } catch (err) {
+
+      console.log(
+        "Property Filter Error ❌",
+        err
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Server error",
+      });
+    }
+  };
