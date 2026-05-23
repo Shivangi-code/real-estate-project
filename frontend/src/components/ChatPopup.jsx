@@ -112,7 +112,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { text: "📞 Call / WhatsApp: +91 74159 30089", sender: "bot" }
+          { text: "📞 Call / WhatsApp: +91-74159 30089", sender: "bot" }
         ]);
       }, 700);
 

@@ -109,7 +109,7 @@ function Footer() {
           <h3>Contact</h3>
 
           <p>📍 Jabalpur, India</p>
-          <p>📞 7415930089</p>
+          <p>📞 +91-7415930089</p>
           <p>📧 housifyrealty.info@gmail.com</p>
         </div>
 

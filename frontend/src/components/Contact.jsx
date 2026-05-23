@@ -247,7 +247,7 @@ function Contact() {
                     </p>
 
                     <h3 className="font-semibold text-lg">
-                      7415930089
+                      +91-7415930089
                     </h3>
 
                   </div>
