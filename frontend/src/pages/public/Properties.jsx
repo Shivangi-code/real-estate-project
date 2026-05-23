@@ -1,25 +1,15 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
-import {
-  useSearchParams,
-} from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 
 import {
   Search,
   SlidersHorizontal,
-  Home,
   Building2,
-  Trees,
   IndianRupee,
-  X,
 } from "lucide-react";
 
-import {
-  TypeAnimation,
-} from "react-type-animation";
+import { TypeAnimation } from "react-type-animation";
 
 import PropertyCard from "../../components/PropertyCard";
 
@@ -27,52 +17,38 @@ import socket from "../../socket";
 
 export default function Properties() {
 
-  const [
-    searchParams,
-    setSearchParams,
-  ] = useSearchParams();
+  const [searchParams, setSearchParams] =
+    useSearchParams();
 
-  const [properties,
-    setProperties] =
+  const [properties, setProperties] =
     useState([]);
 
-  const [loading,
-    setLoading] =
+  const [loading, setLoading] =
     useState(true);
 
-  const [search,
-    setSearch] =
+  const [search, setSearch] =
     useState(
-      searchParams.get(
-        "search"
-      ) || ""
+      searchParams.get("search") || ""
     );
 
-  const [type,
-    setType] =
+  const [type, setType] =
     useState(
-      searchParams.get(
-        "type"
-      ) || ""
+      searchParams.get("type") || ""
     );
 
-  const [maxPrice,
-    setMaxPrice] =
+  const [maxPrice, setMaxPrice] =
     useState(
-      searchParams.get(
-        "maxPrice"
-      ) || ""
+      searchParams.get("maxPrice") || ""
     );
 
-  const [sort,
-    setSort] =
+  const [sort, setSort] =
     useState(
-      searchParams.get(
-        "sort"
-      ) || ""
+      searchParams.get("sort") || ""
     );
 
-  // ================= UPDATE URL =================
+  // ======================================================
+  // ================= UPDATE URL =========================
+  // ======================================================
 
   useEffect(() => {
 
@@ -85,8 +61,7 @@ export default function Properties() {
       params.type = type;
 
     if (maxPrice)
-      params.maxPrice =
-        maxPrice;
+      params.maxPrice = maxPrice;
 
     if (sort)
       params.sort = sort;
@@ -98,9 +73,12 @@ export default function Properties() {
     type,
     maxPrice,
     sort,
+    setSearchParams,
   ]);
 
-  // ================= FETCH =================
+  // ======================================================
+  // ================= FETCH PROPERTIES ===================
+  // ======================================================
 
   const fetchProperties =
     async () => {
@@ -140,22 +118,45 @@ export default function Properties() {
 
         const res =
           await fetch(
-            `http://localhost:5000/api/properties?${params.toString()}`
+            `http://localhost:5000/api/properties/approved?${params.toString()}`
           );
 
         const data =
           await res.json();
 
-        // ================= IMPORTANT FIX =================
+        console.log(
+          "PROPERTIES API =>",
+          data
+        );
 
-        let updated =
+        // ======================================================
+        // ================= FIX ================================
+        // ======================================================
+
+        let updated = [];
+
+        // OLD ARRAY FORMAT
+        if (
+          Array.isArray(data)
+        ) {
+
+          updated = data;
+        }
+
+        // NEW OBJECT FORMAT
+        else if (
           Array.isArray(
             data?.properties
           )
-            ? data.properties
-            : [];
+        ) {
 
-        // ================= SORT =================
+          updated =
+            data.properties;
+        }
+
+        // ======================================================
+        // ================= SORT ===============================
+        // ======================================================
 
         if (
           sort === "low-high"
@@ -179,6 +180,11 @@ export default function Properties() {
           );
         }
 
+        console.log(
+          "FINAL PROPERTIES =>",
+          updated
+        );
+
         setProperties(
           updated
         );
@@ -198,7 +204,9 @@ export default function Properties() {
       }
     };
 
-  // ================= FETCH EFFECT =================
+  // ======================================================
+  // ================= FETCH EFFECT =======================
+  // ======================================================
 
   useEffect(() => {
 
@@ -219,7 +227,9 @@ export default function Properties() {
     sort,
   ]);
 
-  // ================= REALTIME =================
+  // ======================================================
+  // ================= REALTIME ===========================
+  // ======================================================
 
   useEffect(() => {
 
@@ -238,59 +248,17 @@ export default function Properties() {
       );
     };
 
-  }, [
-    search,
-    type,
-    maxPrice,
-    sort,
-  ]);
+  }, []);
 
-  // ================= CLEAR FILTERS =================
-
-  const clearFilters =
-    () => {
-
-      setSearch("");
-      setType("");
-      setMaxPrice("");
-      setSort("");
-    };
+  // ======================================================
+  // ================= UI ================================
+  // ======================================================
 
   return (
 
     <div className="bg-slate-50 min-h-screen">
 
-      {/* HERO ANIMATION */}
-
-      <style>
-        {`
-          @keyframes heroZoom {
-
-            from {
-              background-size: 100%;
-            }
-
-            to {
-              background-size: 110%;
-            }
-          }
-
-          @keyframes fadeUp {
-
-            from {
-              opacity: 0;
-              transform: translateY(30px);
-            }
-
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
-
-      {/* HERO SECTION */}
+      {/* HERO */}
 
       <section
         className="text-white px-6 md:px-10 py-24 relative overflow-hidden"
@@ -304,37 +272,12 @@ export default function Properties() {
           `,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          animation:
-            "heroZoom 12s ease-in-out infinite alternate",
         }}
       >
 
-        {/* OVERLAY */}
-
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
-
-        {/* LIGHT EFFECTS */}
-
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden">
-
-          <div className="absolute top-[-120px] left-[-120px] w-[300px] h-[300px] bg-blue-500/20 blur-3xl rounded-full" />
-
-          <div className="absolute bottom-[-100px] right-[-100px] w-[280px] h-[280px] bg-cyan-400/20 blur-3xl rounded-full" />
-
-        </div>
-
-        {/* CONTENT */}
-
         <div className="max-w-7xl mx-auto relative z-10">
 
-          <div
-            className="max-w-4xl"
-            style={{
-              animation:
-                "fadeUp 1s ease",
-            }}
-          >
+          <div className="max-w-4xl">
 
             <p className="uppercase tracking-[6px] text-blue-200 text-sm font-semibold mb-5">
 
@@ -359,18 +302,6 @@ export default function Properties() {
               </span>
 
             </h1>
-
-            <div className="mt-7 inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-xl px-5 py-3 rounded-full">
-
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-
-              <span className="text-sm text-slate-200">
-
-                Trusted by 1,000+ users across India
-
-              </span>
-
-            </div>
 
             <div className="mt-8 text-xl md:text-2xl text-slate-200 leading-10 font-light max-w-3xl">
 
@@ -542,9 +473,7 @@ export default function Properties() {
 
             <p className="text-slate-500">
 
-              {properties.length}
-              {" "}
-              properties found
+              {properties.length} properties found
 
             </p>
 
@@ -606,4 +535,3 @@ export default function Properties() {
     </div>
   );
 }
-

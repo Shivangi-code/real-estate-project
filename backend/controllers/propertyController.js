@@ -1,93 +1,139 @@
-const Property = require("../models/Property");
+const Property =
+  require("../models/Property");
 
 // ======================================================
 // ================= ADD PROPERTY =======================
 // ======================================================
 
-exports.addProperty = async (req, res) => {
-  try {
-    console.log("REQ BODY =>", req.body);
+exports.addProperty =
+  async (req, res) => {
 
-    // ================= IMAGES =================
+    try {
 
-    const uploadedFiles = req.files || [];
+      console.log(
+        "REQ BODY =>",
+        req.body
+      );
 
-    const images = uploadedFiles.map((file) => ({
-      filename: file.filename,
+      // ================= IMAGES =================
 
-      url: file.path,
+      const uploadedFiles =
+        req.files || [];
 
-      uploadedBy: req.user.id,
+      const images =
+        uploadedFiles.map(
+          (file) => ({
+            filename:
+              file.filename,
 
-      status: "approved",
-    }));
+            url:
+              file.path,
 
-    // ================= MAIN IMAGE =================
+            uploadedBy:
+              req.user.id,
 
-    const imageUrl = images[0]?.url || "";
+            status:
+              "approved",
+          })
+        );
 
-    // ================= CREATE PROPERTY =================
+      // ================= MAIN IMAGE =================
 
-    const property = await Property.create({
-      title: req.body.title,
+      const imageUrl =
+        images[0]?.url || "";
 
-      price: Number(req.body.price) || 0,
+      // ================= CREATE PROPERTY =================
 
-      // AREA
-      area: Number(req.body.area) || 0,
+      const property =
+        await Property.create({
 
-      areaUnit: req.body.areaUnit || "sqft",
+          title:
+            req.body.title,
 
-      // LOCATION
-      location: req.body.location,
+          price:
+            Number(
+              req.body.price
+            ) || 0,
 
-      // TYPE
-      type: req.body.type,
+          // AREA
+          area:
+            Number(
+              req.body.area
+            ) || 0,
 
-      subType: req.body.subType || "",
+          areaUnit:
+            req.body.areaUnit ||
+            "sqft",
 
-      // CONSTRUCTION
-      constructionStatus: req.body.constructionStatus,
+          // LOCATION
+          location:
+            req.body.location,
 
-      // DESCRIPTION
-      description: req.body.description,
+          // TYPE
+          type:
+            req.body.type,
 
-      // STATUS
-      businessStatus: "available",
+          subType:
+            req.body.subType || "",
 
-      underNegotiation: false,
+          // CONSTRUCTION
+          constructionStatus:
+            req.body.constructionStatus,
 
-      // IMAGES
-      image: imageUrl,
+          // DESCRIPTION
+          description:
+            req.body.description,
 
-      images,
+          // STATUS
+          businessStatus:
+            "available",
 
-      // OWNER
-      createdBy: req.user.id,
+          underNegotiation:
+            false,
 
-      createdByRole: req.user.role || "",
+          // IMAGES
+          image:
+            imageUrl,
 
-      ownerUniqueId: req.user.uniqueUserId || "",
+          images,
 
-      ownerName: req.user.name || "",
-    });
+          // OWNER
+          createdBy:
+            req.user.id,
 
-    res.status(201).json({
-      success: true,
+          createdByRole:
+            req.user.role || "",
 
-      message: "Property added successfully 🚀",
+          ownerUniqueId:
+            req.user.uniqueUserId || "",
 
-      property,
-    });
-  } catch (error) {
-    console.log("Add Property Error ❌", error);
+          ownerName:
+            req.user.name || "",
+        });
 
-    res.status(500).json({
-      success: false,
-      message: "Server Error",
-    });
-  }
-};
+      res.status(201).json({
+        success: true,
+
+        message:
+          "Property added successfully 🚀",
+
+        property,
+      });
+
+    } catch (error) {
+
+      console.log(
+        "Add Property Error ❌",
+        error
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          "Server Error",
+      });
+    }
+  };
 
 // ======================================================
 // ================= GET FILTERED PROPERTIES ============
@@ -98,18 +144,25 @@ exports.getFilteredProperties =
 
     try {
 
+      console.log(
+        "GET PROPERTIES API HIT 🚀"
+      );
+
       const properties =
-        await Property.find()
+        await Property.find({})
           .sort({
             createdAt: -1,
           });
 
-      // IMPORTANT:
-      // OLD FRONTEND EXPECTS DIRECT ARRAY
-
-      res.status(200).json(
-        properties
+      console.log(
+        "TOTAL PROPERTIES =>",
+        properties.length
       );
+
+      res.status(200).json({
+        success: true,
+        properties,
+      });
 
     } catch (err) {
 
@@ -122,6 +175,49 @@ exports.getFilteredProperties =
         success: false,
         message:
           "Server error",
+      });
+    }
+  };
+
+// ======================================================
+// ================= GET SINGLE PROPERTY ================
+// ======================================================
+
+exports.getSingleProperty =
+  async (req, res) => {
+
+    try {
+
+      const property =
+        await Property.findById(
+          req.params.id
+        );
+
+      if (!property) {
+
+        return res.status(404).json({
+          success: false,
+          message:
+            "Property not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        property,
+      });
+
+    } catch (error) {
+
+      console.log(
+        "Single Property Error ❌",
+        error
+      );
+
+      res.status(500).json({
+        success: false,
+        message:
+          error.message,
       });
     }
   };

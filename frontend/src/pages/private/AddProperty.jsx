@@ -63,11 +63,12 @@ function AddProperty() {
   const handleImage =
     (e) => {
 
-      setImages(
+      const files =
         Array.from(
           e.target.files
-        )
-      );
+        );
+
+      setImages(files);
     };
 
   // ================= SUBMIT =================
@@ -162,11 +163,14 @@ function AddProperty() {
     };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
 
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+    <div className="min-h-screen bg-slate-100 py-8 px-4">
 
-        <h1 className="text-3xl font-bold text-[#071133] mb-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-[28px] shadow-sm p-6 md:p-8">
+
+        {/* TITLE */}
+
+        <h1 className="text-3xl md:text-4xl font-black text-[#071133] mb-8">
 
           Add New Property
 
@@ -179,11 +183,11 @@ function AddProperty() {
           className="space-y-6"
         >
 
-          {/* ================= TITLE ================= */}
+          {/* TITLE */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-2 font-semibold text-slate-700">
 
               Property Title
 
@@ -198,21 +202,19 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:border-blue-500"
               required
             />
 
           </div>
 
-          {/* ================= PRICE ================= */}
+          {/* PRICE */}
 
-          <div className="grid grid-cols-2 gap-4">
-
-            {/* PRICE */}
+          <div className="grid md:grid-cols-2 gap-4">
 
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label className="block mb-2 font-semibold text-slate-700">
 
                 Price
 
@@ -228,17 +230,15 @@ function AddProperty() {
                   handleChange
                 }
                 placeholder="Enter property price"
-                className="w-full border rounded-2xl px-4 py-3"
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:border-blue-500"
                 required
               />
 
             </div>
 
-            {/* PRICE UNIT */}
-
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label className="block mb-2 font-semibold text-slate-700">
 
                 Price Unit
 
@@ -252,7 +252,7 @@ function AddProperty() {
                 onChange={
                   handleChange
                 }
-                className="w-full border rounded-2xl px-4 py-3 bg-white"
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 bg-white outline-none focus:border-blue-500"
               >
 
                 <option value="lac">
@@ -269,15 +269,13 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= AREA ================= */}
+          {/* AREA */}
 
-          <div className="grid grid-cols-2 gap-4">
-
-            {/* AREA */}
+          <div className="grid md:grid-cols-2 gap-4">
 
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label className="block mb-2 font-semibold text-slate-700">
 
                 Area
 
@@ -293,16 +291,14 @@ function AddProperty() {
                   handleChange
                 }
                 placeholder="Enter area"
-                className="w-full border rounded-2xl px-4 py-3"
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:border-blue-500"
               />
 
             </div>
 
-            {/* AREA UNIT */}
-
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label className="block mb-2 font-semibold text-slate-700">
 
                 Area Unit
 
@@ -316,7 +312,7 @@ function AddProperty() {
                 onChange={
                   handleChange
                 }
-                className="w-full border rounded-2xl px-4 py-3 bg-white"
+                className="w-full border border-slate-300 rounded-2xl px-4 py-3 bg-white outline-none focus:border-blue-500"
               >
 
                 <option value="sqft">
@@ -333,11 +329,11 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= LOCATION ================= */}
+          {/* LOCATION */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-2 font-semibold text-slate-700">
 
               Location
 
@@ -352,17 +348,17 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:border-blue-500"
               required
             />
 
           </div>
 
-          {/* ================= TYPE ================= */}
+          {/* TYPE */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-2 font-semibold text-slate-700">
 
               Property Type
 
@@ -376,7 +372,7 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3 bg-white"
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 bg-white outline-none focus:border-blue-500"
             >
 
               <option value="">
@@ -411,11 +407,11 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= CONSTRUCTION ================= */}
+          {/* CONSTRUCTION STATUS */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-2 font-semibold text-slate-700">
 
               Construction Status
 
@@ -429,7 +425,7 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3 bg-white"
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 bg-white outline-none focus:border-blue-500"
             >
 
               <option value="">
@@ -452,18 +448,18 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= DESCRIPTION ================= */}
+          {/* DESCRIPTION */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-2 font-semibold text-slate-700">
 
               Description
 
             </label>
 
             <textarea
-              rows="4"
+              rows="5"
               name="description"
               value={
                 formData.description
@@ -471,64 +467,110 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
+              className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none resize-none focus:border-blue-500"
             />
 
           </div>
 
-          {/* ================= MULTIPLE IMAGES ================= */}
+          {/* MULTIPLE IMAGE UPLOAD */}
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label className="block mb-3 font-semibold text-slate-700">
 
               Property Images
 
             </label>
 
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={
-                handleImage
-              }
-              className="w-full border rounded-2xl px-4 py-3"
-            />
+            <label
+              htmlFor="propertyImages"
+              className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-300 rounded-2xl cursor-pointer hover:border-blue-500 transition-all bg-slate-50"
+            >
+
+              <div className="text-center">
+
+                <p className="text-lg font-semibold text-slate-700">
+
+                  Upload Property Images
+
+                </p>
+
+                <p className="text-sm text-slate-500 mt-1">
+
+                  Select multiple images
+
+                </p>
+
+              </div>
+
+              <input
+                id="propertyImages"
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImage}
+                className="hidden"
+              />
+
+            </label>
 
             {/* IMAGE PREVIEW */}
 
             {images.length > 0 && (
 
-              <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="mt-5">
 
-                {images.map(
-                  (img, i) => (
+                <p className="font-semibold mb-3">
 
-                    <img
-                      key={i}
-                      src={URL.createObjectURL(img)}
-                      alt="preview"
-                      className="h-24 w-full object-cover rounded-xl border"
-                    />
-                  )
-                )}
+                  Selected Images
+                  {" "}
+                  ({images.length})
+
+                </p>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+                  {images.map(
+                    (img, i) => (
+
+                      <div
+                        key={i}
+                        className="relative"
+                      >
+
+                        <img
+                          src={URL.createObjectURL(img)}
+                          alt="preview"
+                          className="h-28 w-full object-cover rounded-2xl border shadow-sm"
+                        />
+
+                        <div className="absolute top-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded-full">
+
+                          {i + 1}
+
+                        </div>
+
+                      </div>
+                    )
+                  )}
+
+                </div>
 
               </div>
             )}
 
           </div>
 
-          {/* ================= BUTTON ================= */}
+          {/* BUTTON */}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#071133] text-white py-4 rounded-2xl font-semibold"
+            className="w-full bg-[#071133] hover:bg-[#0d1b4d] transition-all text-white py-4 rounded-2xl font-semibold text-lg"
           >
 
             {loading
-              ? "Adding..."
+              ? "Adding Property..."
               : "Add Property"}
 
           </button>

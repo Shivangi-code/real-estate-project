@@ -4,14 +4,12 @@ const express =
 const router =
   express.Router();
 
-// ================= CONTROLLER =================
+// ================= CONTROLLERS =================
 
-const {
-  addProperty,
-  getFilteredProperties,
-} = require(
-  "../controllers/propertyController"
-);
+const propertyController =
+  require(
+    "../controllers/propertyController"
+  );
 
 // ================= AUTH =================
 
@@ -43,17 +41,27 @@ router.post(
     10
   ),
 
-  addProperty
+  propertyController.addProperty
 );
 
 // ======================================================
-// ================= GET PROPERTIES =====================
+// ================= GET ALL PROPERTIES =================
 // ======================================================
 
 router.get(
   "/approved",
-  getFilteredProperties
+  propertyController.getFilteredProperties
 );
+
+// ======================================================
+// ================= GET SINGLE PROPERTY ================
+// ======================================================
+
+router.get(
+  "/:id",
+  propertyController.getSingleProperty
+);
+
 // ======================================================
 // ================= EXPORT =============================
 // ======================================================
