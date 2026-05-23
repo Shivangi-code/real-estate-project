@@ -51,11 +51,6 @@ export default function PropertyDetails() {
           const data =
             await res.json();
 
-          console.log(
-            "PROPERTY DETAILS =>",
-            data
-          );
-
           setProperty(
             data.property || data
           );
@@ -138,8 +133,7 @@ export default function PropertyDetails() {
       if (!price)
         return "₹ N/A";
 
-      // SMALL VALUE LIKE 62
-      // TREAT AS LACS
+      // SMALL VALUES LIKE 35
 
       if (price < 1000) {
 
@@ -168,21 +162,49 @@ export default function PropertyDetails() {
     };
 
   // ======================================================
-  // ================= PRICE / SQFT =======================
+  // ================= AREA UNIT ==========================
   // ======================================================
 
-  const pricePerSqft =
-    property.area
-      ? Math.round(
-          (
-            (property.price < 1000
-              ? property.price *
-                100000
-              : property.price) /
-            property.area
-          )
-        ).toLocaleString()
-      : "0";
+  const areaUnit =
+    property?.areaUnit ||
+    "sqft";
+
+  // ======================================================
+  // ================= PRICE PER UNIT =====================
+  // ======================================================
+
+  let pricePerUnit =
+    "N/A";
+
+  // AGRICULTURE LAND
+
+  if (
+    areaUnit ===
+    "acre"
+  ) {
+
+    pricePerUnit =
+      `₹ ${property.price} L/acre`;
+  }
+
+  // NORMAL PROPERTY
+
+  else {
+
+    const actualPrice =
+      property.price < 1000
+        ? property.price *
+          100000
+        : property.price;
+
+    pricePerUnit =
+      property.area
+        ? `₹ ${Math.round(
+            actualPrice /
+              property.area
+          ).toLocaleString()}/sqft`
+        : "N/A";
+  }
 
   return (
 
@@ -356,8 +378,11 @@ export default function PropertyDetails() {
                     {
                       property.area ||
                       0
-                    }{" "}
-                    sqft
+                    }
+                    {" "}
+                    {
+                      areaUnit
+                    }
 
                   </h3>
 
@@ -405,24 +430,26 @@ export default function PropertyDetails() {
 
                 </div>
 
-                {/* PRICE / SQFT */}
+                {/* PRICE / UNIT */}
 
                 <div className="bg-slate-100 rounded-2xl p-4">
 
                   <p className="text-slate-500 text-sm">
 
-                    Price/sqft
+                    {
+                      areaUnit ===
+                      "acre"
+                        ? "Price/acre"
+                        : "Price/sqft"
+                    }
 
                   </p>
 
                   <h3 className="text-lg font-bold mt-1">
 
-                    ₹
-                    {" "}
                     {
-                      pricePerSqft
+                      pricePerUnit
                     }
-                    /sqft
 
                   </h3>
 

@@ -31,31 +31,29 @@ function PropertyCard({
       if (!price)
         return "N/A";
 
-      const num =
-        Number(price);
+      // SMALL VALUES LIKE 35
+      // TREAT AS LACS
 
-      // STORED AS LACS
+      if (price < 1000) {
 
-      if (num < 1000) {
-
-        return `₹ ${num} L`;
+        return `₹ ${price} L`;
       }
 
-      // CRORES
+      if (
+        price >= 10000000
+      ) {
 
-      if (num >= 10000000) {
-
-        return `₹ ${(num / 10000000).toFixed(1)} Cr`;
+        return `₹ ${(price / 10000000).toFixed(1)} Cr`;
       }
 
-      // LACS
+      if (
+        price >= 100000
+      ) {
 
-      if (num >= 100000) {
-
-        return `₹ ${(num / 100000).toFixed(1)} L`;
+        return `₹ ${(price / 100000).toFixed(1)} L`;
       }
 
-      return `₹ ${num.toLocaleString()}`;
+      return `₹ ${Number(price).toLocaleString()}`;
     };
 
   // ================= OPEN PROPERTY =================
@@ -71,8 +69,17 @@ function PropertyCard({
   // ================= IMAGE =================
 
   const imageUrl =
-    data?.image ||
-    "https://via.placeholder.com/600x400?text=Property";
+    data?.images?.length > 0
+
+      ? typeof data.images[0] ===
+        "string"
+
+        ? data.images[0]
+
+        : data.images[0].url
+
+      : data?.image ||
+        "https://via.placeholder.com/600x400?text=Property";
 
   // ================= PROPERTY ID =================
 
@@ -98,34 +105,54 @@ function PropertyCard({
       data?.area || 0
     );
 
-  // ================= PRICE FIX =================
+  // ================= AREA UNIT =================
 
-  const actualPrice =
-    Number(data?.price || 0);
+  const areaUnit =
+    data?.areaUnit ||
+    "sqft";
 
-  // IF STORED AS LACS
+  // ================= PRICE PER UNIT =================
 
-  const finalPrice =
+  let pricePerUnit =
+    "Price NA";
 
-    actualPrice < 1000
+  // AGRICULTURE LAND
 
-      ? actualPrice * 100000
+  if (
+    areaUnit ===
+    "acre"
+  ) {
 
-      : actualPrice;
+    pricePerUnit =
+      `₹ ${data?.price} L/acre`;
+  }
 
-  // ================= PRICE PER SQFT =================
+  // NORMAL PROPERTY
 
-  const pricePerUnit =
-    Number(area) > 0
+  else {
 
-      ? Math.round(
-          finalPrice /
-          Number(area)
-        )
+    const actualPrice =
+      data?.price < 1000
+        ? data?.price *
+          100000
+        : data?.price;
 
-      : 0;
+    const calculated =
+      Number(area) > 0
+        ? Math.round(
+            actualPrice /
+            Number(area)
+          )
+        : 0;
+
+    pricePerUnit =
+      calculated > 0
+        ? `₹ ${Number(calculated).toLocaleString()}/sqft`
+        : "Price NA";
+  }
 
   return (
+
     <motion.div
       initial={{
         opacity: 0,
@@ -370,7 +397,7 @@ function PropertyCard({
                   {data?.area &&
                   Number(data.area) > 0
 
-                    ? `${Number(data.area).toLocaleString()} ${data?.areaUnit || "sqft"}`
+                    ? `${Number(data.area).toLocaleString()} ${areaUnit}`
 
                     : "Area Not Added"}
 
@@ -380,7 +407,7 @@ function PropertyCard({
 
             </div>
 
-            {/* PRICE PER SQFT */}
+            {/* PRICE PER UNIT */}
 
             <div className="p-3 flex items-center gap-2 min-h-[60px]">
 
@@ -397,18 +424,15 @@ function PropertyCard({
 
                 <p className="text-slate-500 text-[10px]">
 
-                  Price/{data?.areaUnit || "sqft"}
+                  {areaUnit === "acre"
+                    ? "Price/acre"
+                    : "Price/sqft"}
 
                 </p>
 
                 <h3 className="font-bold text-xs text-slate-900">
 
-                  {data?.area &&
-                  Number(pricePerUnit) > 0
-
-                    ? `₹ ${Number(pricePerUnit).toLocaleString()}/${data?.areaUnit || "sqft"}`
-
-                    : "Price NA"}
+                  {pricePerUnit}
 
                 </h3>
 

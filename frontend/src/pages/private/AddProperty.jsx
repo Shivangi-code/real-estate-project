@@ -399,6 +399,10 @@ function AddProperty() {
                 Farm Land
               </option>
 
+              <option value="agriculture land">
+                Agriculture Land
+              </option>
+
               <option value="office">
                 Office
               </option>
