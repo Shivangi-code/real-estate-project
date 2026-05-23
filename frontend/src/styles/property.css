@@ -1,19 +1,30 @@
 /* ================= PROPERTY CARD ================= */
 
 .property-card {
-  background: #ffffff;
+  position: relative;
 
-  border-radius: 18px;
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #f8fbff
+    );
+
+  border-radius: 28px;
+
   overflow: hidden;
 
-  border: 1px solid #e5e7eb;
+  border:
+    1px solid rgba(203,213,225,0.7);
 
   box-shadow:
-    0 4px 12px rgba(0,0,0,0.06);
+    0 8px 24px rgba(15,23,42,0.06),
+    0 2px 8px rgba(15,23,42,0.04);
 
   transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
+    transform 0.45s ease,
+    box-shadow 0.45s ease,
+    border-color 0.45s ease;
 
   display: flex;
   flex-direction: column;
@@ -21,372 +32,322 @@
   height: 100%;
 
   cursor: pointer;
+
+  isolation: isolate;
+}
+
+/* ================= TOP ACCENT ================= */
+
+.property-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #071133,
+      #2563eb,
+      #071133
+    );
+
+  opacity: 0.9;
+
+  z-index: 5;
 }
 
 /* ================= HOVER ================= */
 
 .property-card:hover {
-  transform: translateY(-5px);
+  transform:
+    translateY(-10px)
+    scale(1.01);
+
+  border-color:
+    rgba(37,99,235,0.25);
 
   box-shadow:
-    0 14px 28px rgba(0,0,0,0.12);
+    0 22px 50px rgba(15,23,42,0.12),
+    0 8px 20px rgba(37,99,235,0.08);
 }
 
 /* ================= IMAGE ================= */
 
-.card-image {
-  position: relative;
-
-  width: 100%;
-  height: 190px;
-
-  overflow: hidden;
-
-  background: #f3f4f6;
+.property-card img {
+  transition:
+    transform 0.8s ease,
+    filter 0.5s ease;
 }
 
-.card-img {
-  width: 100%;
-  height: 100%;
+.property-card:hover img {
+  transform: scale(1.08);
 
-  object-fit: cover;
-
-  transition: transform 0.4s ease;
+  filter:
+    contrast(1.05)
+    saturate(1.05);
 }
 
-.property-card:hover .card-img {
-  transform: scale(1.05);
-}
+/* ================= IMAGE OVERLAY ================= */
 
-/* ================= OVERLAY ================= */
-
-.card-image::after {
-  content: "";
-
-  position: absolute;
-  inset: 0;
-
+.property-card .absolute.inset-0 {
   background:
     linear-gradient(
       to top,
-      rgba(0,0,0,0.22),
+      rgba(2,6,23,0.72),
+      rgba(2,6,23,0.15),
       transparent
-    );
+    ) !important;
+
+  transition: 0.4s ease;
 }
 
-/* ================= VERIFIED ================= */
-
-.badge {
-  position: absolute;
-
-  top: 12px;
-  left: 12px;
-
-  z-index: 10;
-
-  background: #05b334;
-  color: white;
-
-  padding: 6px 12px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 600;
-
-  display: flex;
-  align-items: center;
-  gap: 5px;
+.property-card:hover .absolute.inset-0 {
+  background:
+    linear-gradient(
+      to top,
+      rgba(2,6,23,0.82),
+      rgba(2,6,23,0.22),
+      transparent
+    ) !important;
 }
 
-/* ================= VIEW BTN ================= */
+/* ================= VERIFIED BADGE ================= */
 
-.view-btn {
-  position: absolute;
+.property-card .bg-green-600 {
+  border:
+    1px solid rgba(255,255,255,0.25);
 
-  bottom: 12px;
-  left: 12px;
+  backdrop-filter: blur(10px);
 
-  z-index: 10;
+  box-shadow:
+    0 6px 18px rgba(22,163,74,0.22);
 
-  background: #071133;
-  color: white;
-
-  padding: 8px 14px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-  font-weight: 500;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
 }
 
-/* ================= STATUS ================= */
+.property-card:hover .bg-green-600 {
+  transform: translateY(-2px);
 
-.status-pill {
-  position: absolute;
-
-  bottom: 12px;
-  right: 12px;
-
-  z-index: 10;
-
-  background: #dcfce7;
-  color: #15803d;
-
-  padding: 7px 14px;
-
-  border-radius: 999px;
-
-  font-size: 11px;
-  font-weight: 600;
+  box-shadow:
+    0 10px 22px rgba(22,163,74,0.28);
 }
 
-/* ================= BODY ================= */
+/* ================= VIEW PHOTOS ================= */
 
-.card-body {
-  padding: 14px;
+.property-card .bg-\[\#071133\]\/90 {
+  background:
+    rgba(7,17,51,0.82) !important;
 
-  display: flex;
-  flex-direction: column;
+  backdrop-filter: blur(12px);
 
-  flex: 1;
+  border:
+    1px solid rgba(255,255,255,0.15);
+
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
 }
 
-/* ================= PROPERTY ID ================= */
+.property-card:hover .bg-\[\#071133\]\/90 {
+  transform: translateY(-2px);
 
-.property-id {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  color: #64748b;
-
-  font-size: 12px;
+  background:
+    rgba(7,17,51,0.92) !important;
 }
 
 /* ================= TITLE ================= */
 
-.card-body h3 {
-  margin-top: 10px;
+.property-card h3 {
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
 
-  font-size: 18px;
-  font-weight: 700;
+  letter-spacing: -0.4px;
+}
 
-  color: #071133;
+.property-card:hover h3 {
+  transform: translateX(2px);
 
-  line-height: 1.2;
+  color: #0f172a;
 }
 
 /* ================= LOCATION ================= */
 
-.location {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  margin-top: 8px;
-
-  color: #64748b;
-
-  font-size: 13px;
+.property-card p {
+  transition: color 0.3s ease;
 }
 
-/* ================= TAGS ================= */
-
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-
-  margin-top: 10px;
-}
-
-.type {
-  background: #f1f5f9;
-
+.property-card:hover p {
   color: #475569;
-
-  padding: 5px 10px;
-
-  border-radius: 999px;
-
-  font-size: 11px;
-  font-weight: 500;
-
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-/* ================= DESCRIPTION ================= */
-
-.description {
-  margin-top: 10px;
-
-  color: #64748b;
-
-  font-size: 13px;
-
-  line-height: 1.4;
 }
 
 /* ================= PRICE ================= */
 
-.bottom {
-  margin-top: 12px;
+.property-card .text-2xl {
+  font-size: 30px !important;
+
+  letter-spacing: -1px;
+
+  color: #071133 !important;
+
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
 }
 
-.price {
-  font-size: 22px;
-  font-weight: 800;
+.property-card:hover .text-2xl {
+  transform: scale(1.03);
 
-  color: #071133;
-
-  line-height: 1;
+  color: #0b1d57 !important;
 }
 
-.price-subtitle {
-  margin-top: 4px;
+/* ================= STATS BOX ================= */
 
-  font-size: 11px;
+.property-card .border.border-slate-200.rounded-2xl {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.96),
+      rgba(248,250,252,0.96)
+    );
 
-  color: #94a3b8;
+  border:
+    1px solid rgba(226,232,240,0.9);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
 }
 
-/* ================= STATS ================= */
+.property-card:hover .border.border-slate-200.rounded-2xl {
+  transform: translateY(-2px);
 
-.stats-box {
-  margin-top: 14px;
+  border-color:
+    rgba(37,99,235,0.15);
 
-  border: 1px solid #e5e7eb;
-
-  border-radius: 16px;
-
-  overflow: hidden;
-
-  background: white;
+  box-shadow:
+    0 10px 20px rgba(15,23,42,0.06);
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+/* ================= ICON BOXES ================= */
+
+.property-card .bg-blue-50,
+.property-card .bg-green-50 {
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
 }
 
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.property-card:hover .bg-blue-50 {
+  transform: scale(1.06);
 
-  padding: 10px;
-
-  min-height: 65px;
-
-  border-right: 1px solid #e5e7eb;
-  border-bottom: 1px solid #e5e7eb;
+  background: #dbeafe;
 }
 
-.stat-item:nth-child(2n) {
-  border-right: none;
-}
+.property-card:hover .bg-green-50 {
+  transform: scale(1.06);
 
-.stat-item:nth-last-child(-n + 2) {
-  border-bottom: none;
-}
-
-/* ================= ICON ================= */
-
-.stat-icon {
-  width: 34px;
-  height: 34px;
-
-  border-radius: 10px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-}
-
-.stat-icon.blue {
-  background: #eff6ff;
-  color: #2563eb;
-}
-
-.stat-icon.green {
-  background: #ecfdf5;
-  color: #16a34a;
-}
-
-.stat-icon.purple {
-  background: #f5f3ff;
-  color: #7c3aed;
-}
-
-.stat-icon.yellow {
-  background: #fefce8;
-  color: #ca8a04;
-}
-
-/* ================= TEXT ================= */
-
-.stat-label {
-  color: #64748b;
-
-  font-size: 11px;
-
-  margin-bottom: 2px;
-}
-
-.stat-value {
-  color: #0f172a;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  line-height: 1.2;
+  background: #dcfce7;
 }
 
 /* ================= BUTTON ================= */
 
-.details-btn {
-  width: 100%;
+.property-card button {
+  position: relative;
 
-  margin-top: 16px;
+  overflow: hidden;
 
-  border: none;
+  background:
+    linear-gradient(
+      135deg,
+      #071133,
+      #0b1d57
+    ) !important;
 
-  background: #071133;
-  color: white;
+  border:
+    1px solid rgba(255,255,255,0.08);
 
-  padding: 12px;
-
-  border-radius: 14px;
-
-  font-size: 14px;
-  font-weight: 600;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  transition: 0.3s ease;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease;
 }
 
-.details-btn:hover {
-  background: #0b1d57;
+/* BUTTON SHINE */
+
+.property-card button::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 120%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      rgba(255,255,255,0.18),
+      transparent
+    );
+
+  transition: 0.7s ease;
+}
+
+.property-card:hover button::before {
+  left: 120%;
+}
+
+.property-card:hover button {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 24px rgba(7,17,51,0.18);
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b1d57,
+      #1e3a8a
+    ) !important;
+}
+
+/* ================= STATUS PILL ================= */
+
+.property-card .bg-green-100 {
+  border:
+    1px solid rgba(34,197,94,0.15);
+
+  font-weight: 700;
 }
 
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
 
-  .card-image {
-    height: 180px;
+  .property-card {
+    border-radius: 24px;
   }
 
-  .price {
-    font-size: 20px;
+  .property-card:hover {
+    transform:
+      translateY(-6px)
+      scale(1.005);
+  }
+
+  .property-card .text-2xl {
+    font-size: 26px !important;
   }
 }

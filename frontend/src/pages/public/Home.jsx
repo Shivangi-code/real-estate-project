@@ -87,11 +87,11 @@ export default function Home() {
             }
           }
 
-          @keyframes smoothReveal {
+          @keyframes headingReveal {
 
             from {
               opacity: 0;
-              transform: translateY(25px);
+              transform: translateY(40px);
               filter: blur(10px);
             }
 
@@ -102,10 +102,64 @@ export default function Home() {
             }
           }
 
-          .animate-description {
+          @keyframes typingOne {
+
+            from {
+              width: 0;
+            }
+
+            to {
+              width: 100%;
+            }
+          }
+
+          @keyframes typingTwo {
+
+            from {
+              width: 0;
+            }
+
+            to {
+              width: 100%;
+            }
+          }
+
+          .animate-heading-one {
 
             animation:
-              smoothReveal 1.5s ease forwards;
+              headingReveal 1s ease forwards;
+          }
+
+          .animate-heading-two {
+
+            animation:
+              headingReveal 1s ease forwards;
+
+            animation-delay: 0.5s;
+          }
+
+          .typing-line-one {
+
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+
+            animation:
+              typingOne 3s steps(55, end) forwards;
+          }
+
+          .typing-line-two {
+
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+
+            animation:
+              typingTwo 4s steps(75, end) forwards;
+
+            animation-delay: 3s;
+
+            animation-fill-mode: forwards;
           }
         `}
       </style>
@@ -139,20 +193,25 @@ export default function Home() {
                 VERIFIED REAL ESTATE PLATFORM
               </p>
 
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-                Find Your Dream
-                <span className="block text-blue-300">
+              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight overflow-hidden">
+
+                <span className="block animate-heading-one opacity-0">
+                  Find Your Dream
+                </span>
+
+                <span className="block text-blue-300 animate-heading-two opacity-0">
                   Property With Confidence
                 </span>
+
               </h1>
 
-              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl animate-description">
+              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
 
-                <p>
+                <p className="typing-line-one">
                   Verified flats, plots, villas and commercial spaces
                 </p>
 
-                <p>
+                <p className="typing-line-two">
                   from trusted sellers, builders and real estate professionals across India.
                 </p>
 
