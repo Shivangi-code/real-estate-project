@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import "../../styles/AddProperty.css";
 
 function AddProperty() {
 
@@ -162,11 +163,12 @@ function AddProperty() {
     };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
 
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-lg p-8">
+    <div className="add-wrapper">
 
-        <h1 className="text-3xl font-bold text-[#071133] mb-8">
+      <div className="add-box">
+
+        <h1>
 
           Add New Property
 
@@ -183,7 +185,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Property Title
 
@@ -198,7 +200,6 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
               required
             />
 
@@ -206,13 +207,11 @@ function AddProperty() {
 
           {/* ================= PRICE ================= */}
 
-          <div className="grid grid-cols-2 gap-4">
-
-            {/* PRICE */}
+          <div className="grid-2">
 
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label>
 
                 Price
 
@@ -228,17 +227,14 @@ function AddProperty() {
                   handleChange
                 }
                 placeholder="Enter property price"
-                className="w-full border rounded-2xl px-4 py-3"
                 required
               />
 
             </div>
 
-            {/* PRICE UNIT */}
-
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label>
 
                 Price Unit
 
@@ -252,7 +248,6 @@ function AddProperty() {
                 onChange={
                   handleChange
                 }
-                className="w-full border rounded-2xl px-4 py-3 bg-white"
               >
 
                 <option value="lac">
@@ -271,13 +266,11 @@ function AddProperty() {
 
           {/* ================= AREA ================= */}
 
-          <div className="grid grid-cols-2 gap-4">
-
-            {/* AREA */}
+          <div className="grid-2">
 
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label>
 
                 Area
 
@@ -293,16 +286,13 @@ function AddProperty() {
                   handleChange
                 }
                 placeholder="Enter area"
-                className="w-full border rounded-2xl px-4 py-3"
               />
 
             </div>
 
-            {/* AREA UNIT */}
-
             <div>
 
-              <label className="block mb-2 font-semibold">
+              <label>
 
                 Area Unit
 
@@ -316,7 +306,6 @@ function AddProperty() {
                 onChange={
                   handleChange
                 }
-                className="w-full border rounded-2xl px-4 py-3 bg-white"
               >
 
                 <option value="sqft">
@@ -337,7 +326,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Location
 
@@ -352,7 +341,6 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
               required
             />
 
@@ -362,7 +350,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Property Type
 
@@ -376,7 +364,6 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3 bg-white"
             >
 
               <option value="">
@@ -415,7 +402,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Construction Status
 
@@ -429,7 +416,6 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3 bg-white"
             >
 
               <option value="">
@@ -456,7 +442,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Description
 
@@ -471,7 +457,6 @@ function AddProperty() {
               onChange={
                 handleChange
               }
-              className="w-full border rounded-2xl px-4 py-3"
             />
 
           </div>
@@ -480,7 +465,7 @@ function AddProperty() {
 
           <div>
 
-            <label className="block mb-2 font-semibold">
+            <label>
 
               Property Images
 
@@ -493,14 +478,13 @@ function AddProperty() {
               onChange={
                 handleImage
               }
-              className="w-full border rounded-2xl px-4 py-3"
             />
 
             {/* IMAGE PREVIEW */}
 
             {images.length > 0 && (
 
-              <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="preview-grid">
 
                 {images.map(
                   (img, i) => (
@@ -509,7 +493,6 @@ function AddProperty() {
                       key={i}
                       src={URL.createObjectURL(img)}
                       alt="preview"
-                      className="h-24 w-full object-cover rounded-xl border"
                     />
                   )
                 )}
@@ -524,7 +507,6 @@ function AddProperty() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-[#071133] text-white py-4 rounded-2xl font-semibold"
           >
 
             {loading
