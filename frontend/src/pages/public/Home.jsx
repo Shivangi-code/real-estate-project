@@ -86,6 +86,27 @@ export default function Home() {
               background-size: 110%;
             }
           }
+
+          @keyframes smoothReveal {
+
+            from {
+              opacity: 0;
+              transform: translateY(25px);
+              filter: blur(10px);
+            }
+
+            to {
+              opacity: 1;
+              transform: translateY(0);
+              filter: blur(0);
+            }
+          }
+
+          .animate-description {
+
+            animation:
+              smoothReveal 1.5s ease forwards;
+          }
         `}
       </style>
 
@@ -114,7 +135,7 @@ export default function Home() {
             {/* LEFT CONTENT */}
             <div className="-mt-8">
 
-              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold">
+              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold animate-pulse">
                 VERIFIED REAL ESTATE PLATFORM
               </p>
 
@@ -125,11 +146,17 @@ export default function Home() {
                 </span>
               </h1>
 
-              <p className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
-                Verified flats, plots, villas and commercial
-                spaces from trusted sellers, builders and
-                real estate professionals across India.
-              </p>
+              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl animate-description">
+
+                <p>
+                  Verified flats, plots, villas and commercial spaces
+                </p>
+
+                <p>
+                  from trusted sellers, builders and real estate professionals across India.
+                </p>
+
+              </div>
 
               {/* SEARCH BAR */}
               <div className="mt-8 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
