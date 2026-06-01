@@ -2,52 +2,46 @@
 
 .top-navbar {
   width: 100%;
-  height: 42px;
+  min-height: 42px;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
 
-  padding: 0 40px;
+  padding: 8px 24px;
 
   background: linear-gradient(
-  135deg,
-  #0f172a,
-  #172554,
-  #1e3a8a
-);
+    135deg,
+    #0f172a,
+    #172554,
+    #1e3a8a
+  );
 
   color: white;
+
   font-size: 13px;
   font-weight: 500;
 
-  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-  border-bottom: 1px solid rgba(255,255,255,0.12);
+  gap: 12px;
 
-  overflow: hidden;
+  box-sizing: border-box;
 }
 
-/* LEFT SIDE */
 .top-left {
+  flex: 1;
+
   display: flex;
   align-items: center;
-  gap: 6px;
 
-  white-space: nowrap;
+  min-width: 0;
 }
 
-/* RIGHT SIDE (CALL / WHATSAPP) */
 .top-right {
   display: flex;
   align-items: center;
-
-  margin-left: auto;
-
-  /* 🔥 FINAL SHIFT: ~3 inches left */
-  transform: translateX(-90px);
+  justify-content: flex-end;
 }
 
-/* CALL BUTTON */
 .call-btn {
   display: flex;
   align-items: center;
@@ -66,14 +60,27 @@
 
   cursor: pointer;
 
-  transition: 0.25s ease;
-
   white-space: nowrap;
+
+  transition: 0.25s ease;
 }
 
 .call-btn:hover {
   background: rgba(255,255,255,0.25);
-  transform: translateY(-1px);
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 992px) {
+
+  .top-navbar {
+    padding: 8px 16px;
+    font-size: 12px;
+  }
+
+  .call-btn {
+    font-size: 12px;
+  }
 }
 
 /* ================= MOBILE ================= */
@@ -81,16 +88,43 @@
 @media (max-width: 768px) {
 
   .top-navbar {
-    padding: 0 15px;
-    font-size: 11px;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    gap: 8px;
+
+    padding: 10px;
+  }
+
+  .top-left {
+    justify-content: center;
   }
 
   .top-right {
-    transform: translateX(-40px); /* scaled down for mobile */
+    justify-content: center;
   }
 
   .call-btn {
-    padding: 5px 10px;
     font-size: 11px;
+    padding: 6px 12px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .top-left {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .call-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

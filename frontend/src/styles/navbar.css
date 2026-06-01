@@ -1,285 +1,62 @@
-/* ================= NAVBAR ================= */
-.navbar {
-  height: 80px;
-  padding: 0 24px;
+/* ================= TABLET ================= */
 
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
+@media (max-width: 1024px) {
 
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  .nav-right a,
+  .login-btn {
+    display: none;
+  }
 
-  background: rgba(255, 255, 255, 0.75);
+  .menu-btn {
+    display: flex !important;
+  }
 
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  .navbar {
+    padding: 0 16px;
+  }
 
-  border-bottom: 1px solid rgba(212,175,55,0.15);
-
-  white-space: nowrap;
-
-  overflow: hidden;
+  .brand-name-img {
+    height: 60px;
+    margin-left: -26px;
+  }
 }
 
-/* ================= GOLDEN MOVING LIGHT ================= */
-.navbar::before {
-  content: "";
+/* ================= MOBILE ================= */
 
-  position: absolute;
-  top: 0;
-  left: -35%;
+@media (max-width: 768px) {
 
-  width: 35%;
-  height: 100%;
+  .navbar {
+    height: 72px;
+    padding: 0 12px;
+  }
 
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(212,175,55,0.00),
-    rgba(212,175,55,0.12),
-    rgba(255,244,176,0.35),
-    rgba(212,175,55,0.12),
-    rgba(212,175,55,0.00),
-    transparent
-  );
+  .nav-left {
+    margin-left: 0;
+  }
 
-  filter: blur(10px);
+  .nav-logo {
+    height: 54px;
+  }
 
-  animation: goldenMove 5s linear infinite;
+  .brand-name-img {
+    height: 52px;
+    margin-left: -20px;
+  }
 
-  pointer-events: none;
+  .nav-right {
+    gap: 8px;
+  }
 }
 
-/* ================= ANIMATION ================= */
-@keyframes goldenMove {
-  0% { left: -35%; }
-  100% { left: 135%; }
-}
+/* ================= SMALL MOBILE ================= */
 
-/* ================= LEFT / CENTER / RIGHT ================= */
-.nav-left,
-.nav-center,
-.nav-right {
-  display: flex;
-  align-items: center;
-}
+@media (max-width: 420px) {
 
-.nav-left {
-  flex: 0 0 auto;
-  margin-left: -8px;
-}
+  .brand-name-img {
+    display: none;
+  }
 
-.nav-center {
-  flex: 1;
-}
-
-/* ================= RIGHT SIDE ================= */
-.nav-right {
-  flex: 3;
-
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-
-  gap: 22px;
-
-  flex-wrap: nowrap;
-
-  position: relative;
-  z-index: 2;
-}
-
-/* ================= LOGO WRAPPER ================= */
-.logo-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 1px;
-  cursor: pointer;
-
-  position: relative;
-  z-index: 2;
-}
-
-/* ================= LOGO ================= */
-.nav-logo {
-  height: 80px;
-  width: auto;
-  object-fit: contain;
-  display: block;
-}
-
-/* ================= BRAND NAME IMAGE ================= */
-.brand-name-img {
-  height: 80px;
-  width: auto;
-  object-fit: contain;
-  display: block;
-
-  margin-left: -55px;
-}
-
-/* ================= NAV LINKS ================= */
-.nav-right a {
-  height: auto;
-
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 0;
-
-  text-decoration: none;
-
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-
-  color: #1e293b;
-
-  position: relative;
-
-  white-space: nowrap;
-
-  background: transparent;
-
-  border: none;
-
-  backdrop-filter: none;
-
-  box-shadow: none;
-
-  transition: all 0.28s ease;
-}
-
-/* ================= NAV LINK HOVER ================= */
-.nav-right a:hover {
-  transform: translateY(-1px);
-
-  color: #b88917;
-
-  box-shadow: none;
-}
-
-/* ================= LOGIN BUTTON ================= */
-.login-btn {
-  height: auto;
-
-  padding: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 0;
-
-  border: none;
-
-  background: transparent;
-
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-
-  color: #1e293b;
-
-  font-size: 16px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-
-  cursor: pointer;
-
-  white-space: nowrap;
-
-  box-shadow: none;
-
-  transition: all 0.28s ease;
-}
-
-/* ================= LOGIN HOVER ================= */
-.login-btn:hover {
-  transform: translateY(-1px);
-
-  color: #b88917;
-
-  box-shadow: none;
-}
-
-/* ================= USER BOX ================= */
-.user-box {
-  height: 48px;
-
-  padding: 0 18px;
-
-  display: flex;
-  align-items: center;
-
-  gap: 12px;
-
-  border-radius: 16px;
-
-  background: linear-gradient(
-    to bottom right,
-    rgba(255,255,255,0.88),
-    rgba(255,255,255,0.55)
-  );
-
-  backdrop-filter: blur(12px);
-
-  border: 1px solid rgba(212,175,55,0.18);
-
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-
-  transition: all 0.28s ease;
-
-  white-space: nowrap;
-}
-
-.user-box:hover {
-  transform: translateY(-2px);
-  border-color: rgba(212,175,55,0.35);
-  box-shadow: 0 14px 32px rgba(212,175,55,0.16);
-}
-
-/* ================= MENU BUTTON ================= */
-.icon-btn,
-.menu-btn {
-  width: 48px;
-  height: 48px;
-
-  border-radius: 16px;
-
-  border: 1px solid rgba(212,175,55,0.18);
-
-  background: linear-gradient(
-    to bottom right,
-    rgba(255,255,255,0.88),
-    rgba(255,255,255,0.55)
-  );
-
-  backdrop-filter: blur(12px);
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-
-  transition: all 0.28s ease;
-
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
-}
-
-.icon-btn:hover,
-.menu-btn:hover {
-  transform: translateY(-2px);
-
-  color: #b88917;
-
-  border-color: rgba(212,175,55,0.35);
-
-  box-shadow: 0 14px 32px rgba(212,175,55,0.16);
+  .nav-logo {
+    height: 46px;
+  }
 }

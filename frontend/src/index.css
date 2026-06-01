@@ -7,15 +7,49 @@ body,
   padding: 0;
   height: 100%;
   width: 100%;
+
+  overflow-x: hidden;
 }
 
 body {
   font-family: Inter, Arial, sans-serif;
+
   background: #f1f5f9;
+
   color: #0f172a;
+
+  overflow-x: hidden;
+}
+
+/* ================= GLOBAL BOX SIZING ================= */
+
+* {
+  box-sizing: border-box;
+}
+
+/* ================= IMAGES ================= */
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ================= BUTTON ================= */
+
+button {
+  font-family: inherit;
+}
+
+/* ================= INPUT ================= */
+
+input,
+textarea,
+select {
+  font-family: inherit;
 }
 
 /* 🔥 FIX SIDEBAR GHOST ISSUE */
+
 aside::before,
 aside::after {
   display: none !important;

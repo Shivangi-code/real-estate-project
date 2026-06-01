@@ -3,8 +3,9 @@ const Otp = require("../models/Otp");
 const Token = require("../models/Token");
 
 const jwt = require("jsonwebtoken");
-
 const bcrypt = require("bcryptjs");
+
+const sendSMS = require("../utils/sendSMS");
 
 // ================= SIGNUP =================
 exports.signup = async (req, res) => {
@@ -12,7 +13,9 @@ exports.signup = async (req, res) => {
     let { name, email, mobile, password, role } = req.body;
 
     if (!name || !email || !mobile || !password) {
-      return res.status(400).json({ message: "All fields required" });
+      return res.status(400).json({
+        message: "All fields required",
+      });
     }
 
     email = email.toLowerCase();
@@ -22,7 +25,9 @@ exports.signup = async (req, res) => {
     });
 
     if (exists) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({
+        message: "User already exists",
+      });
     }
 
     const hashed = await bcrypt.hash(password, 10);
@@ -40,14 +45,18 @@ exports.signup = async (req, res) => {
 
     user.password = undefined;
 
-    res.status(201).json({ message: "Signup successful", user });
+    res.status(201).json({
+      message: "Signup successful",
+      user,
+    });
 
   } catch (err) {
     console.error("SIGNUP ERROR:", err);
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
-
 
 // ================= LOGIN =================
 exports.login = async (req, res) => {
@@ -60,14 +69,25 @@ exports.login = async (req, res) => {
     if (mode === "email-password") {
       user = await User.findOne({ email }).select("+password");
 
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
 
-  // 👇 TEMP FIX
       if (user.password === password) {
         console.log("Plain password matched (old user)");
       } else {
-        const match = await bcrypt.compare(password, user.password);
-        if (!match) return res.status(400).json({ message: "Invalid credentials" });
+        const match = await bcrypt.compare(
+          password,
+          user.password
+        );
+
+        if (!match) {
+          return res.status(400).json({
+            message: "Invalid credentials",
+          });
+        }
       }
     }
 
@@ -75,20 +95,38 @@ exports.login = async (req, res) => {
     else if (mode === "mobile-password") {
       user = await User.findOne({ mobile }).select("+password");
 
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
 
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) return res.status(400).json({ message: "Invalid credentials" });
+      const match = await bcrypt.compare(
+        password,
+        user.password
+      );
+
+      if (!match) {
+        return res.status(400).json({
+          message: "Invalid credentials",
+        });
+      }
     }
 
     // EMAIL OTP
     else if (mode === "email-otp") {
       const record = await Otp.findOne({ email });
 
-      if (!record) return res.status(400).json({ message: "OTP not found" });
+      if (!record) {
+        return res.status(400).json({
+          message: "OTP not found",
+        });
+      }
 
       if (record.otp.toString() !== otp.toString()) {
-        return res.status(400).json({ message: "Invalid OTP" });
+        return res.status(400).json({
+          message: "Invalid OTP",
+        });
       }
 
       user = await User.findOne({ email });
@@ -98,37 +136,57 @@ exports.login = async (req, res) => {
     else if (mode === "mobile-otp") {
       const record = await Otp.findOne({ mobile });
 
-      if (!record) return res.status(400).json({ message: "OTP not found" });
+      if (!record) {
+        return res.status(400).json({
+          message: "OTP not found",
+        });
+      }
 
-      if (record.otp !== otp) {
-        return res.status(400).json({ message: "Invalid OTP" });
+      if (record.otp.toString() !== otp.toString()) {
+        return res.status(400).json({
+          message: "Invalid OTP",
+        });
       }
 
       user = await User.findOne({ mobile });
     }
 
     else {
-      return res.status(400).json({ message: "Invalid mode" });
+      return res.status(400).json({
+        message: "Invalid mode",
+      });
     }
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({
+        message: "User not found",
+      });
     }
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      {
+        id: user._id,
+        role: user.role,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "7d" }
+      {
+        expiresIn: "7d",
+      }
     );
 
-    res.json({ token, user });
+    res.json({
+      token,
+      user,
+    });
 
   } catch (err) {
     console.error("🔥 LOGIN ERROR:", err);
-    res.status(500).json({ message: err.message });
+
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
-
 
 // ================= SEND OTP =================
 exports.sendOtp = async (req, res) => {
@@ -136,23 +194,42 @@ exports.sendOtp = async (req, res) => {
     const { email, mobile } = req.body;
 
     if (!email && !mobile) {
-      return res.status(400).json({ message: "Email or mobile required" });
+      return res.status(400).json({
+        message: "Email or mobile required",
+      });
     }
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otp = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     await Otp.findOneAndUpdate(
       email ? { email } : { mobile },
       { otp },
-      { upsert: true, new: true }
+      {
+        upsert: true,
+        new: true,
+      }
     );
 
-    console.log("OTP:", otp);
+    // Send OTP SMS via MobileSMSAPI
+    if (mobile) {
+      await sendSMS(mobile, otp);
+    }
 
-    res.json({ message: "OTP sent" });
+    console.log("OTP Generated:", otp);
+
+    res.status(200).json({
+      success: true,
+      message: "OTP sent successfully",
+    });
 
   } catch (err) {
     console.error("OTP ERROR:", err);
-    res.status(500).json({ message: err.message });
+
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };

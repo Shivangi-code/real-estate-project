@@ -47,18 +47,8 @@ export default function Home() {
         const data =
           await res.json();
 
-        console.log(
-          "HOME API =>",
-          data
-        );
-
-        // ======================================================
-        // ================= FIX ================================
-        // ======================================================
-
         let updated = [];
 
-        // OLD ARRAY FORMAT
         if (
           Array.isArray(data)
         ) {
@@ -66,7 +56,6 @@ export default function Home() {
           updated = data;
         }
 
-        // NEW OBJECT FORMAT
         else if (
           Array.isArray(
             data?.properties
@@ -76,11 +65,6 @@ export default function Home() {
           updated =
             data.properties;
         }
-
-        console.log(
-          "HOME FINAL =>",
-          updated
-        );
 
         setProperties(
           updated
@@ -128,7 +112,9 @@ export default function Home() {
   return (
 
     <>
-      {/* BACKGROUND ANIMATION */}
+      {/* ====================================================== */}
+      {/* ================= ANIMATIONS ========================= */}
+      {/* ====================================================== */}
 
       <style>
         {`
@@ -158,28 +144,6 @@ export default function Home() {
             }
           }
 
-          @keyframes typingOne {
-
-            from {
-              width: 0;
-            }
-
-            to {
-              width: 100%;
-            }
-          }
-
-          @keyframes typingTwo {
-
-            from {
-              width: 0;
-            }
-
-            to {
-              width: 100%;
-            }
-          }
-
           .animate-heading-one {
 
             animation:
@@ -191,41 +155,19 @@ export default function Home() {
             animation:
               headingReveal 1s ease forwards;
 
-            animation-delay: 0.5s;
-          }
-
-          .typing-line-one {
-
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
-
-            animation:
-              typingOne 3s steps(55, end) forwards;
-          }
-
-          .typing-line-two {
-
-            overflow: hidden;
-            white-space: nowrap;
-            width: 0;
-
-            animation:
-              typingTwo 4s steps(75, end) forwards;
-
-            animation-delay: 3s;
-
-            animation-fill-mode: forwards;
+            animation-delay: 0.4s;
           }
         `}
       </style>
 
-      <div className="bg-slate-50 min-h-screen">
+      <div className="bg-slate-50 min-h-screen overflow-x-hidden">
 
-        {/* HERO SECTION */}
+        {/* ====================================================== */}
+        {/* ================= HERO SECTION ======================= */}
+        {/* ====================================================== */}
 
         <section
-          className="text-white px-6 md:px-12 py-16 relative overflow-hidden"
+          className="text-white px-4 sm:px-6 lg:px-10 py-8 md:py-12 relative overflow-hidden"
           style={{
             backgroundImage: `
               linear-gradient(
@@ -242,27 +184,27 @@ export default function Home() {
           }}
         >
 
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 items-center min-h-[78vh]">
 
-            {/* LEFT CONTENT */}
+            {/* LEFT */}
 
-            <div className="-mt-8">
+            <div>
 
-              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold animate-pulse">
+              <p className="uppercase tracking-[4px] text-blue-200 text-xs sm:text-sm mb-4 font-semibold">
 
                 VERIFIED REAL ESTATE PLATFORM
 
               </p>
 
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight overflow-hidden">
+              <h1 className="font-extrabold leading-tight overflow-hidden">
 
-                <span className="block animate-heading-one opacity-0">
+                <span className="block animate-heading-one opacity-0 text-4xl sm:text-5xl md:text-[5rem]">
 
                   Find Your Dream
 
                 </span>
 
-                <span className="block text-blue-300 animate-heading-two opacity-0">
+                <span className="block text-blue-300 animate-heading-two opacity-0 text-4xl sm:text-5xl md:text-[5rem]">
 
                   Property With Confidence
 
@@ -270,62 +212,45 @@ export default function Home() {
 
               </h1>
 
-              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
+              <div className="mt-5 text-slate-200 text-base md:text-lg leading-7 max-w-2xl">
 
-                <p className="typing-line-one">
-
+                <p>
                   Verified flats, plots, villas and commercial spaces
-
                 </p>
 
-                <p className="typing-line-two">
-
+                <p>
                   from trusted sellers, builders and real estate professionals across India.
-
                 </p>
 
               </div>
 
-              {/* SEARCH BAR */}
+              {/* SEARCH */}
 
-              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
+              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shadow-2xl backdrop-blur-xl">
 
-                <Search
-                  className="text-slate-500 ml-2"
-                  size={22}
-                />
+                <div className="flex items-center gap-3 flex-1">
 
-                <input
-                  type="text"
-                  placeholder="Search city, area or property..."
-                  className="flex-1 outline-none text-slate-800 bg-transparent text-lg"
-                />
+                  <Search
+                    className="text-slate-500 ml-2"
+                    size={22}
+                  />
+
+                  <input
+                    type="text"
+                    placeholder="Search city, area or property..."
+                    className="flex-1 outline-none text-slate-800 bg-transparent text-sm md:text-base"
+                  />
+
+                </div>
 
                 <button
                   onClick={() =>
                     navigate("/properties")
                   }
-                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg w-full sm:w-auto"
                 >
 
                   Search
-
-                </button>
-
-              </div>
-
-              {/* CTA */}
-
-              <div className="flex gap-4 mt-7 flex-wrap">
-
-                <button
-                  onClick={() =>
-                    navigate("/properties")
-                  }
-                  className="bg-white text-slate-900 px-7 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 shadow-xl"
-                >
-
-                  Browse Properties
 
                 </button>
 
@@ -335,17 +260,15 @@ export default function Home() {
 
             {/* RIGHT STATS */}
 
-            <div className="bg-white/10 rounded-[32px] p-6 backdrop-blur-xl border border-white/20 shadow-2xl">
+            <div className="bg-white/10 rounded-[28px] p-4 sm:p-5 backdrop-blur-xl border border-white/20 shadow-2xl">
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
-                {/* VERIFIED */}
-
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl">
 
                   <Building2
                     className="mb-3 text-blue-600"
-                    size={30}
+                    size={28}
                   />
 
                   <h3 className="font-extrabold text-3xl">
@@ -354,7 +277,7 @@ export default function Home() {
 
                   </h3>
 
-                  <p className="mt-1 text-slate-500 text-base">
+                  <p className="mt-1 text-slate-500 text-sm md:text-base">
 
                     Verified Listings
 
@@ -362,13 +285,11 @@ export default function Home() {
 
                 </div>
 
-                {/* USERS */}
-
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl">
 
                   <Users
                     className="mb-3 text-purple-600"
-                    size={30}
+                    size={28}
                   />
 
                   <h3 className="font-extrabold text-3xl">
@@ -377,7 +298,7 @@ export default function Home() {
 
                   </h3>
 
-                  <p className="mt-1 text-slate-500 text-base">
+                  <p className="mt-1 text-slate-500 text-sm md:text-base">
 
                     Happy Users
 
@@ -385,13 +306,11 @@ export default function Home() {
 
                 </div>
 
-                {/* MODERATED */}
-
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl">
 
                   <ShieldCheck
                     className="mb-3 text-green-600"
-                    size={30}
+                    size={28}
                   />
 
                   <h3 className="font-bold text-3xl">
@@ -400,7 +319,7 @@ export default function Home() {
 
                   </h3>
 
-                  <p className="text-slate-500 mt-1 text-base leading-6">
+                  <p className="text-slate-500 mt-1 text-sm md:text-base">
 
                     Moderated Listings
 
@@ -408,22 +327,20 @@ export default function Home() {
 
                 </div>
 
-                {/* DIRECT DEALS */}
-
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl">
 
                   <BadgeCheck
                     className="mb-3 text-orange-500"
-                    size={30}
+                    size={28}
                   />
 
-                  <h3 className="font-bold text-3xl">
+                  <h3 className="font-bold text-2xl md:text-3xl">
 
                     Direct Deals
 
                   </h3>
 
-                  <p className="text-slate-500 mt-1 text-base leading-6">
+                  <p className="text-slate-500 mt-1 text-sm md:text-base">
 
                     No brokerage for buyers
 
@@ -439,21 +356,23 @@ export default function Home() {
 
         </section>
 
-        {/* FEATURED SECTION */}
+        {/* ====================================================== */}
+        {/* ================= FEATURED PROPERTIES ================ */}
+        {/* ====================================================== */}
 
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-20">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
 
-          <div className="flex justify-between items-center mb-10 flex-wrap gap-4">
+          <div className="flex justify-between items-start md:items-center mb-10 flex-col md:flex-row gap-4">
 
             <div>
 
-              <p className="text-slate-500 uppercase text-sm tracking-[4px] font-semibold">
+              <p className="text-slate-500 uppercase text-xs md:text-sm tracking-[4px] font-semibold">
 
                 FEATURED LISTINGS
 
               </p>
 
-              <h2 className="text-4xl md:text-5xl font-extrabold mt-2 text-slate-900">
+              <h2 className="text-3xl md:text-5xl font-extrabold mt-2 text-slate-900 leading-tight">
 
                 Explore Latest Properties
 
@@ -494,7 +413,7 @@ export default function Home() {
 
           ) : (
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
 
               {properties
                 .slice(0, 6)
