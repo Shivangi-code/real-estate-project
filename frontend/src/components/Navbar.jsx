@@ -8,7 +8,6 @@ import {
 
 import {
   Menu,
-  LayoutDashboard,
 } from "lucide-react";
 
 import logo from "../assets/logo.png";
@@ -111,13 +110,12 @@ function Navbar() {
 
           {/* DASHBOARD */}
           {isAuthenticated && role !== "buyer" && (
-            <button
-              className="login-btn"
-              onClick={() => navigate(getDashboardRoute())}
+            <Link
+              to={getDashboardRoute()}
+              className={isActive(getDashboardRoute()) ? "active" : ""}
             >
-              <LayoutDashboard size={16} />
               Dashboard
-            </button>
+            </Link>
           )}
 
           {/* LOGIN */}

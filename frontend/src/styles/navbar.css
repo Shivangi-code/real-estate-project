@@ -84,7 +84,7 @@
   align-items: center;
   justify-content: flex-end;
 
-  gap: 16px;
+  gap: 22px;
 
   flex-wrap: nowrap;
 
@@ -123,104 +123,89 @@
 
 /* ================= NAV LINKS ================= */
 .nav-right a {
-  height: 48px;
+  height: auto;
 
-  padding: 0 22px;
+  padding: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 16px;
+  border-radius: 0;
 
   text-decoration: none;
 
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 0.3px;
 
   color: #1e293b;
 
   position: relative;
-  overflow: hidden;
 
   white-space: nowrap;
 
-  background: linear-gradient(
-    to bottom right,
-    rgba(255,255,255,0.85),
-    rgba(255,255,255,0.55)
-  );
+  background: transparent;
 
-  border: 1px solid rgba(212,175,55,0.18);
+  border: none;
 
-  backdrop-filter: blur(12px);
+  backdrop-filter: none;
 
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  box-shadow: none;
 
   transition: all 0.28s ease;
 }
 
 /* ================= NAV LINK HOVER ================= */
 .nav-right a:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 
   color: #b88917;
 
-  border-color: rgba(212,175,55,0.35);
-
-  box-shadow: 0 12px 28px rgba(212,175,55,0.16);
+  box-shadow: none;
 }
 
-/* ================= PREMIUM BUTTONS ================= */
+/* ================= LOGIN BUTTON ================= */
 .login-btn {
-  height: 48px;
+  height: auto;
 
-  padding: 0 24px;
-
-  border-radius: 16px;
-
-  border: 1px solid rgba(212,175,55,0.18);
-
-  background: linear-gradient(
-    to bottom right,
-    rgba(255,255,255,0.88),
-    rgba(255,255,255,0.55)
-  );
-
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-
-  color: #1e293b;
-
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: 0.3px;
-
-  cursor: pointer;
+  padding: 0;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  gap: 10px;
+  border-radius: 0;
+
+  border: none;
+
+  background: transparent;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+
+  color: #1e293b;
+
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+
+  cursor: pointer;
 
   white-space: nowrap;
 
-  transition: all 0.28s ease;
+  box-shadow: none;
 
-  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  transition: all 0.28s ease;
 }
 
-/* ================= GOLDEN SHIMMER ================= */
+/* ================= LOGIN HOVER ================= */
 .login-btn:hover {
-  transform: translateY(-2px);
-
-  border-color: rgba(212,175,55,0.35);
+  transform: translateY(-1px);
 
   color: #b88917;
 
-  box-shadow: 0 14px 32px rgba(212,175,55,0.18);
+  box-shadow: none;
 }
 
 /* ================= USER BOX ================= */

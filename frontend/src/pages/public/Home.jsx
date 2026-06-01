@@ -86,6 +86,81 @@ export default function Home() {
               background-size: 110%;
             }
           }
+
+          @keyframes headingReveal {
+
+            from {
+              opacity: 0;
+              transform: translateY(40px);
+              filter: blur(10px);
+            }
+
+            to {
+              opacity: 1;
+              transform: translateY(0);
+              filter: blur(0);
+            }
+          }
+
+          @keyframes typingOne {
+
+            from {
+              width: 0;
+            }
+
+            to {
+              width: 100%;
+            }
+          }
+
+          @keyframes typingTwo {
+
+            from {
+              width: 0;
+            }
+
+            to {
+              width: 100%;
+            }
+          }
+
+          .animate-heading-one {
+
+            animation:
+              headingReveal 1s ease forwards;
+          }
+
+          .animate-heading-two {
+
+            animation:
+              headingReveal 1s ease forwards;
+
+            animation-delay: 0.5s;
+          }
+
+          .typing-line-one {
+
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+
+            animation:
+              typingOne 3s steps(55, end) forwards;
+          }
+
+          .typing-line-two {
+
+            overflow: hidden;
+            white-space: nowrap;
+            width: 0;
+
+            animation:
+              typingTwo 4s steps(75, end) forwards;
+
+            animation-delay: 3s;
+
+            animation-fill-mode: forwards;
+          }
         `}
       </style>
 
@@ -114,22 +189,33 @@ export default function Home() {
             {/* LEFT CONTENT */}
             <div className="-mt-8">
 
-              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold">
+              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold animate-pulse">
                 VERIFIED REAL ESTATE PLATFORM
               </p>
 
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-                Find Your Dream
-                <span className="block text-blue-300">
+              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight overflow-hidden">
+
+                <span className="block animate-heading-one opacity-0">
+                  Find Your Dream
+                </span>
+
+                <span className="block text-blue-300 animate-heading-two opacity-0">
                   Property With Confidence
                 </span>
+
               </h1>
 
-              <p className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
-                Verified flats, plots, villas and commercial
-                spaces from trusted sellers, builders and
-                real estate professionals across India.
-              </p>
+              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
+
+                <p className="typing-line-one">
+                  Verified flats, plots, villas and commercial spaces
+                </p>
+
+                <p className="typing-line-two">
+                  from trusted sellers, builders and real estate professionals across India.
+                </p>
+
+              </div>
 
               {/* SEARCH BAR */}
               <div className="mt-8 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
@@ -167,14 +253,6 @@ export default function Home() {
                   Browse Properties
                 </button>
 
-                <button
-                  onClick={() =>
-                    navigate("/signup")
-                  }
-                  className="border border-white bg-white/10 backdrop-blur-xl px-7 py-3 rounded-xl hover:bg-white/20 transition-all duration-300"
-                >
-                  List Property
-                </button>
               </div>
             </div>
 

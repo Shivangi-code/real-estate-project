@@ -1,192 +1,353 @@
 /* ================= PROPERTY CARD ================= */
+
 .property-card {
-  background: rgba(255,255,255,0.75);
-  backdrop-filter: blur(16px);
-
-  border-radius: 16px;
-  overflow: hidden;
-
-  border: 1px solid rgba(255,255,255,0.4);
-
-  box-shadow: 0 8px 25px rgba(0,0,0,0.08);
-
-  transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
-
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-
-  cursor: pointer;
-}
-
-/* 🔥 HOVER EFFECT */
-.property-card:hover {
-  transform: translateY(-10px) scale(1.02);
-  box-shadow: 0 20px 45px rgba(0,0,0,0.15);
-}
-
-/* ================= IMAGE SECTION ================= */
-.card-image {
   position: relative;
-  height: 220px;
-  width: 100%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #f8fbff
+    );
+
+  border-radius: 28px;
+
   overflow: hidden;
-  background: #f3f4f6;
-}
 
-/* IMAGE */
-.card-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  border:
+    1px solid rgba(203,213,225,0.7);
 
-  transition: transform 0.4s ease;
-}
+  box-shadow:
+    0 8px 24px rgba(15,23,42,0.06),
+    0 2px 8px rgba(15,23,42,0.04);
 
-/* IMAGE ZOOM */
-.property-card:hover .card-img {
-  transform: scale(1.08);
-}
+  transition:
+    transform 0.45s ease,
+    box-shadow 0.45s ease,
+    border-color 0.45s ease;
 
-/* OVERLAY GRADIENT */
-.card-image::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
-  opacity: 0;
-  transition: 0.3s;
-}
-
-.property-card:hover .card-image::after {
-  opacity: 1;
-}
-
-/* ================= PLACEHOLDER ================= */
-.card-placeholder {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  color: #666;
-}
-
-/* ================= BADGE ================= */
-.badge {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
-  color: white;
-
-  padding: 5px 10px;
-  font-size: 12px;
-  border-radius: 6px;
-
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-
-/* ================= HEART ================= */
-.heart-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-
-  background: rgba(255,255,255,0.9);
-  border: none;
-  border-radius: 50%;
-
-  padding: 6px;
-  cursor: pointer;
-
-  transition: 0.2s;
-}
-
-.heart-btn:hover {
-  transform: scale(1.15);
-  background: white;
-}
-
-/* ================= VIEW BUTTON ================= */
-.view-btn {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-
-  background: linear-gradient(135deg, #2563eb, #1e3a8a);
-  color: white;
-
-  padding: 6px 14px;
-  font-size: 12px;
-
-  border-radius: 20px;
-
-  opacity: 0;
-  transform: translateY(10px);
-
-  transition: 0.3s ease;
-}
-
-/* SHOW ON HOVER */
-.property-card:hover .view-btn {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ================= BODY ================= */
-.card-body {
-  padding: 16px;
   display: flex;
   flex-direction: column;
-  flex: 1;
+
+  height: 100%;
+
+  cursor: pointer;
+
+  isolation: isolate;
 }
 
-/* TITLE */
-.card-body h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+/* ================= TOP ACCENT ================= */
+
+.property-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #071133,
+      #2563eb,
+      #071133
+    );
+
+  opacity: 0.9;
+
+  z-index: 5;
 }
 
-/* LOCATION */
-.location {
-  color: #6b7280;
-  font-size: 14px;
-  margin: 6px 0;
+/* ================= HOVER ================= */
+
+.property-card:hover {
+  transform:
+    translateY(-10px)
+    scale(1.01);
+
+  border-color:
+    rgba(37,99,235,0.25);
+
+  box-shadow:
+    0 22px 50px rgba(15,23,42,0.12),
+    0 8px 20px rgba(37,99,235,0.08);
 }
 
-/* TYPE TAG */
-.type {
-  background: rgba(37,99,235,0.1);
-  color: #1e3a8a;
+/* ================= IMAGE ================= */
 
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 12px;
-
-  display: inline-block;
-  margin-bottom: 10px;
+.property-card img {
+  transition:
+    transform 0.8s ease,
+    filter 0.5s ease;
 }
 
-/* DETAILS */
-.details {
-  display: flex;
-  justify-content: space-between;
-  font-size: 13px;
+.property-card:hover img {
+  transform: scale(1.08);
 
-  margin-top: auto;
+  filter:
+    contrast(1.05)
+    saturate(1.05);
 }
 
-/* BOTTOM */
-.bottom {
-  margin-top: 12px;
+/* ================= IMAGE OVERLAY ================= */
+
+.property-card .absolute.inset-0 {
+  background:
+    linear-gradient(
+      to top,
+      rgba(2,6,23,0.72),
+      rgba(2,6,23,0.15),
+      transparent
+    ) !important;
+
+  transition: 0.4s ease;
 }
 
-/* PRICE */
-.price {
-  font-size: 20px;
+.property-card:hover .absolute.inset-0 {
+  background:
+    linear-gradient(
+      to top,
+      rgba(2,6,23,0.82),
+      rgba(2,6,23,0.22),
+      transparent
+    ) !important;
+}
+
+/* ================= VERIFIED BADGE ================= */
+
+.property-card .bg-green-600 {
+  border:
+    1px solid rgba(255,255,255,0.25);
+
+  backdrop-filter: blur(10px);
+
+  box-shadow:
+    0 6px 18px rgba(22,163,74,0.22);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.property-card:hover .bg-green-600 {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 22px rgba(22,163,74,0.28);
+}
+
+/* ================= VIEW PHOTOS ================= */
+
+.property-card .bg-\[\#071133\]\/90 {
+  background:
+    rgba(7,17,51,0.82) !important;
+
+  backdrop-filter: blur(12px);
+
+  border:
+    1px solid rgba(255,255,255,0.15);
+
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
+}
+
+.property-card:hover .bg-\[\#071133\]\/90 {
+  transform: translateY(-2px);
+
+  background:
+    rgba(7,17,51,0.92) !important;
+}
+
+/* ================= TITLE ================= */
+
+.property-card h3 {
+  transition:
+    color 0.3s ease,
+    transform 0.3s ease;
+
+  letter-spacing: -0.4px;
+}
+
+.property-card:hover h3 {
+  transform: translateX(2px);
+
+  color: #0f172a;
+}
+
+/* ================= LOCATION ================= */
+
+.property-card p {
+  transition: color 0.3s ease;
+}
+
+.property-card:hover p {
+  color: #475569;
+}
+
+/* ================= PRICE ================= */
+
+.property-card .text-2xl {
+  font-size: 30px !important;
+
+  letter-spacing: -1px;
+
+  color: #071133 !important;
+
+  transition:
+    transform 0.3s ease,
+    color 0.3s ease;
+}
+
+.property-card:hover .text-2xl {
+  transform: scale(1.03);
+
+  color: #0b1d57 !important;
+}
+
+/* ================= STATS BOX ================= */
+
+.property-card .border.border-slate-200.rounded-2xl {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255,255,255,0.96),
+      rgba(248,250,252,0.96)
+    );
+
+  border:
+    1px solid rgba(226,232,240,0.9);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.property-card:hover .border.border-slate-200.rounded-2xl {
+  transform: translateY(-2px);
+
+  border-color:
+    rgba(37,99,235,0.15);
+
+  box-shadow:
+    0 10px 20px rgba(15,23,42,0.06);
+}
+
+/* ================= ICON BOXES ================= */
+
+.property-card .bg-blue-50,
+.property-card .bg-green-50 {
+  transition:
+    transform 0.35s ease,
+    background 0.35s ease;
+}
+
+.property-card:hover .bg-blue-50 {
+  transform: scale(1.06);
+
+  background: #dbeafe;
+}
+
+.property-card:hover .bg-green-50 {
+  transform: scale(1.06);
+
+  background: #dcfce7;
+}
+
+/* ================= BUTTON ================= */
+
+.property-card button {
+  position: relative;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      135deg,
+      #071133,
+      #0b1d57
+    ) !important;
+
+  border:
+    1px solid rgba(255,255,255,0.08);
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    background 0.35s ease;
+}
+
+/* BUTTON SHINE */
+
+.property-card button::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 120%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      to right,
+      transparent,
+      rgba(255,255,255,0.18),
+      transparent
+    );
+
+  transition: 0.7s ease;
+}
+
+.property-card:hover button::before {
+  left: 120%;
+}
+
+.property-card:hover button {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 14px 24px rgba(7,17,51,0.18);
+
+  background:
+    linear-gradient(
+      135deg,
+      #0b1d57,
+      #1e3a8a
+    ) !important;
+}
+
+/* ================= STATUS PILL ================= */
+
+.property-card .bg-green-100 {
+  border:
+    1px solid rgba(34,197,94,0.15);
+
   font-weight: 700;
-  color: #1e3a8a;
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .property-card {
+    border-radius: 24px;
+  }
+
+  .property-card:hover {
+    transform:
+      translateY(-6px)
+      scale(1.005);
+  }
+
+  .property-card .text-2xl {
+    font-size: 26px !important;
+  }
 }

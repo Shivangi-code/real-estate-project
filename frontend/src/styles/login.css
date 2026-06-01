@@ -9,7 +9,6 @@
   font-family: "Inter", sans-serif;
   overflow: hidden;
 
-  /* 🌙 FIXED: PREMIUM NIGHT REAL ESTATE BACKGROUND */
   background:
     linear-gradient(
       rgba(10, 14, 25, 0.55),
@@ -24,7 +23,7 @@
   animation: zoomBg 20s ease-in-out infinite alternate;
 }
 
-/* ================= BACKGROUND CINEMATIC ZOOM ================= */
+/* ================= BACKGROUND ZOOM ================= */
 
 @keyframes zoomBg {
   0% {
@@ -38,7 +37,7 @@
   }
 }
 
-/* ================= REAL ESTATE HOUSIFY TITLE ================= */
+/* ================= TITLE ================= */
 
 .housify-title {
   font-size: 36px;
@@ -68,23 +67,15 @@
     riseIn 1.2s ease-out;
 }
 
-/* ================= PREMIUM GRADIENT FLOW ================= */
+/* ================= GRADIENT FLOW ================= */
 
 @keyframes luxuryFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-/* ================= TITLE ENTRY ANIMATION ================= */
+/* ================= ENTRY ANIMATION ================= */
 
 @keyframes riseIn {
   0% {
@@ -92,7 +83,6 @@
     transform: translateY(20px);
     filter: blur(6px);
   }
-
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -100,27 +90,18 @@
   }
 }
 
-/* ================= MOVING BORDER SYSTEM ================= */
+/* ================= BORDER ANIMATION ================= */
 
 @keyframes borderMove {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* ================= MODE BUTTONS ================= */
 
 .premium-tab {
   padding: 8px 16px;
-
   border-radius: 10px;
 
   font-size: 13px;
@@ -156,23 +137,15 @@
 }
 
 .premium-tab.active {
-  background: linear-gradient(
-    90deg,
-    #1d4ed8,
-    #2563eb
-  );
-
+  background: linear-gradient(90deg, #1d4ed8, #2563eb);
   color: white;
-  border-color: transparent;
 }
 
-/* ================= INPUTS ================= */
+/* ================= INPUT ================= */
 
 .premium-input {
   width: 100%;
-
   padding: 12px;
-
   border-radius: 10px;
 
   background: rgba(255,255,255,0.92);
@@ -197,8 +170,6 @@
   background-size: 300% 300%;
 
   animation: borderMove 4s linear infinite;
-
-  transition: 0.3s ease;
 }
 
 .premium-input:focus {
@@ -214,9 +185,7 @@
 
 .premium-otp {
   width: 100%;
-
   padding: 12px 90px 12px 12px;
-
   border-radius: 10px;
 
   background: rgba(255,255,255,0.92);
@@ -239,11 +208,47 @@
   background-size: 300% 300%;
 
   animation: borderMove 4s linear infinite;
-
-  transition: 0.3s ease;
 }
 
-.premium-otp:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
+/* ================= LOGIN BUTTON (FIXED) ================= */
+
+.premium-btn {
+  width: 100%;
+  padding: 12px;
+
+  border-radius: 10px;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: white;
+
+  background: linear-gradient(
+    90deg,
+    #1d4ed8,
+    #2563eb,
+    #60a5fa
+  );
+
+  background-size: 200% 200%;
+
+  border: none;
+
+  cursor: pointer;
+
+  animation: borderMove 4s linear infinite;
+
+  transition: all 0.3s ease;
+}
+
+.premium-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(29, 78, 216, 0.3);
+}
+
+.premium-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }

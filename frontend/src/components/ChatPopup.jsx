@@ -4,6 +4,7 @@ import "../styles/ChatPopup.css";
 const ChatPopup = ({ isOpen, onClose }) => {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  const [showLocations, setShowLocations] = useState(false);
 
   // 🧭 AUTO SCROLL REF (ADDED)
   const chatEndRef = useRef(null);
@@ -18,7 +19,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
   // 👋 Greeting check
   const isGreeting = (text) => {
     const msg = text.toLowerCase().trim();
-    return ["hi", "hii", "hiii", "hello", "hey", "heyy"].includes(msg);
+    return ["hi", "hii", "hiii", "hello", "hey","hiee","hie","hye","hlo","ho","heyy"].includes(msg);
   };
 
   // 🏡 Property intent check
@@ -40,17 +41,59 @@ const ChatPopup = ({ isOpen, onClose }) => {
   };
 
   // 📞 CONTACT INTENT
-  const isContactIntent = (text) => {
-    const msg = text.toLowerCase();
-    return (
-      msg.includes("contact") ||
-      msg.includes("call") ||
-      msg.includes("whatsapp") ||
-      msg.includes("email") ||
-      msg.includes("agent")
-    );
-  };
+  // 📞 CONTACT INTENT
+const isContactIntent = (text) => {
+  const msg = text.toLowerCase();
+  return (
+    msg.includes("contact") ||
+    msg.includes("call") ||
+    msg.includes("whatsapp") ||
+    msg.includes("email") ||
+    msg.includes("agent")
+  );
+};
 
+const handleBudgetClick = () => {
+  setMessages((prev) => [
+    ...prev,
+    { text: "💰 Budget / Price", sender: "user" },
+    {
+      text:
+        "🏡 Please visit our property listings to explore properties according to your budget in Jabalpur.",
+      sender: "bot",
+    },
+  ]);
+};
+
+const handleLocationClick = () => {
+  setShowLocations(true);
+};
+
+const handleAreaSelect = (area) => {
+  setMessages((prev) => [
+    ...prev,
+    { text: area, sender: "user" },
+    {
+      text: `🏡 Properties are available in ${area.replace(
+        "📍 ",
+        ""
+      )}. Please visit our listings to explore available properties.`,
+      sender: "bot",
+    },
+  ]);
+};
+
+const handleContactBubble = () => {
+  setMessages((prev) => [
+    ...prev,
+    { text: "📞 Contact Agent", sender: "user" },
+    {
+      text:
+        "📞 Call / WhatsApp: +91-74159 30089\n📧 housifyrealty.info@gmail.com",
+      sender: "bot",
+    },
+  ]);
+};
   const handleSend = () => {
     if (!message.trim()) return;
 
@@ -112,14 +155,14 @@ const ChatPopup = ({ isOpen, onClose }) => {
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { text: "📞 Call / WhatsApp: +91 74159 30089", sender: "bot" }
+          { text: "📞 Call / WhatsApp: +91-74159 30089", sender: "bot" }
         ]);
       }, 700);
 
       setTimeout(() => {
         setMessages((prev) => [
           ...prev,
-          { text: "📧 Email: pragyanverma.9871@gmail.com", sender: "bot" }
+          { text: "📧 Email: housifyrealty.info@gmail.com", sender: "bot" }
         ]);
       }, 1100);
 
@@ -207,12 +250,93 @@ const ChatPopup = ({ isOpen, onClose }) => {
       <div className="chat-body">
 
         {messages.length === 0 && (
-          <div className="bot-msg">
-            Hello 👋<br />
-            Welcome to Housify Realty 🏡 Jabalpur<br />
-            How can I help you today?
-          </div>
-        )}
+  <div style={{ padding: "12px" }}>
+    {!showLocations && (
+      <>
+        <button
+          onClick={handleBudgetClick}
+          style={{
+            width: "100%",
+            padding: "14px",
+            marginBottom: "10px",
+            borderRadius: "14px",
+            border: "1px solid #8b5cf6",
+            background: "#fff",
+            cursor: "pointer",
+            textAlign: "left",
+            fontWeight: "500",
+          }}
+        >
+          💰 Budget / Price
+        </button>
+
+        <button
+          onClick={handleLocationClick}
+          style={{
+            width: "100%",
+            padding: "14px",
+            marginBottom: "10px",
+            borderRadius: "14px",
+            border: "1px solid #8b5cf6",
+            background: "#fff",
+            cursor: "pointer",
+            textAlign: "left",
+            fontWeight: "500",
+          }}
+        >
+          📍 Choose Location
+        </button>
+
+        <button
+          onClick={handleContactBubble}
+          style={{
+            width: "100%",
+            padding: "14px",
+            borderRadius: "14px",
+            border: "1px solid #8b5cf6",
+            background: "#fff",
+            cursor: "pointer",
+            textAlign: "left",
+            fontWeight: "500",
+          }}
+        >
+          📞 Contact Agent
+        </button>
+      </>
+    )}
+
+    {showLocations && (
+      <>
+        {[
+          "📍 Vijay Nagar",
+          "📍 Wright Town",
+          "📍 Napier Town",
+          "📍 Madan Mahal",
+          "📍 Adhartal",
+          "📍 Tilwara",
+          "📍 Gwarighat",
+        ].map((area) => (
+          <button
+            key={area}
+            onClick={() => handleAreaSelect(area)}
+            style={{
+              width: "100%",
+              padding: "12px",
+              marginBottom: "8px",
+              borderRadius: "14px",
+              border: "1px solid #8b5cf6",
+              background: "#fff",
+              cursor: "pointer",
+              textAlign: "left",
+            }}
+          >
+            {area}
+          </button>
+        ))}
+      </>
+    )}
+  </div>
+)}
 
         {messages.map((msg, i) => (
           <div

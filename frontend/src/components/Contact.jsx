@@ -226,7 +226,7 @@ function Contact() {
                     </p>
 
                     <h3 className="font-semibold text-lg">
-                      support@realestate.com
+                      housifyrealty.info@gmail.com
                     </h3>
 
                   </div>
@@ -247,7 +247,7 @@ function Contact() {
                     </p>
 
                     <h3 className="font-semibold text-lg">
-                      +91 99999 99999
+                      +91-7415930089
                     </h3>
 
                   </div>
