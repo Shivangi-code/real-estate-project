@@ -399,18 +399,14 @@ function App() {
       <Footer />
 
       {/* CHAT */}
-      <FloatingChat
-        onClick={() =>
-          setIsChatOpen(true)
-        }
-      />
+      <FloatingChat onClick={() => setIsChatOpen(true)} />
 
-      <ChatPopup
-        isOpen={isChatOpen}
-        onClose={() =>
-          setIsChatOpen(false)
-        }
-      />
+      {isChatOpen && (
+        <ChatPopup
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
     </>
   );
 }

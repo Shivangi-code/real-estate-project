@@ -1,154 +1,301 @@
 .chat-popup {
   position: fixed;
-  bottom: 100px;
-  right: 24px;
+  bottom: 90px;
+  right: 20px;
+  width: 360px;
+  height: 450px;
 
-  width: 320px;
-  height: 420px;
+  background: #0b1220;
 
-  background: linear-gradient(180deg, #0b1224, #0f172a);
-
-  border: 1px solid rgba(212, 175, 55, 0.25);
-
-  border-radius: 14px;
+  border-radius: 18px;
 
   display: flex;
   flex-direction: column;
-
   overflow: hidden;
 
-  z-index: 1000;
+  box-shadow:
+    0 12px 35px rgba(0,0,0,0.4),
+    0 0 20px rgba(255,215,0,0.08);
 
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
-
-  animation: popupIn 0.25s ease;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 
-/* animation */
-@keyframes popupIn {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+/* ================= HEADER ================= */
 
-/* HEADER */
 .chat-header {
-  background: #0b1224;
-  border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+  position: relative;
+
+  background: #082567;
 
   color: white;
 
-  padding: 12px;
+  padding: 14px 16px;
 
   display: flex;
   justify-content: space-between;
   align-items: center;
 
-  font-size: 14px;
+  overflow: hidden;
+
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
-.close-btn {
-  background: none;
+/* HOUSIFY REALTY TEAM */
+
+.chat-header span {
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+  text-transform: uppercase;
+
+  animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+  0% {
+    opacity: 0.85;
+    text-shadow: 0 0 0px rgba(255,215,0,0);
+  }
+
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 8px rgba(255,215,0,0.35),
+      0 0 14px rgba(255,215,0,0.15);
+  }
+
+  100% {
+    opacity: 0.85;
+    text-shadow: 0 0 0px rgba(255,215,0,0);
+  }
+}
+
+/* MOVING GOLD BORDER */
+.chat-header::after {
+  content: "";
+
+  position: absolute;
+  bottom: 0;
+  left: -50%;
+
+  width: 50%;
+  height: 3px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    #ffd700,
+    #fff3a0,
+    #ffd700,
+    transparent
+  );
+
+  animation: headerGlow 3s linear infinite;
+}
+
+@keyframes headerGlow {
+  from {
+    left: -50%;
+  }
+  to {
+    left: 100%;
+  }
+}
+
+/* CLOSE BUTTON */
+.chat-header button {
+  width: 26px;
+  height: 26px;
+
   border: none;
+  border-radius: 50%;
+
+  background: transparent;
+
   color: white;
-  font-size: 16px;
   cursor: pointer;
+
+  transition: all 0.25s ease;
 }
 
-/* BODY */
+.chat-header button:hover {
+  background: rgba(255,255,255,0.12);
+  transform: rotate(90deg);
+}
+
+/* ================= BODY ================= */
+
 .chat-body {
   flex: 1;
-  padding: 12px;
 
+  padding: 12px;
   overflow-y: auto;
 
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  background: #0b1220;
+
+  border-top: 1px solid rgba(255,215,0,0.08);
+}
+
+/* ================= MESSAGES ================= */
+
+.msg {
+  max-width: 82%;
+
+  padding: 10px 12px;
+  margin: 8px 0;
+
+  border-radius: 14px;
 
   font-size: 13px;
+  line-height: 1.5;
+
+  white-space: pre-line;
+
+  animation: fadeUp 0.35s ease;
 }
 
-/* USER */
-.user-msg {
-  align-self: flex-end;
+.msg.bot {
+  background: rgba(31, 41, 55, 0.92);
+  color: #e5e7eb;
 
-  background: #1e3a8a;
-  color: white;
-
-  padding: 8px 12px;
-
-  border-radius: 12px 12px 4px 12px;
-
-  max-width: 75%;
-}
-
-/* BOT */
-.bot-msg {
   align-self: flex-start;
 
-  background: rgba(255, 255, 255, 0.06);
-  color: white;
-
-  padding: 8px 12px;
-
-  border-radius: 12px 12px 12px 4px;
-
-  max-width: 75%;
-
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255,255,255,0.05);
 }
 
-/* FOOTER */
-.chat-footer {
+.msg.user {
+  background: #2563eb;
+  color: white;
+
+  margin-left: auto;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= OPTIONS ================= */
+
+.options {
   display: flex;
   gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
 
-  padding: 10px;
-
-  background: #0b1224;
-
-  border-top: 1px solid rgba(212, 175, 55, 0.15);
+  animation: fadeUp 0.4s ease;
 }
 
-/* INPUT */
-.chat-footer input {
-  flex: 1;
+/* PREMIUM BUTTONS */
 
-  padding: 9px 10px;
+.options button {
+  flex: 0 0 auto;
 
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  outline: none;
+  padding: 9px 16px;
 
-  background: rgba(255, 255, 255, 0.04);
-  color: white;
+  border-radius: 999px;
 
-  border-radius: 10px;
-}
+  font-size: 13px;
+  font-weight: 500;
 
-/* BUTTON */
-.chat-footer button {
-  background: linear-gradient(135deg, #d4af37, #f5e6a8);
-  color: #0b1224;
+  color: #e5e7eb;
+
+  background: #111827;
 
   border: none;
-
-  padding: 9px 14px;
-
-  border-radius: 10px;
-
   cursor: pointer;
 
-  font-weight: 600;
+  position: relative;
+  overflow: hidden;
 
-  transition: 0.2s ease;
+  transition: all 0.25s ease;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.chat-footer button:hover {
+/* GOLD BORDER */
+
+.options button::before {
+  content: "";
+
+  position: absolute;
+  inset: 0;
+
+  border-radius: 999px;
+
+  background: linear-gradient(
+    90deg,
+    #d4af37,
+    #ffd700,
+    #fff4b0,
+    #d4af37
+  );
+
+  background-size: 300% 300%;
+
+  animation: goldMove 3s linear infinite;
+
+  z-index: 0;
+}
+
+/* INNER BUTTON */
+
+.options button::after {
+  content: "";
+
+  position: absolute;
+  inset: 1px;
+
+  border-radius: 999px;
+
+  background: #111827;
+
+  z-index: 1;
+}
+
+/* TEXT */
+
+.options button span {
+  position: relative;
+  z-index: 2;
+
+  white-space: nowrap;
+}
+
+/* HOVER */
+
+.options button:hover {
   transform: translateY(-2px);
+  box-shadow:
+    0 0 12px rgba(255,215,0,0.25);
+}
+
+/* CLICK */
+
+.options button:active {
+  transform: scale(0.96);
+}
+
+@keyframes goldMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
