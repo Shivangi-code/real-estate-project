@@ -11,11 +11,11 @@
   padding: 0 40px;
 
   background: linear-gradient(
-  135deg,
-  #0f172a,
-  #172554,
-  #1e3a8a
-);
+    135deg,
+    #0f172a,
+    #172554,
+    #1e3a8a
+  );
 
   color: white;
   font-size: 13px;
@@ -27,7 +27,8 @@
   overflow: hidden;
 }
 
-/* LEFT SIDE */
+/* ================= LEFT SIDE ================= */
+
 .top-left {
   display: flex;
   align-items: center;
@@ -36,18 +37,29 @@
   white-space: nowrap;
 }
 
-/* RIGHT SIDE (CALL / WHATSAPP) */
+/* ================= LOCATION SWITCHING ================= */
+
+.desktop-location {
+  display: inline;
+}
+
+.mobile-location {
+  display: none;
+}
+
+/* ================= RIGHT SIDE ================= */
+
 .top-right {
   display: flex;
   align-items: center;
 
   margin-left: auto;
 
-  /* 🔥 FINAL SHIFT: ~3 inches left */
   transform: translateX(-90px);
 }
 
-/* CALL BUTTON */
+/* ================= DESKTOP CALL BUTTON ================= */
+
 .call-btn {
   display: flex;
   align-items: center;
@@ -76,21 +88,77 @@
   transform: translateY(-1px);
 }
 
+/* ================= MOBILE CALL ================= */
+
+.mobile-call-btn {
+  display: none;
+
+  align-items: center;
+  gap: 4px;
+
+  text-decoration: none;
+  color: white;
+
+  font-size: 9px;
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
 /* ================= MOBILE ================= */
 
 @media (max-width: 768px) {
 
   .top-navbar {
-    padding: 0 15px;
-    font-size: 11px;
+    height: 38px;
+    padding: 0 8px;
+    font-size: 10px;
+  }
+
+  .desktop-location {
+    display: none;
+  }
+
+  .mobile-location {
+    display: inline;
+  }
+
+  .top-left {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
   }
 
   .top-right {
-    transform: translateX(-40px); /* scaled down for mobile */
+    display: flex;
+    transform: none;
+    margin-left: 6px;
+  }
+
+  .desktop-call {
+    display: none;
+  }
+
+  .mobile-call-btn {
+    display: flex;
+    align-items: center;
+  }
+}
+
+/* ================= TABLET ================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .top-navbar {
+    padding: 0 20px;
+  }
+
+  .top-right {
+    transform: translateX(-40px);
   }
 
   .call-btn {
-    padding: 5px 10px;
-    font-size: 11px;
+    font-size: 12px;
+    padding: 6px 12px;
   }
 }

@@ -46,25 +46,38 @@ export default function Login() {
   } = useAuth();
 
   // ======================================================
-  // ENTER KEY LOGIN (ONLY CHANGE ADDED)
+  // ENTER KEY LOGIN
   // ======================================================
+
   useEffect(() => {
+
     const handleKeyDown = (e) => {
+
       if (e.key === "Enter") {
+
         handleLogin();
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener(
+      "keydown",
+      handleKeyDown
+    );
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+
+      window.removeEventListener(
+        "keydown",
+        handleKeyDown
+      );
     };
+
   }, [data, mode]);
 
   // ======================================================
   // REDIRECT
   // ======================================================
+
   useEffect(() => {
 
     if (isAuthenticated) {
@@ -96,6 +109,7 @@ export default function Login() {
   // ======================================================
   // RESET MODE
   // ======================================================
+
   useEffect(() => {
 
     setData({
@@ -106,6 +120,7 @@ export default function Login() {
     });
 
     setOtpSent(false);
+
     setTimer(0);
 
   }, [mode]);
@@ -113,6 +128,7 @@ export default function Login() {
   // ======================================================
   // TIMER
   // ======================================================
+
   useEffect(() => {
 
     let interval;
@@ -134,6 +150,7 @@ export default function Login() {
   // ======================================================
   // INPUT
   // ======================================================
+
   const handleChange = (e) => {
 
     setData({
@@ -145,24 +162,34 @@ export default function Login() {
   // ======================================================
   // SEND OTP
   // ======================================================
+
   const sendOtp = async () => {
 
     try {
 
       if (!data.mobile) {
-        return alert("Enter mobile number");
+
+        return alert(
+          "Enter mobile number"
+        );
       }
 
       setLoading(true);
 
-      await API.post("/user-auth/send-otp", {
-        mobile: data.mobile,
-      });
+      await API.post(
+        "/user-auth/send-otp",
+        {
+          mobile: data.mobile,
+        }
+      );
 
       setOtpSent(true);
+
       setTimer(30);
 
-      alert("OTP sent successfully ✅");
+      alert(
+        "OTP sent successfully ✅"
+      );
 
     } catch (err) {
 
@@ -172,6 +199,7 @@ export default function Login() {
       );
 
     } finally {
+
       setLoading(false);
     }
   };
@@ -179,6 +207,7 @@ export default function Login() {
   // ======================================================
   // LOGIN
   // ======================================================
+
   const handleLogin = async () => {
 
     try {
@@ -189,42 +218,83 @@ export default function Login() {
 
       if (mode === "email-password") {
 
-        if (!data.email || !data.password)
-          return alert("Email & password required");
+        if (
+          !data.email ||
+          !data.password
+        ) {
+
+          return alert(
+            "Email & password required"
+          );
+        }
 
         payload.email = data.email;
+
         payload.password = data.password;
       }
 
       if (mode === "mobile-password") {
 
-        if (!data.mobile || !data.password)
-          return alert("Mobile & password required");
+        if (
+          !data.mobile ||
+          !data.password
+        ) {
+
+          return alert(
+            "Mobile & password required"
+          );
+        }
 
         payload.mobile = data.mobile;
+
         payload.password = data.password;
       }
 
       if (mode === "mobile-otp") {
 
-        if (!data.mobile || !data.otp)
-          return alert("Mobile & OTP required");
+        if (
+          !data.mobile ||
+          !data.otp
+        ) {
+
+          return alert(
+            "Mobile & OTP required"
+          );
+        }
 
         payload.mobile = data.mobile;
+
         payload.otp = data.otp;
       }
 
       const res =
-        await API.post("/user-auth/login", payload);
+        await API.post(
+          "/user-auth/login",
+          payload
+        );
 
-      const { token, user } = res.data;
+      const {
+        token,
+        user,
+      } = res.data;
 
       login(user, token);
 
-      if (user.role === "admin") navigate("/admin");
-      else if (user.role === "seller") navigate("/seller");
-      else if (user.role === "builder") navigate("/builder");
-      else navigate("/");
+      if (user.role === "admin") {
+        navigate("/admin");
+      }
+
+      else if (user.role === "seller") {
+        navigate("/seller");
+      }
+
+      else if (user.role === "builder") {
+        navigate("/builder");
+      }
+
+      else {
+        navigate("/");
+      }
 
     } catch (err) {
 
@@ -234,6 +304,7 @@ export default function Login() {
       );
 
     } finally {
+
       setLoading(false);
     }
   };
@@ -242,13 +313,39 @@ export default function Login() {
 
     <div className="login-page">
 
-      <div className="bg-transparent backdrop-blur-2xl border border-white/30 p-8 rounded-3xl w-96 shadow-[0_25px_80px_rgba(0,0,0,0.25)] -mt-[101px]">
+      <div
+        className="
+          bg-transparent
+          backdrop-blur-2xl
+          border
+          border-white/30
 
-        <div className="mb-8">
+          rounded-[28px]
 
-          <h2 className="housify-title mb-6">
+          w-full
+          max-w-md
+
+          px-4
+          py-6
+
+          sm:px-7
+          sm:py-8
+
+          shadow-[0_25px_80px_rgba(0,0,0,0.25)]
+
+          mx-auto
+        "
+      >
+
+        {/* ================= TITLE ================= */}
+
+        <div className="mb-6 sm:mb-8">
+
+          <h2 className="housify-title mb-5 sm:mb-6">
             HOUSIFY
           </h2>
+
+          {/* ================= MODES ================= */}
 
           <div className="grid grid-cols-3 gap-2">
 
@@ -261,7 +358,11 @@ export default function Login() {
               <button
                 key={key}
                 onClick={() => setMode(key)}
-                className={`premium-tab ${mode === key ? "active" : ""}`}
+                className={`premium-tab ${
+                  mode === key
+                    ? "active"
+                    : ""
+                }`}
               >
                 {label}
               </button>
@@ -272,8 +373,12 @@ export default function Login() {
 
         </div>
 
+        {/* ================= EMAIL ================= */}
+
         {mode === "email-password" && (
+
           <input
+            type="email"
             name="email"
             placeholder="Enter Email"
             value={data.email}
@@ -282,8 +387,13 @@ export default function Login() {
           />
         )}
 
-        {(mode === "mobile-password" || mode === "mobile-otp") && (
+        {/* ================= MOBILE ================= */}
+
+        {(mode === "mobile-password" ||
+          mode === "mobile-otp") && (
+
           <input
+            type="tel"
             name="mobile"
             placeholder="Enter Mobile"
             value={data.mobile}
@@ -292,7 +402,11 @@ export default function Login() {
           />
         )}
 
-        {(mode === "email-password" || mode === "mobile-password") && (
+        {/* ================= PASSWORD ================= */}
+
+        {(mode === "email-password" ||
+          mode === "mobile-password") && (
+
           <input
             type="password"
             name="password"
@@ -303,7 +417,10 @@ export default function Login() {
           />
         )}
 
+        {/* ================= OTP ================= */}
+
         {mode === "mobile-otp" && (
+
           <div className="premium-otp-wrapper mb-4">
 
             <input
@@ -316,43 +433,113 @@ export default function Login() {
 
             <button
               onClick={sendOtp}
-              disabled={timer > 0 || loading}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-1 rounded-md text-sm text-white ${
-                timer > 0
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              }`}
+
+              disabled={
+                timer > 0 || loading
+              }
+
+              className={`
+                absolute
+                right-2
+                top-1/2
+                -translate-y-1/2
+
+                px-2
+                py-1
+
+                sm:px-3
+
+                rounded-md
+
+                text-[11px]
+                sm:text-sm
+
+                text-white
+
+                transition-all
+
+                ${
+                  timer > 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }
+              `}
             >
+
               {timer > 0
                 ? `Resend ${timer}s`
                 : otpSent
                 ? "Resend OTP"
                 : "Send OTP"}
+
             </button>
 
           </div>
         )}
 
+        {/* ================= LOGIN BUTTON ================= */}
+
         <button
           onClick={handleLogin}
+
           disabled={loading}
+
           className="premium-btn"
         >
-          {loading ? "Please wait..." : "Login"}
+
+          {loading
+            ? "Please wait..."
+            : "Login"}
+
         </button>
 
-        <div className="flex justify-between mt-5 text-sm text-white">
+        {/* ================= BOTTOM LINKS ================= */}
+
+        <div
+          className="
+            flex
+            flex-col
+
+            sm:flex-row
+
+            justify-between
+
+            items-start
+            sm:items-center
+
+            gap-3
+
+            mt-5
+
+            text-[13px]
+            sm:text-sm
+
+            text-white
+          "
+        >
 
           <span
-            onClick={() => navigate("/signup")}
-            className="cursor-pointer hover:underline"
+            onClick={() =>
+              navigate("/signup")
+            }
+
+            className="
+              cursor-pointer
+              hover:underline
+            "
           >
             Create Account
           </span>
 
           <span
-            onClick={() => navigate("/forgot-password")}
-            className="cursor-pointer hover:underline"
+            onClick={() =>
+              navigate("/forgot-password")
+            }
+
+            className="
+              cursor-pointer
+              hover:underline
+            "
           >
             Forgot Password?
           </span>

@@ -21,7 +21,8 @@
 
   white-space: nowrap;
 
-  overflow: hidden;
+  overflow-x: hidden;
+padding: 20px;
 }
 
 /* ================= GOLDEN MOVING LIGHT ================= */
@@ -282,4 +283,65 @@
   border-color: rgba(212,175,55,0.35);
 
   box-shadow: 0 14px 32px rgba(212,175,55,0.16);
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    height: 72px;
+    padding: 0 12px;
+  }
+
+  .nav-logo {
+    height: 62px;
+  }
+
+  .brand-name-img {
+    height: 55px;
+    margin-left: -42px;
+  }
+
+  .nav-right {
+    gap: 0;
+  }
+
+  /* Hide desktop menu links */
+
+  .nav-right a,
+  .login-btn {
+    display: none;
+  }
+
+  /* Show hamburger only */
+
+  .menu-btn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+  }
+}
+
+/* ================= TABLET ================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .navbar {
+    padding: 0 18px;
+  }
+
+  .brand-name-img {
+    height: 65px;
+    margin-left: -48px;
+  }
+
+  .nav-right {
+    gap: 16px;
+  }
+
+  .nav-right a,
+  .login-btn {
+    font-size: 15px;
+  }
 }

@@ -1,48 +1,96 @@
 /* ================= FULL PAGE BACKGROUND ================= */
 
 .login-page {
-  height: 100vh;
+
+  min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
 
   font-family: "Inter", sans-serif;
-  overflow: hidden;
 
-  background:
+  overflow-x: hidden;
+
+  position: relative;
+  isolation: isolate;
+
+  padding: 40px 20px;
+
+  background-color: #081120;
+}
+
+/* ================= CINEMATIC BACKGROUND ================= */
+
+.login-page::before {
+
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  background-image:
+
     linear-gradient(
-      rgba(10, 14, 25, 0.55),
-      rgba(10, 14, 25, 0.65)
+      rgba(5, 10, 25, 0.76),
+      rgba(5, 10, 25, 0.82)
     ),
+
+    url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80"),
+
+    url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80"),
+
     url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80");
 
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-size:
+    cover,
+    100% 34%,
+    100% 34%,
+    100% 34%;
 
-  animation: zoomBg 20s ease-in-out infinite alternate;
+  background-position:
+    center,
+    top,
+    center,
+    bottom;
+
+  background-repeat:
+    no-repeat,
+    no-repeat,
+    no-repeat,
+    no-repeat;
+
+  transform: scale(1.08);
+
+  animation: luxuryLoginZoom 24s ease-in-out infinite alternate;
 }
 
 /* ================= BACKGROUND ZOOM ================= */
 
-@keyframes zoomBg {
+@keyframes luxuryLoginZoom {
+
   0% {
-    background-size: 100%;
-    background-position: center;
+    transform: scale(1.08);
   }
 
   100% {
-    background-size: 115%;
-    background-position: center;
+    transform: scale(1.16);
   }
 }
 
 /* ================= TITLE ================= */
 
 .housify-title {
-  font-size: 36px;
+
+  font-size: clamp(28px, 7vw, 36px);
+
   font-weight: 900;
-  letter-spacing: 10px;
+
+  letter-spacing: clamp(4px, 1.5vw, 10px);
+
   text-align: center;
 
   background: linear-gradient(
@@ -70,19 +118,30 @@
 /* ================= GRADIENT FLOW ================= */
 
 @keyframes luxuryFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* ================= ENTRY ANIMATION ================= */
 
 @keyframes riseIn {
+
   0% {
     opacity: 0;
     transform: translateY(20px);
     filter: blur(6px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -93,18 +152,30 @@
 /* ================= BORDER ANIMATION ================= */
 
 @keyframes borderMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 /* ================= MODE BUTTONS ================= */
 
 .premium-tab {
-  padding: 8px 16px;
+
+  padding: 10px 18px;
+
   border-radius: 10px;
 
   font-size: 13px;
+
   font-weight: 600;
 
   border: 2px solid transparent;
@@ -129,23 +200,30 @@
   transition: all 0.3s ease;
 
   color: #374151;
+
   cursor: pointer;
 }
 
 .premium-tab:hover {
+
   transform: translateY(-2px);
 }
 
 .premium-tab.active {
+
   background: linear-gradient(90deg, #1d4ed8, #2563eb);
+
   color: white;
 }
 
 /* ================= INPUT ================= */
 
 .premium-input {
+
   width: 100%;
-  padding: 12px;
+
+  padding: 14px;
+
   border-radius: 10px;
 
   background: rgba(255,255,255,0.92);
@@ -173,19 +251,25 @@
 }
 
 .premium-input:focus {
+
   outline: none;
+
   box-shadow: 0 0 0 3px rgba(29,78,216,0.15);
 }
 
 /* ================= OTP INPUT ================= */
 
 .premium-otp-wrapper {
+
   position: relative;
 }
 
 .premium-otp {
+
   width: 100%;
-  padding: 12px 90px 12px 12px;
+
+  padding: 14px 110px 14px 14px;
+
   border-radius: 10px;
 
   background: rgba(255,255,255,0.92);
@@ -210,15 +294,18 @@
   animation: borderMove 4s linear infinite;
 }
 
-/* ================= LOGIN BUTTON (FIXED) ================= */
+/* ================= LOGIN BUTTON ================= */
 
 .premium-btn {
+
   width: 100%;
-  padding: 12px;
+
+  padding: 14px;
 
   border-radius: 10px;
 
   font-size: 15px;
+
   font-weight: 700;
 
   color: white;
@@ -242,13 +329,145 @@
 }
 
 .premium-btn:hover {
+
   transform: translateY(-2px);
+
   box-shadow: 0 10px 25px rgba(29, 78, 216, 0.3);
 }
 
 .premium-btn:disabled {
+
   background: #9ca3af;
+
   cursor: not-allowed;
+
   transform: none;
+
   box-shadow: none;
+}
+
+/* ================= TABLET ================= */
+
+@media (max-width: 1024px) {
+
+  .login-page {
+
+    padding: 30px 18px;
+  }
+
+  .premium-input,
+  .premium-otp {
+
+    padding: 13px;
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .login-page {
+
+    min-height: 100dvh;
+
+    padding: 20px 14px;
+
+    align-items: center;
+    justify-content: center;
+  }
+
+  .login-page::before {
+
+    background-size:
+      cover,
+      100% 34%,
+      100% 34%,
+      100% 34%;
+
+    transform: scale(1.12);
+  }
+
+  .housify-title {
+
+    font-size: 30px;
+
+    letter-spacing: 6px;
+
+    margin-bottom: 20px;
+  }
+
+  .premium-tab {
+
+    flex: 1;
+
+    font-size: 12px;
+
+    padding: 10px 6px;
+  }
+
+  .premium-input,
+  .premium-otp {
+
+    font-size: 16px;
+
+    padding: 13px;
+  }
+
+  .premium-otp {
+
+    padding-right: 95px;
+  }
+
+  .premium-btn {
+
+    font-size: 15px;
+
+    padding: 13px;
+  }
+
+  .premium-otp-wrapper button {
+
+    font-size: 10px;
+
+    padding: 6px 10px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .login-page {
+
+    padding: 14px 10px;
+  }
+
+  .housify-title {
+
+    font-size: 26px;
+
+    letter-spacing: 4px;
+  }
+
+  .premium-tab {
+
+    font-size: 11px;
+
+    padding: 9px 4px;
+  }
+
+  .premium-input,
+  .premium-otp {
+
+    padding: 12px;
+
+    font-size: 15px;
+  }
+
+  .premium-btn {
+
+    padding: 12px;
+
+    font-size: 14px;
+  }
 }

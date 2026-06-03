@@ -404,7 +404,7 @@ export default function Properties() {
 
           {/* SEARCH */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5">
 
             <Search
               size={18}
@@ -427,7 +427,7 @@ export default function Properties() {
 
           {/* TYPE */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5">
 
             <Building2
               size={18}
@@ -466,7 +466,7 @@ export default function Properties() {
 
           {/* PRICE */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5">
 
             <IndianRupee
               size={18}
