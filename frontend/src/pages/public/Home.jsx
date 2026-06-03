@@ -125,16 +125,11 @@ export default function Home() {
           }
 
           .animate-heading-one {
-
-            animation:
-              headingReveal 1s ease forwards;
+            animation: headingReveal 1s ease forwards;
           }
 
           .animate-heading-two {
-
-            animation:
-              headingReveal 1s ease forwards;
-
+            animation: headingReveal 1s ease forwards;
             animation-delay: 0.5s;
           }
 
@@ -158,8 +153,28 @@ export default function Home() {
               typingTwo 4s steps(75, end) forwards;
 
             animation-delay: 3s;
-
             animation-fill-mode: forwards;
+          }
+
+          /* MOBILE RESPONSIVE FIXES */
+
+          @media (max-width: 768px) {
+
+            .typing-line-one,
+            .typing-line-two {
+
+              white-space: normal;
+              width: 100%;
+              overflow: visible;
+              animation: none;
+            }
+
+            .animate-heading-one,
+            .animate-heading-two {
+
+              opacity: 1;
+              animation: none;
+            }
           }
         `}
       </style>
@@ -168,32 +183,47 @@ export default function Home() {
 
         {/* HERO SECTION */}
         <section
-          className="text-white px-6 md:px-12 py-16 relative overflow-hidden"
+          className="
+            text-white
+            px-4 sm:px-6 md:px-12
+            pt-4 pb-4 sm:py-16
+            relative
+            overflow-hidden
+            bg-slate-900
+          "
           style={{
             backgroundImage: `
               linear-gradient(
-                rgba(15, 23, 42, 0.78), 
-                rgba(15, 23, 42, 0.62)
-              ),
-              url("https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1974&auto=format&fit=crop")
+              rgba(15, 23, 42, 0.62),
+              rgba(15, 23, 42, 0.52)
+            ),
+              url("${
+                window.innerWidth < 768
+                  ? "https://images.pexels.com/photos/27564710/pexels-photo-27564710.jpeg"
+                  : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1974&auto=format&fit=crop"
+              }")
             `,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
+            backgroundSize: window.innerWidth < 768
+              ? "cover"
+              : "cover",
+            backgroundPosition: window.innerWidth < 768
+              ? "center center"
+              : "center center",
             backgroundRepeat: "no-repeat",
             animation: "zoomBg 10s infinite alternate",
           }}
         >
 
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center h-full">
 
             {/* LEFT CONTENT */}
-            <div className="-mt-8">
+            <div className="mt-0 lg:-mt-8">
 
               <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold animate-pulse">
                 VERIFIED REAL ESTATE PLATFORM
               </p>
 
-              <h1 className="text-5xl md:text-6xl font-extrabold leading-tight overflow-hidden">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight overflow-hidden">
 
                 <span className="block animate-heading-one opacity-0">
                   Find Your Dream
@@ -205,7 +235,7 @@ export default function Home() {
 
               </h1>
 
-              <div className="mt-5 text-slate-200 text-lg leading-8 max-w-2xl">
+              <div className="mt-5 text-slate-200 text-base sm:text-lg leading-7 sm:leading-8 max-w-2xl">
 
                 <p className="typing-line-one">
                   Verified flats, plots, villas and commercial spaces
@@ -218,7 +248,7 @@ export default function Home() {
               </div>
 
               {/* SEARCH BAR */}
-              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex items-center gap-3 shadow-2xl backdrop-blur-xl">
+              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shadow-2xl backdrop-blur-xl">
 
                 <Search
                   className="text-slate-500 ml-2"
@@ -226,16 +256,18 @@ export default function Home() {
                 />
 
                 <input
+                  id="search"
+                  name="search"
                   type="text"
                   placeholder="Search city, area or property..."
-                  className="flex-1 outline-none text-slate-800 bg-transparent text-lg"
+                  className="flex-1 outline-none text-slate-800 bg-transparent text-base sm:text-lg w-full"
                 />
 
                 <button
                   onClick={() =>
                     navigate("/properties")
                   }
-                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg"
+                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg w-full sm:w-auto"
                 >
                   Search
                 </button>
@@ -257,7 +289,8 @@ export default function Home() {
             </div>
 
             {/* RIGHT STATS */}
-            <div className="bg-white/10 rounded-[32px] p-6 backdrop-blur-xl border border-white/20 shadow-2xl">
+            {/* RIGHT STATS - DESKTOP ONLY */}
+            <div className="hidden lg:block bg-white/10 rounded-[32px] p-6 backdrop-blur-xl border border-white/20 shadow-2xl">
 
               <div className="grid grid-cols-2 gap-4">
 
@@ -335,10 +368,62 @@ export default function Home() {
           </div>
         </section>
 
-        {/* FEATURED SECTION */}
-        <section className="max-w-7xl mx-auto px-6 md:px-10 py-20">
+        {/* MOBILE STATS */}
+        <section className="lg:hidden bg-slate-100 px-4 py-8">
 
-          <div className="flex justify-between items-center mb-10 flex-wrap gap-4">
+          <div className="bg-white rounded-[32px] p-5 shadow-xl">
+
+            <div className="grid grid-cols-2 gap-4">
+
+              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
+                <Building2 className="mb-3 text-blue-600" size={28} />
+                <h3 className="font-extrabold text-3xl">
+                  {properties.length}+
+                </h3>
+                <p className="mt-1 text-slate-500">
+                  Verified Listings
+                </p>
+              </div>
+
+              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
+                <Users className="mb-3 text-purple-600" size={28} />
+                <h3 className="font-extrabold text-3xl">
+                  1K+
+                </h3>
+                <p className="mt-1 text-slate-500">
+                  Happy Users
+                </p>
+              </div>
+
+              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
+                <ShieldCheck className="mb-3 text-green-600" size={28} />
+                <h3 className="font-bold text-3xl">
+                  100%
+                </h3>
+                <p className="text-slate-500 mt-1">
+                  Moderated Listings
+                </p>
+              </div>
+
+              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
+                <BadgeCheck className="mb-3 text-orange-500" size={28} />
+                <h3 className="font-bold text-3xl">
+                  Direct Deals
+                </h3>
+                <p className="text-slate-500 mt-1">
+                  No brokerage for buyers
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>      
+        {/* FEATURED SECTION */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-14 sm:py-20">
+
+          <div className="flex justify-between items-start sm:items-center mb-8 sm:mb-10 flex-wrap gap-4">
 
             <div>
 
@@ -346,7 +431,7 @@ export default function Home() {
                 FEATURED LISTINGS
               </p>
 
-              <h2 className="text-4xl md:text-5xl font-extrabold mt-2 text-slate-900">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold mt-2 text-slate-900 leading-tight">
                 Explore Latest Properties
               </h2>
             </div>
@@ -376,7 +461,16 @@ export default function Home() {
 
           ) : (
 
-            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+            <div
+              className="
+                grid
+                grid-cols-1
+                sm:grid-cols-2
+                xl:grid-cols-3
+                gap-5
+                sm:gap-7
+              "
+            >
 
               {properties
                 .slice(0, 6)

@@ -28,10 +28,10 @@
 @keyframes zoomBg {
 
   from {
-    background-size: 100%;
+    background-size: 110%;
   }
 
   to {
-    background-size: 110%;
+    background-size: 120%;
   }
 }
