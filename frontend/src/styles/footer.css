@@ -350,7 +350,7 @@
   position: absolute;
 
   right: 20px;
-  bottom: 105px;
+  bottom: 145px;
 
   width: 58px;
   height: 58px;
@@ -609,5 +609,78 @@
 
   .scroll-top {
     right: 18px;
+  }
+}
+/* ================= INSTAGRAM PREMIUM ICON ================= */
+
+.instagram-icon {
+  width: 64px !important;
+  height: 64px !important;
+
+  border-radius: 18px !important;
+
+  background: radial-gradient(
+    circle at 30% 107%,
+    #fdf497 0%,
+    #fdf497 5%,
+    #fd5949 45%,
+    #d6249f 60%,
+    #285AEB 90%
+  ) !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 0 15px rgba(214, 36, 159, 0.4),
+    0 0 25px rgba(40, 90, 235, 0.3);
+  
+  animation: instaPulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.instagram-icon i {
+  color: white;
+  font-size: 32px;
+}
+
+
+@keyframes instagramGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes instaFloat {
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.08);
+  }
+}
+@keyframes instaPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 15px rgba(214, 36, 159, 0.4),
+      0 0 25px rgba(40, 90, 235, 0.3);
+  }
+
+  50% {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 25px rgba(214, 36, 159, 0.7),
+      0 0 40px rgba(40, 90, 235, 0.5);
   }
 }
