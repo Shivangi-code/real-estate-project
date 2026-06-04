@@ -47,7 +47,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
     setShowOptions(false);
 
     setTimeout(() => {
-      addMsg("Hello 👋 Welcome to Housify Realty Team", "bot");
+      addMsg("Hello 👋 Welcome to Housify Realty", "bot");
     }, 200);
 
     setTimeout(() => {
@@ -132,7 +132,7 @@ const ChatPopup = ({ isOpen, onClose }) => {
           "🕒 Availability: 8:00 AM – 10:00 PM (Daily)\n\n" +
           "Phone: +91-74159 30089\n" +
           "Email: housifyrealty.info@gmail.com\n\n" +
-          "Feel free to reach out anytime — we’re happy to help you.",
+          "Feel free to reach out to us — we’re happy to help you.",
         "bot"
       );
     }, 400);
