@@ -108,23 +108,25 @@ export default function PropertyDetails() {
 
   useEffect(() => {
 
-    fetchProperty();
+  window.scrollTo(0, 0); // Opens at the property image
 
-    socket.on(
-      "propertyUpdated",
-      () => {
-        fetchProperty();
-      }
+  fetchProperty();
+
+  socket.on(
+    "propertyUpdated",
+    () => {
+      fetchProperty();
+    }
+  );
+
+  return () => {
+
+    socket.off(
+      "propertyUpdated"
     );
+  };
 
-    return () => {
-
-      socket.off(
-        "propertyUpdated"
-      );
-    };
-
-  }, [id]);
+}, [id]);
 
   // ======================================================
   // ================= FORMAT PRICE =======================
