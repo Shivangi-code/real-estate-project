@@ -16,7 +16,7 @@
 
   color: white;
 
-  padding: 25px 20px 70px;
+  padding: 50px 20px 90px;
 
   position: relative;
 
@@ -171,20 +171,26 @@
 .footer-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
+
+  gap: 24px;
+
   justify-content: center;
   align-items: stretch;
+
+  max-width: 1200px;
+
+  margin: 0 auto;
 }
 
 .footer-section {
   flex: 1;
-  min-width: 220px;
+  min-width: 280px;
   max-width: 420px;
   width: 100%;
 
   background: rgba(255, 255, 255, 0.05);
 
-  padding: 14px;
+  padding: 22px;
   border-radius: 14px;
 
   backdrop-filter: blur(10px);
@@ -237,7 +243,7 @@
 .footer-links {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 .footer-links a {
@@ -273,8 +279,48 @@
 /* SOCIAL */
 
 .footer-social {
-  text-align: center;
-  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 18px;
+
+  margin-top: 35px;
+  margin-bottom: 28px;
+}
+
+.footer-social a {
+  width: 52px;
+  height: 52px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  font-size: 22px;
+
+  backdrop-filter: blur(10px);
+
+  transition: all 0.3s ease;
+}
+
+.footer-social a:hover {
+  transform: translateY(-5px) scale(1.08);
+
+  background: linear-gradient(
+    135deg,
+    #00c6ff,
+    #0072ff
+  );
+
+  box-shadow:
+    0 0 20px rgba(0,198,255,0.45);
 }
 
 /* BOTTOM */
@@ -303,8 +349,8 @@
 .scroll-top {
   position: absolute;
 
-  right: 25px;
-  bottom: 120px;
+  right: 20px;
+  bottom: 145px;
 
   width: 58px;
   height: 58px;
@@ -477,5 +523,164 @@
   100% {
     opacity: 0;
     transform: translate(-50%, 20px);
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .footer {
+    padding: 45px 16px 100px;
+  }
+
+  .footer-brand-center {
+    margin-bottom: 35px;
+  }
+
+  .logo-main {
+    font-size: 34px;
+  }
+
+  .logo-sub {
+    font-size: 12px;
+    letter-spacing: 3px;
+  }
+
+  .dynamic-text {
+    font-size: 18px;
+    line-height: 1.5;
+    padding: 0 10px;
+  }
+
+  .footer-container {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .footer-section {
+    min-width: 100%;
+    max-width: 100%;
+
+    padding: 20px;
+  }
+
+  .footer-section h3 {
+    font-size: 22px;
+  }
+
+  .footer-links a,
+  .footer-section p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .footer-bottom {
+    font-size: 13px;
+    padding: 0 20px;
+  }
+
+  .scroll-top {
+    width: 52px;
+    height: 52px;
+
+    font-size: 20px;
+
+    right: 16px;
+    bottom: 95px;
+  }
+
+  .footer-wave {
+    height: 50px;
+  }
+}
+
+/* ================= TABLET ================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .footer-container {
+    gap: 20px;
+  }
+
+  .footer-section {
+    min-width: 320px;
+  }
+
+  .scroll-top {
+    right: 18px;
+  }
+}
+/* ================= INSTAGRAM PREMIUM ICON ================= */
+
+.instagram-icon {
+  width: 64px !important;
+  height: 64px !important;
+
+  border-radius: 18px !important;
+
+  background: radial-gradient(
+    circle at 30% 107%,
+    #fdf497 0%,
+    #fdf497 5%,
+    #fd5949 45%,
+    #d6249f 60%,
+    #285AEB 90%
+  ) !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow:
+    0 0 15px rgba(214, 36, 159, 0.4),
+    0 0 25px rgba(40, 90, 235, 0.3);
+  
+  animation: instaPulse 2s ease-in-out infinite;
+  transition: all 0.3s ease;
+}
+
+.instagram-icon i {
+  color: white;
+  font-size: 32px;
+}
+
+
+@keyframes instagramGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes instaFloat {
+  0%,100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px) scale(1.08);
+  }
+}
+@keyframes instaPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow:
+      0 0 15px rgba(214, 36, 159, 0.4),
+      0 0 25px rgba(40, 90, 235, 0.3);
+  }
+
+  50% {
+    transform: scale(1.08);
+    box-shadow:
+      0 0 25px rgba(214, 36, 159, 0.7),
+      0 0 40px rgba(40, 90, 235, 0.5);
   }
 }

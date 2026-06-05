@@ -36,7 +36,7 @@ const DashboardLayout = ({ role }) => {
 
       {/* Sidebar */}
       <div className="w-64 bg-gray-900 text-white p-6">
-        <h2 className="text-2xl font-bold mb-10 capitalize">{role} Panel</h2>
+        <h2 className="text-xl sm:text-2xl font-bold mb-10 capitalize">{role} Panel</h2>
 
         <nav className="space-y-4">
           {menus[role].map((menu, index) => (

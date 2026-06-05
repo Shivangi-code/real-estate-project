@@ -117,14 +117,19 @@ function Footer() {
 
       {/* 🔹 Social */}
       <div className="footer-social reveal">
-        <a
-          href="https://instagram.com/hltproperties_jabalpur"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <i className="fab fa-instagram"></i>
-        </a>
-      </div>
+  <a
+    href="https://instagram.com/hltproperties_jabalpur"
+    target="_blank"
+    rel="noreferrer"
+    className="instagram-icon"
+  >
+    <i className="fab fa-instagram"></i>
+  </a>
+
+  <span className="social-text">
+    Follow Us on Instagram
+  </span>
+</div>
 
       {/* 🔹 Bottom */}
       <div className="footer-bottom">
