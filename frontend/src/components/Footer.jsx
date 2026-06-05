@@ -108,7 +108,7 @@ function Footer() {
         <div className="footer-section reveal">
           <h3>Contact</h3>
 
-          <p>📍 Jabalpur, India</p>
+          <p>📍 Jabalpur(M.P), India</p>
           <p>📞 +91-7415930089</p>
           <p>📧 housifyrealty.info@gmail.com</p>
         </div>
