@@ -79,18 +79,18 @@ export default function PropertyDetails() {
   // ======================================================
 
   useEffect(() => {
-  window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
 
-  fetchProperty();
-
-  socket.on("propertyUpdated", () => {
     fetchProperty();
-  });
 
-  return () => {
-    socket.off("propertyUpdated");
-  };
-}, [id]);
+    socket.on("propertyUpdated", () => {
+      fetchProperty();
+    });
+
+    return () => {
+      socket.off("propertyUpdated");
+    };
+  }, [id]);
 
   // ======================================================
   // ================= FORMAT PRICE =======================
@@ -272,10 +272,8 @@ export default function PropertyDetails() {
 
           {/* PREV */}
           <button
-
             onClick={prevImage}
             className="absolute left-5 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full z-20"
-            
           >
             <ChevronLeft size={32} />
           </button>
@@ -296,9 +294,9 @@ export default function PropertyDetails() {
 
           {/* NEXT */}
           <button
-  onClick={nextImage}
-  className="absolute right-5 bg-white/20 hover:bg-white/30 text-white p-3 sm:p-4 rounded-full z-20"
->
+            onClick={nextImage}
+            className="absolute right-5 bg-white/20 hover:bg-white/30 text-white p-3 sm:p-4 rounded-full z-20"
+          >
             <ChevronRight size={32} />
           </button>
         </div>
@@ -320,15 +318,14 @@ export default function PropertyDetails() {
 
         {/* MAIN GRID */}
         <div className="grid lg:grid-cols-3 gap-6">
-
           {/* ====================================================== */}
           {/* ================= LEFT =============================== */}
           {/* ====================================================== */}
 
           <div className="lg:col-span-2">
-  {/* MAIN IMAGE */}
-  <div
-    className="
+            {/* MAIN IMAGE */}
+            <div
+              className="
       relative
       rounded-[24px]
       sm:rounded-[32px]
@@ -337,11 +334,11 @@ export default function PropertyDetails() {
       bg-black
       group
     "
-  >
-    <img
-      src={images[activeImage]}
-      alt={property.title}
-      className="
+            >
+              <img
+                src={images[activeImage]}
+                alt={property.title}
+                className="
         w-full
         h-[260px]
         sm:h-[380px]
@@ -349,7 +346,7 @@ export default function PropertyDetails() {
         lg:h-[500px]
         object-cover
       "
-    />
+              />
 
               {/* EXPAND */}
               <button
@@ -399,33 +396,34 @@ export default function PropertyDetails() {
             {/* ================= THUMBNAILS ========================= */}
             {/* ====================================================== */}
 
-         {images.length > 1 && (
-  <div className="flex gap-4 mt-5 overflow-x-auto pb-2">
-    {images.map((img, index) => (
-      <button
-        key={index}
-        onClick={() => setActiveImage(index)}
-        className={`min-w-[110px] h-[85px] rounded-2xl overflow-hidden border-4 transition ${
-          activeImage === index
-            ? "border-blue-600"
-            : "border-transparent"
-        }`}
-      >
-        <img
-          src={img}
-          alt="thumb"
-          className="w-full h-full object-cover"
-        />
-      </button>
-    ))}
-  </div>
-)}
+            {images.length > 1 && (
+              <div className="flex gap-4 mt-5 overflow-x-auto pb-2">
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImage(index)}
+                    className={`min-w-[110px] h-[85px] rounded-2xl overflow-hidden border-4 transition ${
+                      activeImage === index
+                        ? "border-blue-600"
+                        : "border-transparent"
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt="thumb"
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
 
             {/* ====================================================== */}
             {/* ================= DETAILS ============================ */}
             {/* ====================================================== */}
-            
-            <div className="
+
+            <div
+              className="
   bg-white
 
   rounded-[24px]
@@ -438,8 +436,8 @@ export default function PropertyDetails() {
 
   mt-5
   sm:mt-6
-">
-
+"
+            >
               {/* PROPERTY ID */}
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
                 <Hash size={15} />
@@ -450,7 +448,8 @@ export default function PropertyDetails() {
               </div>
 
               {/* TITLE */}
-              <h1 className="
+              <h1
+                className="
   text-2xl
   sm:text-3xl
   lg:text-4xl
@@ -458,10 +457,9 @@ export default function PropertyDetails() {
   font-bold
 
   leading-tight
-">
-
+"
+              >
                 {property.title}
-
               </h1>
 
               {/* LOCATION */}
@@ -475,18 +473,15 @@ export default function PropertyDetails() {
               <div className="flex items-center gap-3 mt-6 text-blue-700">
                 <IndianRupee size={28} />
 
-               <span
-  className="
-    text-2xl
-    sm:text-3xl
-    lg:text-4xl
-    font-bold
-  "
->
-
-                  {formatPrice(
-                    property.price
-                  )}
+                <span
+                  className="
+      text-2xl
+      sm:text-3xl
+      lg:text-4xl
+      font-bold
+    "
+                >
+                  {property.price}
                 </span>
               </div>
 
@@ -513,22 +508,20 @@ export default function PropertyDetails() {
 
               {/* DESCRIPTION */}
               <div className="mt-8">
-  <h2 className="text-2xl font-bold mb-4">
-    Description
-  </h2>
+                <h2 className="text-2xl font-bold mb-4">Description</h2>
 
-  <p
-    className="
+                <p
+                  className="
       text-slate-600
       leading-7
       sm:leading-8
       text-base
       sm:text-lg
     "
-  >
-    {property.description}
-  </p>
-</div>
+                >
+                  {property.description}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -538,7 +531,8 @@ export default function PropertyDetails() {
 
           <div>
             {/* CONTACT CARD */}
-            <div className="
+            <div
+              className="
               bg-white
 
               rounded-[24px]
@@ -551,26 +545,25 @@ export default function PropertyDetails() {
 
               lg:sticky
               lg:top-6
-            ">
+            "
+            >
               <div className="flex items-center gap-3 mb-6">
                 <Building2 className="text-blue-700" />
-                <h2 className="
+                <h2
+                  className="
                 text-xl
                 sm:text-2xl
 
                 font-bold
-              ">
-
+              "
+                >
                   Inquiry Form
-
                 </h2>
               </div>
 
               {/* SUCCESS */}
               {success && (
-            
                 <div className="bg-green-100 text-green-700 px-4 py-3.5 rounded-2xl mb-5">
-
                   {success}
                 </div>
               )}
@@ -672,10 +665,10 @@ export default function PropertyDetails() {
 
                   {/* BUTTON */}
                   {/* BUTTON */}
-<button
-  type="submit"
-  disabled={sending}
-  className={`
+                  <button
+                    type="submit"
+                    disabled={sending}
+                    className={`
     w-full
     py-3.5
     sm:py-4
@@ -694,13 +687,11 @@ export default function PropertyDetails() {
         : "bg-blue-600 hover:bg-blue-700 text-white"
     }
   `}
->
-  <Send size={20} />
+                  >
+                    <Send size={20} />
 
-  {sending
-    ? "Submitting..."
-    : "Submit Inquiry"}
-</button>
+                    {sending ? "Submitting..." : "Submit Inquiry"}
+                  </button>
                 </form>
               )}
             </div>

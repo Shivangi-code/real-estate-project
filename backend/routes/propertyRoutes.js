@@ -1,62 +1,50 @@
-const express =
-  require("express");
+const express = require("express");
 
-const router =
-  express.Router();
+const router = express.Router();
+
+const controllerPath = require.resolve("../controllers/propertyController");
+
+const controllers = require("../controllers/propertyController");
+
 
 // ================= CONTROLLER =================
-
+console.log("CONTROLLERS =", controllers);
 const {
   addProperty,
   getFilteredProperties,
-} = require(
-  "../controllers/propertyController"
-);
+  getPropertyById,
+} = require("../controllers/propertyController");
 
 // ================= AUTH =================
 
-const {
-  protect,
-} = require(
-  "../middleware/authMiddleware"
-);
+const { protect } = require("../middleware/authMiddleware");
 
 // ================= MULTER =================
 
-const upload =
-  require(
-    "../middleware/upload"
-  );
+const upload = require("../middleware/upload");
 
 // ======================================================
 // ================= ADD PROPERTY =======================
 // ======================================================
 
 router.post(
-
   "/add",
 
   protect,
 
-  upload.array(
-    "images",
-    10
-  ),
+  upload.array("images", 10),
 
-  addProperty
+  addProperty,
 );
 
 // ======================================================
 // ================= GET PROPERTIES =====================
 // ======================================================
 
-router.get(
-  "/approved",
-  getFilteredProperties
-);
+router.get("/approved", getFilteredProperties);
 // ======================================================
 // ================= EXPORT =============================
 // ======================================================
+router.get("/:id", getPropertyById);
 
-module.exports =
-  router;
+module.exports = router;

@@ -93,35 +93,48 @@ exports.addProperty = async (req, res) => {
 // ================= GET FILTERED PROPERTIES ============
 // ======================================================
 
-exports.getFilteredProperties =
-  async (req, res) => {
+exports.getFilteredProperties = async (req, res) => {
+  try {
+    const properties = await Property.find().sort({
+      createdAt: -1,
+    });
 
-    try {
+    // IMPORTANT:
+    // OLD FRONTEND EXPECTS DIRECT ARRAY
 
-      const properties =
-        await Property.find()
-          .sort({
-            createdAt: -1,
-          });
+    res.status(200).json(properties);
+  } catch (err) {
+    console.log("Property Filter Error ❌", err);
 
-      // IMPORTANT:
-      // OLD FRONTEND EXPECTS DIRECT ARRAY
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
 
-      res.status(200).json(
-        properties
-      );
+// ======================================================
+// ================= GET PROPERTY BY ID =================
+// ======================================================
 
-    } catch (err) {
+exports.getPropertyById = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
 
-      console.log(
-        "Property Filter Error ❌",
-        err
-      );
-
-      res.status(500).json({
+    if (!property) {
+      return res.status(404).json({
         success: false,
-        message:
-          "Server error",
+        message: "Property not found",
       });
     }
-  };
+
+    res.status(200).json(property);
+  } catch (error) {
+    console.log("Get Property Error ❌", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};

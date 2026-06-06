@@ -127,7 +127,10 @@ router.post("/send-otp", async (req, res) => {
       userAgent: req.headers["user-agent"],
     });
 
-    await sendSMS(mobile, otp);
+    await sendSMS(
+      mobile,
+      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+    );
 
     res.json({
       success: true,
@@ -402,7 +405,10 @@ router.post(
         userAgent: req.headers["user-agent"],
       });
 
-      await sendSMS(mobile, otp);
+      await sendSMS(
+        mobile,
+        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+      );
 
       res.json({
         success: true,
@@ -579,7 +585,10 @@ router.post(
         userAgent: req.headers["user-agent"],
       });
 
-      await sendSMS(mobile, otp);
+      await sendSMS(
+        mobile,
+        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+      );
 
       res.json({
         success: true,
@@ -657,7 +666,10 @@ router.post("/forgot-password/send-otp", async (req, res) => {
       userAgent: req.headers["user-agent"],
     });
 
-    await sendSMS(mobile, otp);
+    await sendSMS(
+      mobile,
+      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+    );
 
     return res.json({
       success: true,
