@@ -8,7 +8,6 @@ const controllers = require("../controllers/propertyController");
 
 
 // ================= CONTROLLER =================
-console.log("CONTROLLERS =", controllers);
 const {
   addProperty,
   getFilteredProperties,
