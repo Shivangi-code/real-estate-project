@@ -1,215 +1,126 @@
-const mongoose = require("mongoose");
+const mongoose =
+  require("mongoose");
 
 // ======================================================
-// ================= PROPERTY SCHEMA ====================
+// ================= IMAGE MODERATION SCHEMA ============
 // ======================================================
 
-const propertySchema =
+const imageSchema =
   new mongoose.Schema(
+
     {
-      // ================= UNIQUE PROPERTY ID =================
+      // ======================================================
+      // ================= IMAGE FILE =========================
+      // ======================================================
 
-      propertyUniqueId: {
-        type: String,
-        unique: true,
-        trim: true,
-      },
-
-      // ================= BASIC INFO =================
-
-      title: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      price: {
-        type: Number,
-        required: true,
-        min: 0,
-        default: 0,
-      },
-
-      // ================= AREA =================
-
-      area: {
-        type: Number,
-        min: 0,
-        default: 0,
-      },
-
-      // ================= AREA UNIT =================
-
-      areaUnit: {
-        type: String,
-
-        enum: [
-          "sqft",
-          "acre",
-        ],
-
-        default: "sqft",
-
-        lowercase: true,
-      },
-
-      // ================= LOCATION =================
-
-      location: {
-        type: String,
-        required: true,
-        trim: true,
-      },
-
-      // ================= TYPE =================
-
-      type: {
-        type: String,
-        trim: true,
-        lowercase: true,
-      },
-
-      // ================= SUB TYPE =================
-
-      subType: {
-        type: String,
-        trim: true,
-        default: "",
-      },
-
-      // ================= CONSTRUCTION =================
-
-      constructionStatus: {
-        type: String,
-        trim: true,
-        lowercase: true,
-      },
-
-      // ================= DESCRIPTION =================
-
-      description: {
-        type: String,
-        trim: true,
-      },
-
-      // ================= BUSINESS STATUS =================
-
-      businessStatus: {
-        type: String,
-
-        enum: [
-          "available",
-          "sold",
-        ],
-
-        default: "available",
-
-        lowercase: true,
-      },
-
-      // ================= NEGOTIATION =================
-
-      underNegotiation: {
-        type: Boolean,
-        default: false,
-      },
-
-      // ================= MAIN IMAGE =================
-
-      image: {
+      filename: {
         type: String,
         default: "",
+        trim: true,
       },
 
-      // ================= MULTIPLE IMAGES =================
-
-      images: [
-        {
-          filename: String,
-
-          url: String,
-
-          uploadedBy: {
-            type:
-              mongoose.Schema.Types
-                .ObjectId,
-
-            ref: "User",
-          },
-
-          status: {
-            type: String,
-            default:
-              "approved",
-          },
-        },
-      ],
-
-      // ================= STATUS =================
-
-      status: {
+      url: {
         type: String,
-
-        enum: [
-          "pending",
-          "approved",
-          "rejected",
-        ],
-
-        default: "approved",
+        default: "",
+        trim: true,
       },
 
-      // ================= OWNER =================
+      // ======================================================
+      // ================= IMAGE OWNER ========================
+      // ======================================================
 
-      createdBy: {
+      uploadedBy: {
+
         type:
           mongoose.Schema.Types
             .ObjectId,
 
         ref: "User",
-
-        required: true,
       },
 
-      createdByRole: {
+      // ======================================================
+      // ================= IMAGE STATUS =======================
+      // ======================================================
+
+      status: {
+
         type: String,
+
+        enum: [
+
+          "pending",
+
+          "approved",
+
+          "rejected",
+
+          "deleted",
+        ],
+
+        default: "pending",
+
+        lowercase: true,
+      },
+
+      // ======================================================
+      // ================= IMAGE MODERATION ===================
+      // ======================================================
+
+      approvedAt: {
+        type: Date,
+      },
+
+      rejectedAt: {
+        type: Date,
+      },
+
+      deletedAt: {
+        type: Date,
+      },
+
+      approvedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      rejectedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      deletedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      rejectionReason: {
+
+        type: String,
+
+        trim: true,
+
         default: "",
       },
 
-      ownerUniqueId: {
+      moderationNote: {
+
         type: String,
+
+        trim: true,
+
         default: "",
-      },
-
-      ownerName: {
-        type: String,
-        default: "",
-      },
-
-      // ================= FEATURED =================
-
-      featured: {
-        type: Boolean,
-        default: false,
-      },
-
-      // ================= PREMIUM =================
-
-      premiumListing: {
-        type: Boolean,
-        default: false,
-      },
-
-      // ================= ANALYTICS =================
-
-      totalViews: {
-        type: Number,
-        default: 0,
-      },
-
-      totalInquiries: {
-        type: Number,
-        default: 0,
       },
     },
 
@@ -219,10 +130,526 @@ const propertySchema =
   );
 
 // ======================================================
+// ================= VERIFICATION LOG SCHEMA ============
+// ======================================================
+
+const verificationLogSchema =
+  new mongoose.Schema(
+
+    {
+      previousStatus: {
+
+        type: String,
+
+        default: "",
+      },
+
+      newStatus: {
+
+        type: String,
+
+        default: "",
+      },
+
+      actionBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      actionByName: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      note: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      rejectionReason: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      timestamp: {
+
+        type: Date,
+
+        default: Date.now,
+      },
+    },
+
+    {
+      _id: false,
+    }
+  );
+
+// ======================================================
+// ================= PROPERTY SCHEMA ====================
+// ======================================================
+
+const propertySchema =
+  new mongoose.Schema(
+
+    {
+      // ======================================================
+      // ================= UNIQUE PROPERTY ID ================
+      // ======================================================
+
+      propertyUniqueId: {
+
+        type: String,
+
+        unique: true,
+
+        trim: true,
+      },
+
+      // ======================================================
+      // ================= BASIC INFO =========================
+      // ======================================================
+
+      title: {
+
+        type: String,
+
+        required: true,
+
+        trim: true,
+      },
+
+      description: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      // ======================================================
+      // ================= PRICE ==============================
+      // ======================================================
+
+      price: {
+
+        type: Number,
+
+        required: true,
+
+        min: 0,
+
+        default: 0,
+      },
+
+      priceUnit: {
+
+        type: String,
+
+        enum: [
+
+          "lac",
+
+          "cr",
+
+          "thousand",
+        ],
+
+        default: "lac",
+
+        lowercase: true,
+      },
+
+      // ======================================================
+      // ================= AREA ===============================
+      // ======================================================
+
+      area: {
+
+        type: Number,
+
+        min: 0,
+
+        default: 0,
+      },
+
+      areaUnit: {
+
+        type: String,
+
+        enum: [
+
+          "sqft",
+
+          "acre",
+        ],
+
+        default: "sqft",
+
+        lowercase: true,
+      },
+
+      // ======================================================
+      // ================= LOCATION ===========================
+      // ======================================================
+
+      location: {
+
+        type: String,
+
+        required: true,
+
+        trim: true,
+      },
+
+      // ======================================================
+      // ================= TYPE ===============================
+      // ======================================================
+
+      type: {
+
+        type: String,
+
+        trim: true,
+
+        lowercase: true,
+
+        index: true,
+      },
+
+      subType: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      constructionStatus: {
+
+        type: String,
+
+        trim: true,
+
+        lowercase: true,
+
+        default: "",
+      },
+
+      // ======================================================
+      // ================= BUSINESS STATUS ====================
+      // ======================================================
+
+      businessStatus: {
+
+        type: String,
+
+        enum: [
+
+          "available",
+
+          "sold",
+        ],
+
+        default: "available",
+
+        lowercase: true,
+      },
+
+      underNegotiation: {
+
+        type: Boolean,
+
+        default: false,
+      },
+
+      // ======================================================
+      // ================= IMAGES =============================
+      // ======================================================
+
+      image: {
+
+        type: String,
+
+        default: "",
+      },
+
+      images: {
+
+        type: [imageSchema],
+
+        default: [],
+      },
+
+      // ======================================================
+      // ================= PROPERTY MODERATION ===============
+      // ======================================================
+
+      status: {
+
+        type: String,
+
+        enum: [
+
+          "pending",
+
+          "approved",
+
+          "rejected",
+
+          "deleted",
+        ],
+
+        default: "pending",
+
+        lowercase: true,
+
+        index: true,
+      },
+
+      // ================= APPROVAL =================
+
+      approvedAt: {
+        type: Date,
+      },
+
+      approvedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      // ================= REJECTION ===============
+
+      rejectedAt: {
+        type: Date,
+      },
+
+      rejectedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      rejectionReason: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      // ================= DELETION ================
+
+      deletedAt: {
+        type: Date,
+      },
+
+      deletedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      // ================= RESTORE =================
+
+      restoredAt: {
+        type: Date,
+      },
+
+      restoredBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      // ======================================================
+      // ================= MODERATION =========================
+      // ======================================================
+
+      moderationNote: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      lastModeratedAt: {
+        type: Date,
+      },
+
+      lastModeratedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      verificationLogs: {
+
+        type: [
+          verificationLogSchema,
+        ],
+
+        default: [],
+      },
+
+      // ======================================================
+      // ================= OWNER ==============================
+      // ======================================================
+
+      createdBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+
+        required: true,
+
+        index: true,
+      },
+
+      createdByRole: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      ownerUniqueId: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      ownerName: {
+
+        type: String,
+
+        trim: true,
+
+        default: "",
+      },
+
+      // ======================================================
+      // ================= FEATURE FLAGS ======================
+      // ======================================================
+
+      featured: {
+
+        type: Boolean,
+
+        default: false,
+      },
+
+      premiumListing: {
+
+        type: Boolean,
+
+        default: false,
+      },
+
+      // ======================================================
+      // ================= ANALYTICS ==========================
+      // ======================================================
+
+      totalViews: {
+
+        type: Number,
+
+        default: 0,
+
+        min: 0,
+      },
+
+      totalInquiries: {
+
+        type: Number,
+
+        default: 0,
+
+        min: 0,
+      },
+    },
+
+    {
+      timestamps: true,
+    }
+  );
+
+// ======================================================
+// ================= PERFORMANCE INDEXES ================
+// ======================================================
+
+propertySchema.index({
+  status: 1,
+  createdAt: -1,
+});
+
+propertySchema.index({
+  createdBy: 1,
+  createdAt: -1,
+});
+
+propertySchema.index({
+  businessStatus: 1,
+});
+
+propertySchema.index({
+  featured: 1,
+});
+
+propertySchema.index({
+  premiumListing: 1,
+});
+
+// ======================================================
 // ================= AUTO PROPERTY ID ===================
 // ======================================================
 
 propertySchema.pre(
+
   "save",
 
   async function (
@@ -231,18 +658,46 @@ propertySchema.pre(
 
     try {
 
+      // ======================================================
+      // ================= AUTO ID ============================
+      // ======================================================
+
       if (
         !this.propertyUniqueId
       ) {
 
         const random =
+
           Math.random()
+
             .toString(36)
+
             .substring(2, 8)
+
             .toUpperCase();
 
         this.propertyUniqueId =
           `RE-${random}`;
+      }
+
+      // ======================================================
+      // ================= SAFE IMAGE =========================
+      // ======================================================
+
+      if (
+
+        !this.image &&
+
+        Array.isArray(
+          this.images
+        ) &&
+
+        this.images.length > 0
+
+      ) {
+
+        this.image =
+          this.images[0]?.url || "";
       }
 
       next();
@@ -259,7 +714,9 @@ propertySchema.pre(
 // ======================================================
 
 module.exports =
-  mongoose.models.Property ||
+
+  mongoose.models
+    .Property ||
 
   mongoose.model(
     "Property",

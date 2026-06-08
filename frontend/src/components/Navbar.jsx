@@ -1,13 +1,23 @@
-import React, { useState } from "react";
+import React, {
+
+  useState,
+
+} from "react";
 
 import {
+
   useNavigate,
+
   useLocation,
+
   Link,
+
 } from "react-router-dom";
 
 import {
+
   Menu,
+
 } from "lucide-react";
 
 import logo from "../assets/logo.png";
@@ -17,139 +27,435 @@ import "../styles/navbar.css";
 
 import { useAuth } from "../context/AuthContext";
 
-// ✅ IMPORT DRAWER
+// ======================================================
+// ================= DRAWER =============================
+// ======================================================
+
 import Drawer from "./Drawer";
+
+// ======================================================
+// ================= NAVBAR =============================
+// ======================================================
 
 function Navbar() {
 
-  const [open, setOpen] = useState(false);
+  // ======================================================
+  // ================= STATES =============================
+  // ======================================================
 
-  const navigate = useNavigate();
-  const location = useLocation();
+  const [open, setOpen] =
+    useState(false);
 
-  const { user, logout, isAuthenticated } = useAuth();
+  // ======================================================
+  // ================= ROUTER =============================
+  // ======================================================
 
-  const role = user?.role;
+  const navigate =
+    useNavigate();
 
-  const closeAll = () => setOpen(false);
+  const location =
+    useLocation();
 
-  const goTo = (path) => {
-    closeAll();
-    navigate(path);
-  };
+  // ======================================================
+  // ================= AUTH ===============================
+  // ======================================================
 
-  const isActive = (path) =>
-    location.pathname === path;
+  const {
 
-  const handleLogout = () => {
-    logout();
-    closeAll();
-    navigate("/");
-  };
+    user,
 
-  const getDashboardRoute = () => {
+    logout,
 
-    if (role === "admin") return "/admin";
-    if (role === "seller") return "/seller-dashboard";
-    if (role === "builder") return "/builder-dashboard";
-    if (role === "agent") return "/seller-dashboard";
+    isAuthenticated,
 
-    return "/";
-  };
+  } = useAuth();
+
+  // ======================================================
+  // ================= ROLE ===============================
+  // ======================================================
+
+  const role =
+    user?.role;
+
+  // ======================================================
+  // ================= CLOSE ==============================
+  // ======================================================
+
+  const closeAll =
+    () => setOpen(false);
+
+  // ======================================================
+  // ================= NAVIGATE ===========================
+  // ======================================================
+
+  const goTo =
+    (path) => {
+
+      closeAll();
+
+      navigate(path);
+    };
+
+  // ======================================================
+  // ================= ACTIVE ROUTE =======================
+  // ======================================================
+
+  const isActive =
+    (path) =>
+
+      location.pathname ===
+      path;
+
+  // ======================================================
+  // ================= LOGOUT =============================
+  // ======================================================
+
+  const handleLogout =
+    () => {
+
+      logout();
+
+      closeAll();
+
+      navigate("/");
+    };
+
+  // ======================================================
+  // ================= DASHBOARD ROUTE ====================
+  // ======================================================
+
+  const getDashboardRoute =
+    () => {
+
+      // ================= ADMIN =================
+
+      if (
+        role === "admin"
+      ) {
+
+        return "/admin";
+      }
+
+      // ================= SELLER ===============
+
+      if (
+        role === "seller"
+      ) {
+
+        return "/seller-dashboard";
+      }
+
+      // ================= BUILDER ==============
+
+      if (
+        role === "builder"
+      ) {
+
+        return "/builder-dashboard";
+      }
+
+      // ================= AGENT ================
+
+      if (
+        role === "agent"
+      ) {
+
+        return "/seller-dashboard";
+      }
+
+      return "/";
+    };
+
+  // ======================================================
+  // ================= PROPERTY ROUTE =====================
+  // ======================================================
+
+  const getPropertyRoute =
+    () => {
+
+      // ================= ADMIN =================
+
+      if (
+        role === "admin"
+      ) {
+
+        return "/admin-properties";
+      }
+
+      // ================= BUILDER ===============
+
+      if (
+        role === "builder"
+      ) {
+
+        return "/builder-properties";
+      }
+
+      // ================= SELLER / AGENT ========
+
+      if (
+
+        role === "seller" ||
+
+        role === "agent"
+      ) {
+
+        return "/my-properties";
+      }
+
+      return "/";
+    };
+
+  // ======================================================
+  // ================= RETURN =============================
+  // ======================================================
 
   return (
+
     <>
-      {/* ================= NAVBAR ================= */}
+
+      {/* ====================================================== */}
+      {/* ================= NAVBAR ============================= */}
+      {/* ====================================================== */}
+
       <div className="navbar">
 
-        {/* LEFT */}
+        {/* ====================================================== */}
+        {/* ================= LEFT =============================== */}
+        {/* ====================================================== */}
+
         <div className="nav-left">
 
           <div
+
             className="logo-wrapper"
-            onClick={() => navigate("/")}
+
+            onClick={() =>
+              navigate("/")
+            }
           >
+
             <img
+
               src={logo}
+
               className="nav-logo"
+
               alt="logo"
             />
 
             <img
+
               src={brandName}
+
               className="brand-name-img"
+
               alt="brand"
             />
+
           </div>
 
         </div>
 
-        {/* RIGHT */}
+        {/* ====================================================== */}
+        {/* ================= RIGHT ============================== */}
+        {/* ====================================================== */}
+
         <div className="nav-right">
 
+          {/* HOME */}
+
           <Link
+
             to="/"
-            className={isActive("/") ? "active" : ""}
+
+            className={
+
+              isActive("/")
+                ? "active"
+                : ""
+            }
           >
+
             Home
+
           </Link>
 
+          {/* ABOUT */}
+
           <Link
+
             to="/about"
-            className={isActive("/about") ? "active" : ""}
+
+            className={
+
+              isActive("/about")
+                ? "active"
+                : ""
+            }
           >
+
             About
+
           </Link>
+
+          {/* CONTACT */}
 
           <Link
+
             to="/contact"
-            className={isActive("/contact") ? "active" : ""}
+
+            className={
+
+              isActive("/contact")
+                ? "active"
+                : ""
+            }
           >
+
             Contact
+
           </Link>
 
-          {/* DASHBOARD */}
-          {isAuthenticated && role !== "buyer" && (
+          {/* ====================================================== */}
+          {/* ================= MY PROPERTIES ====================== */}
+          {/* ====================================================== */}
+
+          {isAuthenticated &&
+
+            role !== "buyer" && (
+
             <Link
-              to={getDashboardRoute()}
-              className={isActive(getDashboardRoute()) ? "active" : ""}
+
+              to={getPropertyRoute()}
+
+              className={
+
+                isActive(
+                  getPropertyRoute()
+                )
+
+                  ? "active"
+
+                  : ""
+              }
             >
-              Dashboard
+
+              My Properties
+
             </Link>
           )}
 
-          {/* LOGIN */}
-          {!isAuthenticated && (
-            <button
-              className="login-btn"
-              onClick={() => navigate("/login")}
+          {/* ====================================================== */}
+          {/* ================= DASHBOARD ========================== */}
+          {/* ====================================================== */}
+
+          {isAuthenticated &&
+
+            role !== "buyer" && (
+
+            <Link
+
+              to={getDashboardRoute()}
+
+              className={
+
+                isActive(
+                  getDashboardRoute()
+                )
+
+                  ? "active"
+
+                  : ""
+              }
             >
+
+              Dashboard
+
+            </Link>
+          )}
+
+          {/* ====================================================== */}
+          {/* ================= LOGIN ============================== */}
+          {/* ====================================================== */}
+
+          {!isAuthenticated && (
+
+            <button
+
+              className="login-btn"
+
+              onClick={() =>
+                navigate(
+                  "/login"
+                )
+              }
+            >
+
               Login
+
             </button>
           )}
 
-          {/* MENU BUTTON */}
+          {/* ====================================================== */}
+          {/* ================= MENU BUTTON ======================== */}
+          {/* ====================================================== */}
+
           <button
+
             className="menu-btn"
-            onClick={() => setOpen(true)}
+
+            onClick={() =>
+              setOpen(true)
+            }
           >
-            <Menu size={26} />
+
+            <Menu
+
+              size={24}
+
+              strokeWidth={2.4}
+            />
+
           </button>
 
         </div>
+
       </div>
 
-      {/* ================= DRAWER (FIXED CONNECTION) ================= */}
+      {/* ====================================================== */}
+      {/* ================= DRAWER ============================= */}
+      {/* ====================================================== */}
+
       <Drawer
+
         open={open}
+
         closeAll={closeAll}
+
         goTo={goTo}
-        isAuthenticated={isAuthenticated}
+
+        isAuthenticated={
+          isAuthenticated
+        }
+
         role={role}
+
         user={user}
-        getDashboardRoute={getDashboardRoute}
-        handleLogout={handleLogout}
+
+        getDashboardRoute={
+          getDashboardRoute
+        }
+
+        getPropertyRoute={
+          getPropertyRoute
+        }
+
+        handleLogout={
+          handleLogout
+        }
       />
+
     </>
   );
 }

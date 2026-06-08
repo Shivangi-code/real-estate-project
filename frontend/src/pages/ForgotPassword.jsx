@@ -99,7 +99,7 @@ export default function ForgotPassword() {
         {/* MOBILE */}
         <input
           name="mobile"
-          placeholder="Mobile (optional)"
+          placeholder="Mobile"
           value={data.mobile}
           onChange={handleChange}
           className="forgot-input"

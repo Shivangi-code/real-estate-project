@@ -73,7 +73,7 @@ export default function PropertyDetails() {
       message: "",
     });
 
-  // ======================================================
+    // ======================================================
   // ================= FETCH PROPERTY =====================
   // ======================================================
 
@@ -82,21 +82,71 @@ export default function PropertyDetails() {
 
       try {
 
+        // ================= START LOADING =================
+
+        setLoading(true);
+
+        // ================= FETCH =========================
+
         const res =
           await fetch(
             `http://localhost:5000/api/properties/${id}`
           );
 
+        // ================= INVALID RESPONSE ==============
+
+        if (!res.ok) {
+
+          setProperty(null);
+
+          return;
+        }
+
+        // ================= RESPONSE ======================
+
         const data =
           await res.json();
 
-        setProperty(data);
+        // ================= SAFE PROPERTY PARSING =========
 
-      } catch {
+        const propertyData =
+
+          data?.property ||
+
+          data?.data ||
+
+          data;
+
+        // ================= INVALID PROPERTY ==============
+
+        if (
+          !propertyData ||
+          !propertyData._id
+        ) {
+
+          setProperty(null);
+
+          return;
+        }
+
+        // ================= SET PROPERTY ==================
+
+        setProperty(
+          propertyData
+        );
+
+      } catch (error) {
+
+        console.log(
+          "PROPERTY FETCH ERROR:",
+          error
+        );
 
         setProperty(null);
 
       } finally {
+
+        // ================= STOP LOADING ==================
 
         setLoading(false);
       }
@@ -168,7 +218,7 @@ export default function PropertyDetails() {
       : property?.image
       ? [property.image]
       : [
-          "https://via.placeholder.com/1200x700?text=Property",
+          "/default-property.jpg",
         ];
 
   // ======================================================
@@ -187,6 +237,57 @@ export default function PropertyDetails() {
 
   const underNegotiation =
     property?.underNegotiation;
+  
+  // ================= PRICE PER UNIT =================
+
+  const pricePerUnit =
+
+  property?.price &&
+  property?.area
+
+    ? Math.round(
+        property.price /
+        property.area
+      )
+
+    : 0;
+
+  // ================= AREA LABEL =================
+
+  const areaLabel =
+
+    property?.area
+
+      ? `${property.area} ${property.areaUnit || "sqft"}`
+
+      : "N/A";
+
+  // ================= PROPERTY STATUS =================
+  // ================= PROPERTY HIGHLIGHTS =================
+
+  const propertyHighlights = [
+
+    property?.type &&
+      `${property.type} Property`,
+
+    property?.subType &&
+      `${property.subType}`,
+
+    property?.constructionStatus &&
+      `${property.constructionStatus}`,
+
+    property?.area &&
+      `Spacious ${property.area} ${property.areaUnit || "sqft"}`,
+
+    property?.location &&
+      `Prime Location`,
+
+  ].filter(Boolean);
+
+  const propertyStatus =
+
+    property?.businessStatus ||
+    "available";
 
   // ======================================================
   // ================= INPUT CHANGE =======================
@@ -412,12 +513,31 @@ export default function PropertyDetails() {
           {/* IMAGE */}
           <img
             src={
-              images[
+              images?.[
                 activeImage
-              ]
+              ] ||
+              "/default-property.jpg"
             }
-            alt="property"
-            className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl"
+            alt={
+              property?.title ||
+              "property"
+            }
+            className="
+              max-h-[90vh]
+              max-w-[95vw]
+
+              object-contain
+
+              rounded-2xl
+            "
+            onError={(e) => {
+
+              e.target.onerror =
+                null;
+
+              e.target.src =
+                "/default-property.jpg";
+            }}
           />
 
           {/* NEXT */}
@@ -491,12 +611,14 @@ export default function PropertyDetails() {
 
               <img
                 src={
-                  images[
+                  images?.[
                     activeImage
-                  ]
+                  ] ||
+                  "/default-property.jpg"
                 }
                 alt={
-                  property.title
+                  property?.title ||
+                  "property"
                 }
                 className="
                   w-full
@@ -508,6 +630,14 @@ export default function PropertyDetails() {
 
                   object-cover
                 "
+                onError={(e) => {
+
+                  e.target.onerror =
+                    null;
+
+                  e.target.src =
+                    "/default-property.jpg";
+                }}
               />
 
               {/* EXPAND */}
@@ -641,10 +771,24 @@ export default function PropertyDetails() {
 
                       <img
                         src={
-                          img
+                          img ||
+                          "/default-property.jpg"
                         }
                         alt="thumb"
-                        className="w-full h-full object-cover"
+                        className="
+                          w-full
+                          h-full
+
+                          object-cover
+                        "
+                        onError={(e) => {
+
+                          e.target.onerror =
+                            null;
+
+                          e.target.src =
+                            "/default-property.jpg";
+                        }}
                       />
 
                     </button>
@@ -715,16 +859,18 @@ export default function PropertyDetails() {
 
                 <IndianRupee size={28} />
 
-                <span className="
-  text-2xl
-  sm:text-3xl
-  lg:text-4xl
+                <span
+                  className="
+                    text-2xl
+                    sm:text-3xl
+                    lg:text-4xl
 
-  font-bold
-">
+                    font-bold
+                  "
+                >
 
                   {formatPrice(
-                    property.price
+                    property?.price
                   )}
 
                 </span>
@@ -763,7 +909,313 @@ export default function PropertyDetails() {
 
               </div>
 
+              {/* ====================================================== */}
+                {/* ================= PROPERTY INFO GRID ================= */}
+                {/* ====================================================== */}
+
+                <div
+                  className="
+                    grid
+
+                    grid-cols-1
+                    sm:grid-cols-2
+                    xl:grid-cols-4
+
+                    gap-4
+                    sm:gap-5
+
+                    mt-8
+                  "
+                >
+
+                  {/* AREA */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Area
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        text-slate-900
+                      "
+                    >
+                      {areaLabel}
+                    </h3>
+
+                  </div>
+
+                  {/* PRICE PER UNIT */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Price/{property?.areaUnit || "sqft"}
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        text-slate-900
+                      "
+                    >
+
+                      {
+                        pricePerUnit > 0
+                          ? `₹ ${pricePerUnit.toLocaleString("en-IN")}`
+                          : "N/A"
+                      }
+
+                    </h3>
+
+                  </div>
+
+                  {/* PROPERTY STATUS */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Property Status
+                    </span>
+
+                    <h3
+                      className={`
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        capitalize
+
+                        ${
+                          propertyStatus === "sold"
+                            ? "text-red-600"
+                            : propertyStatus === "available"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }
+                      `}
+                    >
+                      {propertyStatus}
+                    </h3>
+
+                  </div>
+
+                  {/* CONSTRUCTION STATUS */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Construction
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        capitalize
+
+                        text-slate-900
+                      "
+                    >
+
+                      {
+
+                        property?.constructionStatus ||
+                        "N/A"
+
+                      }
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
+              {/* ====================================================== */}
+              {/* ================= PROPERTY HIGHLIGHTS ================ */}
+              {/* ====================================================== */}
+
+              {propertyHighlights.length > 0 && (
+
+                <div className="mt-8">
+
+                  <h2
+                    className="
+                      text-xl
+                      sm:text-2xl
+
+                      font-bold
+
+                      text-slate-900
+
+                      mb-4
+                    "
+                  >
+                    Property Highlights
+                  </h2>
+
+                  <div
+                    className="
+                      flex
+                      flex-wrap
+
+                      gap-3
+                    "
+                  >
+
+                    {propertyHighlights.map(
+                      (
+                        item,
+                        index
+                      ) => (
+
+                        <div
+                          key={index}
+                          className="
+                            bg-blue-50
+
+                            border
+                            border-blue-100
+
+                            text-blue-700
+
+                            px-4
+                            py-2
+
+                            rounded-full
+
+                            text-sm
+                            sm:text-base
+
+                            font-semibold
+
+                            shadow-sm
+                          "
+                        >
+
+                          {item}
+
+                        </div>
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+              )}
+
               {/* DESCRIPTION */}
+
               <div className="mt-8">
 
                 <h2 className="text-2xl font-bold mb-4">
