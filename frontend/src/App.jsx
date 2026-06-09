@@ -100,6 +100,8 @@ import AdminLayout from "./pages/admin/AdminDashboard";
 
 import Overview from "./pages/admin/Overview";
 
+import AdminProperties from "./pages/admin/AdminProperties";
+
 import PendingProperties from "./pages/admin/PendingProperties";
 
 import ApprovedProperties from "./pages/admin/ApprovedProperties";
@@ -739,6 +741,24 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ====================================================== */}
+        {/* ================= ADMIN PROPERTIES =================== */}
+        {/* ====================================================== */}
+
+        <Route
+          path="admin-properties"
+          element={
+            <ProtectedRoute
+              allowedRoles={[
+                "admin",
+              ]}
+            >
+              <AdminProperties />
+            </ProtectedRoute>
+          }
+        />
+
         {/* ====================================================== */}
         {/* ================= MY PROPERTIES ====================== */}
         {/* ====================================================== */}

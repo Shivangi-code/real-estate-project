@@ -211,6 +211,11 @@ export default function AdminProperties() {
       fetchProperties
     );
 
+    socket.on(
+      "propertyRestored",
+      fetchProperties
+    );
+
     return () => {
 
       socket.off(
@@ -230,6 +235,11 @@ export default function AdminProperties() {
 
       socket.off(
         "propertyRejected",
+        fetchProperties
+      );
+
+      socket.off(
+        "propertyRestored",
         fetchProperties
       );
     };
@@ -390,6 +400,13 @@ export default function AdminProperties() {
             text-red-700
           `;
 
+        case "deleted":
+
+          return `
+            bg-red-200
+            text-red-800
+          `;
+
         default:
 
           return `
@@ -398,6 +415,162 @@ export default function AdminProperties() {
           `;
       }
     };
+
+    // ======================================================
+// ================= DELETE PROPERTY ====================
+// ======================================================
+
+const handleDelete =
+  async (propertyId) => {
+
+    try {
+
+      const confirmed =
+        window.confirm(
+          "Are you sure you want to delete this property?"
+        );
+
+      if (!confirmed) return;
+
+      setActionLoading(
+        propertyId
+      );
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      const res =
+        await fetch(
+
+          `http://localhost:5000/api/properties/delete/${propertyId}`,
+
+          {
+            method: "DELETE",
+
+            headers: {
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+
+        throw new Error(
+          data?.message ||
+          "Delete failed"
+        );
+      }
+
+      toast.success(
+        "Property deleted successfully"
+      );
+
+      fetchProperties();
+
+    } catch (error) {
+
+      console.log(
+        "DELETE PROPERTY ERROR:",
+        error
+      );
+
+      toast.error(
+        error.message ||
+        "Failed to delete property"
+      );
+
+    } finally {
+
+      setActionLoading(
+        null
+      );
+    }
+  };
+
+// ======================================================
+// ================= RESTORE PROPERTY ===================
+// ======================================================
+
+const handleRestore =
+  async (propertyId) => {
+
+    try {
+
+      const confirmed =
+        window.confirm(
+          "Restore this property?"
+        );
+
+      if (!confirmed) return;
+
+      setActionLoading(
+        propertyId
+      );
+
+      const token =
+        localStorage.getItem(
+          "token"
+        );
+
+      const res =
+        await fetch(
+
+          `http://localhost:5000/api/properties/restore/${propertyId}`,
+
+          {
+            method: "PATCH",
+
+            headers: {
+
+              Authorization:
+                `Bearer ${token}`,
+            },
+          }
+        );
+
+      const data =
+        await res.json();
+
+      if (!res.ok) {
+
+        throw new Error(
+          data?.message ||
+          "Restore failed"
+        );
+      }
+
+      toast.success(
+        "Property restored successfully"
+      );
+
+      fetchProperties();
+
+    } catch (error) {
+
+      console.log(
+        "RESTORE PROPERTY ERROR:",
+        error
+      );
+
+      toast.error(
+        error.message ||
+        "Failed to restore property"
+      );
+
+    } finally {
+
+      setActionLoading(
+        null
+      );
+    }
+  };
 
   // ======================================================
   // ================= LOADING ============================
@@ -1013,6 +1186,10 @@ export default function AdminProperties() {
                   Rejected
                 </option>
 
+                <option value="deleted">
+                  Deleted
+                </option>
+
               </select>
 
             </div>
@@ -1224,7 +1401,7 @@ export default function AdminProperties() {
 
                   key={property._id}
 
-                  className="
+                  className={`
                     bg-white
 
                     rounded-[30px]
@@ -1238,8 +1415,21 @@ export default function AdminProperties() {
                     duration-300
 
                     border
-                    border-slate-200
-                  "
+
+                    ${
+                      property?.status ===
+                      "deleted"
+
+                        ? `
+                          border-red-300
+                          opacity-80
+                        `
+
+                        : `
+                          border-slate-200
+                        `
+                    }
+                  `}
                 >
 
                   {/* IMAGE */}
@@ -1471,6 +1661,8 @@ export default function AdminProperties() {
                         className="
                           flex-1
 
+                          min-w-[140px]
+
                           bg-blue-600
                           hover:bg-blue-700
 
@@ -1491,41 +1683,169 @@ export default function AdminProperties() {
                         "
                       >
 
-                        <Eye
-                          size={18}
-                        />
+                        <Eye size={18} />
 
-                        View Details
+                        View
 
                       </button>
+
+                      {/* EDIT */}
+
+                      {property?.status !==
+                        "deleted" && (
+
+                        <button
+
+                          onClick={() =>
+                            navigate(
+                              `/edit-property/${property._id}`
+                            )
+                          }
+
+                          className="
+                            bg-indigo-100
+                            hover:bg-indigo-200
+
+                            text-indigo-700
+
+                            px-5
+
+                            rounded-2xl
+
+                            transition
+
+                            flex
+                            items-center
+                            justify-center
+                          "
+                        >
+
+                          <Pencil size={18} />
+
+                        </button>
+                      )}
 
                       {/* DELETE */}
 
-                      <button
+                      {property?.status !==
+                        "deleted" && (
 
-                        className="
-                          bg-red-100
-                          hover:bg-red-200
+                        <button
 
-                          text-red-700
+                          onClick={() =>
+                            handleDelete(
+                              property._id
+                            )
+                          }
 
-                          px-5
+                          disabled={
+                            actionLoading ===
+                            property._id
+                          }
 
-                          rounded-2xl
+                          className="
+                            bg-red-100
+                            hover:bg-red-200
 
-                          transition
+                            text-red-700
 
-                          flex
-                          items-center
-                          justify-center
-                        "
-                      >
+                            px-5
 
-                        <Trash2
-                          size={18}
-                        />
+                            rounded-2xl
 
-                      </button>
+                            transition
+
+                            disabled:opacity-50
+
+                            flex
+                            items-center
+                            justify-center
+                          "
+                        >
+
+                          {
+                            actionLoading ===
+                            property._id
+
+                              ? (
+                                <Loader2
+                                  size={18}
+                                  className="
+                                    animate-spin
+                                  "
+                                />
+                              )
+
+                              : (
+                                <Trash2
+                                  size={18}
+                                />
+                              )
+                          }
+
+                        </button>
+                      )}
+
+                      {/* RESTORE */}
+
+                      {property?.status ===
+                        "deleted" && (
+
+                        <button
+
+                          onClick={() =>
+                            handleRestore(
+                              property._id
+                            )
+                          }
+
+                          disabled={
+                            actionLoading ===
+                            property._id
+                          }
+
+                          className="
+                            bg-green-100
+                            hover:bg-green-200
+
+                            text-green-700
+
+                            px-5
+
+                            rounded-2xl
+
+                            transition
+
+                            disabled:opacity-50
+
+                            flex
+                            items-center
+                            justify-center
+                          "
+                        >
+
+                          {
+                            actionLoading ===
+                            property._id
+
+                              ? (
+                                <Loader2
+                                  size={18}
+                                  className="
+                                    animate-spin
+                                  "
+                                />
+                              )
+
+                              : (
+                                <RotateCcw
+                                  size={18}
+                                />
+                              )
+                          }
+
+                        </button>
+                      )}
 
                     </div>
 

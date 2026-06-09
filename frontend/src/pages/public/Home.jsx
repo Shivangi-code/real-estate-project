@@ -38,8 +38,9 @@ export default function Home() {
       const data = await res.json();
 
       setProperties(
-        Array.isArray(data)
-          ? data
+
+        Array.isArray(data?.properties)
+          ? data.properties
           : []
       );
 

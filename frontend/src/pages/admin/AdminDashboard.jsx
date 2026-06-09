@@ -868,7 +868,7 @@ export default function AdminDashboard() {
               {/* MY PROPERTIES */}
               <NavLink
 
-                to="/my-properties"
+                to="/admin-properties"
 
                 className={navClass}
 
