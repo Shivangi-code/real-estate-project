@@ -146,13 +146,17 @@ function PropertyCard({
 
         stiffness: 120,
       }}
-      className="property-card"
+      className="
+        property-card
+        w-full
+        min-w-0
+      "
       onClick={openProperty}
     >
 
       {/* ================= IMAGE ================= */}
 
-      <div className="relative overflow-hidden h-[170px]">
+      <div className="relative overflow-hidden h-[220px] sm:h-[190px]">
 
         <motion.img
           src={imageUrl}
@@ -318,7 +322,7 @@ function PropertyCard({
 
         <div className="mt-3">
 
-          <p className={`text-2xl font-bold ${
+          <p className={`text-xl sm:text-2xl font-bold ${
             isSold
               ? "text-red-600"
               : "text-[#071133]"
@@ -429,7 +433,7 @@ function PropertyCard({
 
             openProperty();
           }}
-          className={`w-full mt-3 py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+          className={`w-full mt-3 py-3 sm:py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
             isSold
               ? "bg-red-600 hover:bg-red-700 text-white"
               : "bg-[#071133] hover:bg-[#0b1d57] text-white"

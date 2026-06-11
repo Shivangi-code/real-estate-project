@@ -46,7 +46,7 @@ export default function ForgotPassword() {
       });
 
       setOtpSent(true);
-      setTimer(30);
+      setTimer(60);
 
       alert("OTP sent ✅");
 

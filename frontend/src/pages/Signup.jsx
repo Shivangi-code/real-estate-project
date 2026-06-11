@@ -107,7 +107,7 @@ export default function Signup() {
 
         setOtpSent(true);
 
-        setTimer(30);
+        setTimer(60);
 
         alert(
           "OTP sent successfully ✅"
@@ -327,21 +327,50 @@ export default function Signup() {
             placeholder="Enter OTP"
             value={data.otp}
             onChange={handleChange}
-            className="w-full p-4 pr-32 rounded-2xl bg-white/20 text-white placeholder-white outline-none"
+            className="
+              w-full
+              p-3 sm:p-4
+              pr-28 sm:pr-32
+
+              rounded-2xl
+
+              bg-white/20
+
+              text-white
+              placeholder-white
+
+              outline-none
+            "
           />
 
           <button
             onClick={sendOtp}
 
-            disabled={
-              timer > 0
-            }
+            disabled={timer > 0}
 
-            className={`absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl text-sm text-white ${
-              timer > 0
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className={`
+              absolute
+              right-2
+              top-1/2
+              -translate-y-1/2
+
+              px-2 sm:px-3
+              py-2
+
+              rounded-xl
+
+              text-[10px] sm:text-sm
+
+              text-white
+
+              transition-all
+
+              ${
+                timer > 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700"
+              }
+            `}
           >
 
             {timer > 0
@@ -432,7 +461,23 @@ export default function Signup() {
 
           disabled={loading}
 
-          className="w-full bg-white text-black font-semibold py-2.5 rounded-xl hover:scale-105 transition"
+          className="
+            w-full
+
+            bg-white
+
+            text-black
+
+            font-semibold
+
+            py-3
+
+            rounded-xl
+
+            hover:scale-[1.02]
+
+            transition
+          "
         >
 
           {loading
