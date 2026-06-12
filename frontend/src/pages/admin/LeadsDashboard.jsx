@@ -13,7 +13,6 @@ import {
   CheckCircle,
   Clock3,
   AlertTriangle,
-  ShieldCheck,
   RefreshCcw,
 } from "lucide-react";
 
@@ -31,6 +30,7 @@ export default function LeadsDashboard() {
     useState("all");
 
   // ================= FETCH =================
+
   const fetchLeads =
     async () => {
 
@@ -72,6 +72,7 @@ export default function LeadsDashboard() {
     };
 
   // ================= REALTIME =================
+
   useEffect(() => {
 
     fetchLeads();
@@ -79,6 +80,7 @@ export default function LeadsDashboard() {
     socket.on(
       "leadUpdated",
       () => {
+
         fetchLeads();
       }
     );
@@ -93,6 +95,7 @@ export default function LeadsDashboard() {
   }, []);
 
   // ================= UPDATE STATUS =================
+
   const updateStatus =
     async (
       id,
@@ -132,6 +135,7 @@ export default function LeadsDashboard() {
     };
 
   // ================= BADGE =================
+
   const badge = (
     status
   ) => {
@@ -172,6 +176,7 @@ export default function LeadsDashboard() {
   };
 
   // ================= FILTERED =================
+
   const filteredLeads =
     filter === "all"
       ? leads
@@ -182,6 +187,7 @@ export default function LeadsDashboard() {
         );
 
   // ================= COUNTS =================
+
   const inquiryLeads =
     leads.filter(
       (x) =>
@@ -197,99 +203,274 @@ export default function LeadsDashboard() {
     );
 
   return (
-    <div className="space-y-8">
 
-      {/* HEADER */}
-      <div className="bg-white rounded-3xl p-8 shadow-sm">
+    <div
+      className="
+        min-h-screen
+        bg-slate-100
+        p-4
+        sm:p-6
+        md:p-8
+        overflow-x-hidden
+        space-y-6
+        sm:space-y-8
+      "
+    >
 
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+      {/* ====================================================== */}
+      {/* ================= HEADER ============================= */}
+      {/* ====================================================== */}
+
+      <div
+        className="
+          bg-white
+          rounded-[24px]
+          sm:rounded-3xl
+          p-5
+          sm:p-8
+          shadow-sm
+        "
+      >
+
+        <div
+          className="
+            flex
+            flex-col
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+            gap-5
+          "
+        >
 
           <div>
 
-            <p className="uppercase tracking-widest text-sm text-slate-500">
+            <p
+              className="
+                uppercase
+                tracking-widest
+                text-xs
+                sm:text-sm
+                text-slate-500
+              "
+            >
+
               CRM Dashboard
+
             </p>
 
-            <h1 className="text-4xl font-bold mt-2">
+            <h1
+              className="
+                text-3xl
+                sm:text-4xl
+                font-bold
+                mt-2
+              "
+            >
+
               Leads Management
+
             </h1>
 
-            <p className="text-slate-500 mt-3">
+            <p
+              className="
+                text-slate-500
+                mt-3
+                text-sm
+                sm:text-base
+              "
+            >
+
               Manage inquiry leads,
               contact leads and realtime CRM workflow.
+
             </p>
 
           </div>
 
           {/* LIVE */}
-          <div className="bg-green-100 text-green-700 px-5 py-3 rounded-2xl flex items-center gap-3 font-semibold">
+
+          <div
+            className="
+              bg-green-100
+              text-green-700
+              px-4
+              sm:px-5
+              py-3
+              rounded-2xl
+              flex
+              items-center
+              gap-3
+              font-semibold
+              w-fit
+            "
+          >
 
             <div className="w-3 h-3 rounded-full bg-green-600 animate-pulse" />
 
             Live CRM Active
 
           </div>
+
         </div>
+
       </div>
 
-      {/* STATS */}
-      <div className="grid md:grid-cols-2 xl:grid-cols-5 gap-6">
+      {/* ====================================================== */}
+      {/* ================= STATS ============================== */}
+      {/* ====================================================== */}
+
+      <div
+        className="
+          grid
+          grid-cols-1
+          sm:grid-cols-2
+          xl:grid-cols-5
+          gap-4
+          sm:gap-6
+        "
+      >
 
         {/* TOTAL */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-5
+            sm:p-6
+            shadow-sm
+          "
+        >
 
           <Users className="text-slate-700 mb-4" />
 
           <p className="text-slate-500">
+
             Total Leads
+
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+              font-bold
+              mt-2
+            "
+          >
+
             {leads.length}
+
           </h2>
 
         </div>
 
         {/* INQUIRY */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-5
+            sm:p-6
+            shadow-sm
+          "
+        >
 
           <Building2 className="text-blue-600 mb-4" />
 
           <p className="text-slate-500">
+
             Inquiry Leads
+
           </p>
 
-          <h2 className="text-4xl font-bold mt-2 text-blue-600">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+              font-bold
+              mt-2
+              text-blue-600
+            "
+          >
+
             {inquiryLeads.length}
+
           </h2>
 
         </div>
 
         {/* CONTACT */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-5
+            sm:p-6
+            shadow-sm
+          "
+        >
 
           <MessageSquare className="text-purple-600 mb-4" />
 
           <p className="text-slate-500">
+
             Contact Leads
+
           </p>
 
-          <h2 className="text-4xl font-bold mt-2 text-purple-600">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+              font-bold
+              mt-2
+              text-purple-600
+            "
+          >
+
             {contactLeads.length}
+
           </h2>
 
         </div>
 
         {/* IN PROGRESS */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-5
+            sm:p-6
+            shadow-sm
+          "
+        >
 
           <Clock3 className="text-yellow-600 mb-4" />
 
           <p className="text-slate-500">
+
             In Progress
+
           </p>
 
-          <h2 className="text-4xl font-bold mt-2 text-yellow-600">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+              font-bold
+              mt-2
+              text-yellow-600
+            "
+          >
 
             {
               leads.filter(
@@ -304,15 +485,35 @@ export default function LeadsDashboard() {
         </div>
 
         {/* CLOSED */}
-        <div className="bg-white rounded-3xl p-6 shadow-sm">
+
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-5
+            sm:p-6
+            shadow-sm
+          "
+        >
 
           <CheckCircle className="text-green-600 mb-4" />
 
           <p className="text-slate-500">
+
             Closed Leads
+
           </p>
 
-          <h2 className="text-4xl font-bold mt-2 text-green-600">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+              font-bold
+              mt-2
+              text-green-600
+            "
+          >
 
             {
               leads.filter(
@@ -325,20 +526,40 @@ export default function LeadsDashboard() {
           </h2>
 
         </div>
+
       </div>
 
-      {/* FILTERS */}
-      <div className="flex flex-wrap gap-3">
+      {/* ====================================================== */}
+      {/* ================= FILTERS ============================ */}
+      {/* ====================================================== */}
+
+      <div
+        className="
+          flex
+          flex-wrap
+          gap-3
+        "
+      >
 
         <button
           onClick={() =>
             setFilter("all")
           }
-          className={`px-5 py-3 rounded-2xl font-medium transition ${
-            filter === "all"
-              ? "bg-slate-900 text-white"
-              : "bg-white"
-          }`}
+          className={`
+            px-4
+            sm:px-5
+            py-3
+            rounded-2xl
+            font-medium
+            transition
+            text-sm
+            sm:text-base
+            ${
+              filter === "all"
+                ? "bg-slate-900 text-white"
+                : "bg-white"
+            }
+          `}
         >
 
           All Leads
@@ -351,12 +572,22 @@ export default function LeadsDashboard() {
               "property-inquiry"
             )
           }
-          className={`px-5 py-3 rounded-2xl font-medium transition ${
-            filter ===
-            "property-inquiry"
-              ? "bg-blue-600 text-white"
-              : "bg-white"
-          }`}
+          className={`
+            px-4
+            sm:px-5
+            py-3
+            rounded-2xl
+            font-medium
+            transition
+            text-sm
+            sm:text-base
+            ${
+              filter ===
+              "property-inquiry"
+                ? "bg-blue-600 text-white"
+                : "bg-white"
+            }
+          `}
         >
 
           Inquiry Leads
@@ -369,32 +600,84 @@ export default function LeadsDashboard() {
               "contact-us"
             )
           }
-          className={`px-5 py-3 rounded-2xl font-medium transition ${
-            filter ===
-            "contact-us"
-              ? "bg-purple-600 text-white"
-              : "bg-white"
-          }`}
+          className={`
+            px-4
+            sm:px-5
+            py-3
+            rounded-2xl
+            font-medium
+            transition
+            text-sm
+            sm:text-base
+            ${
+              filter ===
+              "contact-us"
+                ? "bg-purple-600 text-white"
+                : "bg-white"
+            }
+          `}
         >
 
           Contact Leads
 
         </button>
+
       </div>
 
-      {/* TABLE */}
-      <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
+      {/* ====================================================== */}
+      {/* ================= TABLE ============================== */}
+      {/* ====================================================== */}
 
-        <div className="p-6 border-b flex justify-between items-center">
+      <div
+        className="
+          bg-white
+          rounded-[24px]
+          sm:rounded-3xl
+          shadow-sm
+          overflow-hidden
+        "
+      >
+
+        {/* TOP */}
+
+        <div
+          className="
+            p-5
+            sm:p-6
+            border-b
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            sm:justify-between
+            gap-4
+          "
+        >
 
           <div>
 
-            <h2 className="text-2xl font-bold">
+            <h2
+              className="
+                text-xl
+                sm:text-2xl
+                font-bold
+              "
+            >
+
               CRM Leads
+
             </h2>
 
-            <p className="text-slate-500 text-sm mt-1">
+            <p
+              className="
+                text-slate-500
+                text-sm
+                mt-1
+              "
+            >
+
               Realtime inquiry management system
+
             </p>
 
           </div>
@@ -403,33 +686,79 @@ export default function LeadsDashboard() {
             onClick={
               fetchLeads
             }
-            className="bg-slate-100 hover:bg-slate-200 p-3 rounded-2xl transition"
+            className="
+              bg-slate-100
+              hover:bg-slate-200
+              p-3
+              rounded-2xl
+              transition
+              w-fit
+            "
           >
 
             <RefreshCcw size={18} />
 
           </button>
+
         </div>
+
+        {/* LOADING */}
 
         {loading ? (
 
-          <div className="p-10 text-center">
+          <div
+            className="
+              p-10
+              text-center
+            "
+          >
+
             Loading leads...
+
           </div>
 
         ) : filteredLeads.length ===
           0 ? (
 
-          <div className="p-10 text-center">
+          <div
+            className="
+              p-8
+              sm:p-10
+              text-center
+            "
+          >
 
-            <AlertTriangle className="mx-auto mb-4 text-slate-400" size={40} />
+            <AlertTriangle
+              className="
+                mx-auto
+                mb-4
+                text-slate-400
+              "
+              size={40}
+            />
 
-            <h3 className="text-2xl font-bold">
+            <h3
+              className="
+                text-2xl
+                font-bold
+              "
+            >
+
               No Leads Found
+
             </h3>
 
-            <p className="text-slate-500 mt-2">
+            <p
+              className="
+                text-slate-500
+                mt-2
+                text-sm
+                sm:text-base
+              "
+            >
+
               Leads will appear here automatically.
+
             </p>
 
           </div>
@@ -438,7 +767,13 @@ export default function LeadsDashboard() {
 
           <div className="overflow-x-auto">
 
-            <table className="w-full text-sm">
+            <table
+              className="
+                w-full
+                min-w-[1000px]
+                text-sm
+              "
+            >
 
               <thead className="bg-slate-50">
 
@@ -473,6 +808,7 @@ export default function LeadsDashboard() {
                   </th>
 
                 </tr>
+
               </thead>
 
               <tbody>
@@ -484,17 +820,30 @@ export default function LeadsDashboard() {
                       key={
                         lead._id
                       }
-                      className="border-t hover:bg-slate-50 transition"
+                      className="
+                        border-t
+                        hover:bg-slate-50
+                        transition
+                      "
                     >
 
                       {/* BUYER */}
+
                       <td className="p-4">
 
                         <div className="font-semibold">
+
                           {lead.buyerName}
+
                         </div>
 
-                        <div className="text-slate-500 text-xs mt-1">
+                        <div
+                          className="
+                            text-slate-500
+                            text-xs
+                            mt-1
+                          "
+                        >
 
                           {lead.buyerCity ||
                             "N/A"}
@@ -504,28 +853,56 @@ export default function LeadsDashboard() {
                       </td>
 
                       {/* CONTACT */}
-                      <td className="p-4 space-y-2">
 
-                        <div className="flex items-center gap-2">
+                      <td
+                        className="
+                          p-4
+                          space-y-2
+                        "
+                      >
+
+                        <div
+                          className="
+                            flex
+                            items-center
+                            gap-2
+                          "
+                        >
 
                           <Phone size={14} />
 
-                          {lead.buyerMobile}
+                          <span className="whitespace-nowrap">
+
+                            {lead.buyerMobile}
+
+                          </span>
 
                         </div>
 
-                        <div className="flex items-center gap-2 text-slate-500">
+                        <div
+                          className="
+                            flex
+                            items-center
+                            gap-2
+                            text-slate-500
+                          "
+                        >
 
                           <Mail size={14} />
 
-                          {lead.buyerEmail ||
-                            "-"}
+                          <span>
+
+                            {lead.buyerEmail ||
+                              "-"}
+
+                          </span>
 
                         </div>
 
                       </td>
 
                       {/* PROPERTY */}
+
                       <td className="p-4">
 
                         <div className="font-semibold">
@@ -537,7 +914,16 @@ export default function LeadsDashboard() {
 
                         {lead.propertyUniqueId && (
 
-                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2
+                              text-xs
+                              text-slate-500
+                              mt-1
+                            "
+                          >
 
                             <Hash size={12} />
 
@@ -546,35 +932,59 @@ export default function LeadsDashboard() {
                             }
 
                           </div>
+
                         )}
 
                       </td>
 
                       {/* TYPE */}
+
                       <td className="p-4">
 
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium w-fit ${
-                          lead.leadType ===
-                          "contact-us"
-                            ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}>
+                        <div
+                          className={`
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            font-medium
+                            w-fit
+                            ${
+                              lead.leadType ===
+                              "contact-us"
+                                ? "bg-purple-100 text-purple-700"
+                                : "bg-blue-100 text-blue-700"
+                            }
+                          `}
+                        >
 
-                          {lead.leadType ===
-                          "contact-us"
-                            ? "Contact"
-                            : "Inquiry"}
+                          {
+                            lead.leadType ===
+                            "contact-us"
+                              ? "Contact"
+                              : "Inquiry"
+                          }
 
                         </div>
 
                       </td>
 
                       {/* STATUS */}
+
                       <td className="p-4">
 
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${badge(
-                          lead.status
-                        )}`}>
+                        <span
+                          className={`
+                            px-3
+                            py-1
+                            rounded-full
+                            text-xs
+                            font-medium
+                            ${badge(
+                              lead.status
+                            )}
+                          `}
+                        >
 
                           {lead.status}
 
@@ -583,9 +993,16 @@ export default function LeadsDashboard() {
                       </td>
 
                       {/* ACTIONS */}
+
                       <td className="p-4">
 
-                        <div className="flex flex-wrap gap-2">
+                        <div
+                          className="
+                            flex
+                            flex-wrap
+                            gap-2
+                          "
+                        >
 
                           <button
                             onClick={() =>
@@ -594,7 +1011,15 @@ export default function LeadsDashboard() {
                                 "in-progress"
                               )
                             }
-                            className="bg-blue-600 text-white px-3 py-1 rounded-xl text-xs"
+                            className="
+                              bg-blue-600
+                              text-white
+                              px-3
+                              py-2
+                              rounded-xl
+                              text-xs
+                              font-medium
+                            "
                           >
 
                             Progress
@@ -608,7 +1033,15 @@ export default function LeadsDashboard() {
                                 "contacted"
                               )
                             }
-                            className="bg-purple-600 text-white px-3 py-1 rounded-xl text-xs"
+                            className="
+                              bg-purple-600
+                              text-white
+                              px-3
+                              py-2
+                              rounded-xl
+                              text-xs
+                              font-medium
+                            "
                           >
 
                             Contacted
@@ -622,7 +1055,15 @@ export default function LeadsDashboard() {
                                 "closed"
                               )
                             }
-                            className="bg-green-600 text-white px-3 py-1 rounded-xl text-xs"
+                            className="
+                              bg-green-600
+                              text-white
+                              px-3
+                              py-2
+                              rounded-xl
+                              text-xs
+                              font-medium
+                            "
                           >
 
                             Close
@@ -636,7 +1077,15 @@ export default function LeadsDashboard() {
                                 "spam"
                               )
                             }
-                            className="bg-red-600 text-white px-3 py-1 rounded-xl text-xs"
+                            className="
+                              bg-red-600
+                              text-white
+                              px-3
+                              py-2
+                              rounded-xl
+                              text-xs
+                              font-medium
+                            "
                           >
 
                             Spam
@@ -648,22 +1097,34 @@ export default function LeadsDashboard() {
                       </td>
 
                       {/* TIME */}
-                      <td className="p-4 text-slate-500 whitespace-nowrap">
+
+                      <td
+                        className="
+                          p-4
+                          text-slate-500
+                          whitespace-nowrap
+                        "
+                      >
 
                         {new Date(
                           lead.createdAt
                         ).toLocaleString()}
 
                       </td>
+
                     </tr>
                   )
                 )}
 
               </tbody>
+
             </table>
+
           </div>
         )}
+
       </div>
+
     </div>
   );
 }

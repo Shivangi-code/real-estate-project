@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 import AdminDashboard from "../pages/admin/AdminDashboard";
-import SellerDashboard from "../pages/seller/SellerDashboard";
+import SellerDashboard from "../pages/private/SellerDashboard";
 
 import Chat from "../components/Chat";
 import Contact from "../components/Contact";

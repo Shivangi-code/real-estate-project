@@ -73,7 +73,7 @@ export default function PropertyDetails() {
       message: "",
     });
 
-  // ======================================================
+    // ======================================================
   // ================= FETCH PROPERTY =====================
   // ======================================================
 
@@ -82,21 +82,71 @@ export default function PropertyDetails() {
 
       try {
 
+        // ================= START LOADING =================
+
+        setLoading(true);
+
+        // ================= FETCH =========================
+
         const res =
           await fetch(
             `http://localhost:5000/api/properties/${id}`
           );
 
+        // ================= INVALID RESPONSE ==============
+
+        if (!res.ok) {
+
+          setProperty(null);
+
+          return;
+        }
+
+        // ================= RESPONSE ======================
+
         const data =
           await res.json();
 
-        setProperty(data);
+        // ================= SAFE PROPERTY PARSING =========
 
-      } catch {
+        const propertyData =
+
+          data?.property ||
+
+          data?.data ||
+
+          data;
+
+        // ================= INVALID PROPERTY ==============
+
+        if (
+          !propertyData ||
+          !propertyData._id
+        ) {
+
+          setProperty(null);
+
+          return;
+        }
+
+        // ================= SET PROPERTY ==================
+
+        setProperty(
+          propertyData
+        );
+
+      } catch (error) {
+
+        console.log(
+          "PROPERTY FETCH ERROR:",
+          error
+        );
 
         setProperty(null);
 
       } finally {
+
+        // ================= STOP LOADING ==================
 
         setLoading(false);
       }
@@ -168,7 +218,7 @@ export default function PropertyDetails() {
       : property?.image
       ? [property.image]
       : [
-          "https://via.placeholder.com/1200x700?text=Property",
+          "/default-property.jpg",
         ];
 
   // ======================================================
@@ -187,6 +237,57 @@ export default function PropertyDetails() {
 
   const underNegotiation =
     property?.underNegotiation;
+  
+  // ================= PRICE PER UNIT =================
+
+  const pricePerUnit =
+
+  property?.price &&
+  property?.area
+
+    ? Math.round(
+        property.price /
+        property.area
+      )
+
+    : 0;
+
+  // ================= AREA LABEL =================
+
+  const areaLabel =
+
+    property?.area
+
+      ? `${property.area} ${property.areaUnit || "sqft"}`
+
+      : "N/A";
+
+  // ================= PROPERTY STATUS =================
+  // ================= PROPERTY HIGHLIGHTS =================
+
+  const propertyHighlights = [
+
+    property?.type &&
+      `${property.type} Property`,
+
+    property?.subType &&
+      `${property.subType}`,
+
+    property?.constructionStatus &&
+      `${property.constructionStatus}`,
+
+    property?.area &&
+      `Spacious ${property.area} ${property.areaUnit || "sqft"}`,
+
+    property?.location &&
+      `Prime Location`,
+
+  ].filter(Boolean);
+
+  const propertyStatus =
+
+    property?.businessStatus ||
+    "available";
 
   // ======================================================
   // ================= INPUT CHANGE =======================
@@ -402,7 +503,7 @@ export default function PropertyDetails() {
             onClick={
               prevImage
             }
-            className="absolute left-5 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full z-20"
+            className="absolute left-5 bg-white/20 hover:bg-white/30 text-white p-3 sm:p-4 rounded-full z-20"
           >
 
             <ChevronLeft size={32} />
@@ -412,12 +513,31 @@ export default function PropertyDetails() {
           {/* IMAGE */}
           <img
             src={
-              images[
+              images?.[
                 activeImage
-              ]
+              ] ||
+              "/default-property.jpg"
             }
-            alt="property"
-            className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl"
+            alt={
+              property?.title ||
+              "property"
+            }
+            className="
+              max-h-[90vh]
+              max-w-[95vw]
+
+              object-contain
+
+              rounded-2xl
+            "
+            onError={(e) => {
+
+              e.target.onerror =
+                null;
+
+              e.target.src =
+                "/default-property.jpg";
+            }}
           />
 
           {/* NEXT */}
@@ -425,7 +545,7 @@ export default function PropertyDetails() {
             onClick={
               nextImage
             }
-            className="absolute right-5 bg-white/20 hover:bg-white/30 text-white p-4 rounded-full z-20"
+            className="absolute right-5 bg-white/20 hover:bg-white/30 text-white p-3 sm:p-4 rounded-full z-20"
           >
 
             <ChevronRight size={32} />
@@ -456,7 +576,16 @@ export default function PropertyDetails() {
         </button>
 
         {/* MAIN GRID */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div
+          className="
+            grid
+            grid-cols-1
+            lg:grid-cols-3
+
+            gap-5
+            lg:gap-6
+          "
+        >
 
           {/* ====================================================== */}
           {/* ================= LEFT =============================== */}
@@ -465,18 +594,50 @@ export default function PropertyDetails() {
           <div className="lg:col-span-2">
 
             {/* MAIN IMAGE */}
-            <div className="relative rounded-[32px] overflow-hidden shadow-2xl bg-black group">
+            <div className="
+                  relative
+
+                  rounded-[24px]
+                  sm:rounded-[32px]
+
+                  overflow-hidden
+
+                  shadow-2xl
+
+                  bg-black
+
+                  group
+                ">
 
               <img
                 src={
-                  images[
+                  images?.[
                     activeImage
-                  ]
+                  ] ||
+                  "/default-property.jpg"
                 }
                 alt={
-                  property.title
+                  property?.title ||
+                  "property"
                 }
-                className="w-full h-[500px] object-cover"
+                className="
+                  w-full
+
+                  h-[260px]
+                  sm:h-[380px]
+                  md:h-[460px]
+                  lg:h-[500px]
+
+                  object-cover
+                "
+                onError={(e) => {
+
+                  e.target.onerror =
+                    null;
+
+                  e.target.src =
+                    "/default-property.jpg";
+                }}
               />
 
               {/* EXPAND */}
@@ -557,7 +718,21 @@ export default function PropertyDetails() {
             {images.length >
               1 && (
 
-              <div className="flex gap-4 mt-5 overflow-x-auto pb-2">
+              <div className="
+                    flex
+
+                    gap-3
+                    sm:gap-3 sm:p-4
+
+                    mt-4
+                    sm:mt-5
+
+                    overflow-x-auto
+
+                    pb-2
+
+                    scrollbar-hide
+                  ">
 
                 {images.map(
                   (
@@ -574,20 +749,46 @@ export default function PropertyDetails() {
                           index
                         )
                       }
-                      className={`min-w-[110px] h-[85px] rounded-2xl overflow-hidden border-4 transition ${
-                        activeImage ===
-                        index
-                          ? "border-blue-600"
-                          : "border-transparent"
-                      }`}
+                      className={`
+                        min-w-[85px]
+                        sm:min-w-[110px]
+
+                        h-[70px]
+                        sm:h-[85px]
+
+                        rounded-2xl
+                        overflow-hidden
+                        border-4
+                        transition
+
+                        ${
+                          activeImage === index
+                            ? "border-blue-600"
+                            : "border-transparent"
+                        }
+                      `}
                     >
 
                       <img
                         src={
-                          img
+                          img ||
+                          "/default-property.jpg"
                         }
                         alt="thumb"
-                        className="w-full h-full object-cover"
+                        className="
+                          w-full
+                          h-full
+
+                          object-cover
+                        "
+                        onError={(e) => {
+
+                          e.target.onerror =
+                            null;
+
+                          e.target.src =
+                            "/default-property.jpg";
+                        }}
                       />
 
                     </button>
@@ -601,7 +802,20 @@ export default function PropertyDetails() {
             {/* ================= DETAILS ============================ */}
             {/* ====================================================== */}
 
-            <div className="bg-white rounded-[32px] shadow-sm p-8 mt-6">
+            <div className="
+  bg-white
+
+  rounded-[24px]
+  sm:rounded-[32px]
+
+  shadow-sm
+
+  p-5
+  sm:p-8
+
+  mt-5
+  sm:mt-6
+">
 
               {/* PROPERTY ID */}
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
@@ -617,7 +831,15 @@ export default function PropertyDetails() {
               </div>
 
               {/* TITLE */}
-              <h1 className="text-4xl font-bold">
+              <h1 className="
+  text-2xl
+  sm:text-3xl
+  lg:text-4xl
+
+  font-bold
+
+  leading-tight
+">
 
                 {property.title}
 
@@ -637,10 +859,18 @@ export default function PropertyDetails() {
 
                 <IndianRupee size={28} />
 
-                <span className="text-4xl font-bold">
+                <span
+                  className="
+                    text-2xl
+                    sm:text-3xl
+                    lg:text-4xl
+
+                    font-bold
+                  "
+                >
 
                   {formatPrice(
-                    property.price
+                    property?.price
                   )}
 
                 </span>
@@ -679,7 +909,313 @@ export default function PropertyDetails() {
 
               </div>
 
+              {/* ====================================================== */}
+                {/* ================= PROPERTY INFO GRID ================= */}
+                {/* ====================================================== */}
+
+                <div
+                  className="
+                    grid
+
+                    grid-cols-1
+                    sm:grid-cols-2
+                    xl:grid-cols-4
+
+                    gap-4
+                    sm:gap-5
+
+                    mt-8
+                  "
+                >
+
+                  {/* AREA */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Area
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        text-slate-900
+                      "
+                    >
+                      {areaLabel}
+                    </h3>
+
+                  </div>
+
+                  {/* PRICE PER UNIT */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Price/{property?.areaUnit || "sqft"}
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        text-slate-900
+                      "
+                    >
+
+                      {
+                        pricePerUnit > 0
+                          ? `₹ ${pricePerUnit.toLocaleString("en-IN")}`
+                          : "N/A"
+                      }
+
+                    </h3>
+
+                  </div>
+
+                  {/* PROPERTY STATUS */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Property Status
+                    </span>
+
+                    <h3
+                      className={`
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        capitalize
+
+                        ${
+                          propertyStatus === "sold"
+                            ? "text-red-600"
+                            : propertyStatus === "available"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }
+                      `}
+                    >
+                      {propertyStatus}
+                    </h3>
+
+                  </div>
+
+                  {/* CONSTRUCTION STATUS */}
+
+                  <div
+                    className="
+                      bg-slate-50
+
+                      border
+                      border-slate-200
+
+                      rounded-2xl
+
+                      p-4
+                      sm:p-5
+
+                      flex
+                      flex-col
+
+                      gap-2
+                    "
+                  >
+
+                    <span
+                      className="
+                        text-sm
+                        text-slate-500
+
+                        font-medium
+                      "
+                    >
+                      Construction
+                    </span>
+
+                    <h3
+                      className="
+                        text-lg
+                        sm:text-xl
+
+                        font-bold
+
+                        capitalize
+
+                        text-slate-900
+                      "
+                    >
+
+                      {
+
+                        property?.constructionStatus ||
+                        "N/A"
+
+                      }
+
+                    </h3>
+
+                  </div>
+
+                </div>
+
+              {/* ====================================================== */}
+              {/* ================= PROPERTY HIGHLIGHTS ================ */}
+              {/* ====================================================== */}
+
+              {propertyHighlights.length > 0 && (
+
+                <div className="mt-8">
+
+                  <h2
+                    className="
+                      text-xl
+                      sm:text-2xl
+
+                      font-bold
+
+                      text-slate-900
+
+                      mb-4
+                    "
+                  >
+                    Property Highlights
+                  </h2>
+
+                  <div
+                    className="
+                      flex
+                      flex-wrap
+
+                      gap-3
+                    "
+                  >
+
+                    {propertyHighlights.map(
+                      (
+                        item,
+                        index
+                      ) => (
+
+                        <div
+                          key={index}
+                          className="
+                            bg-blue-50
+
+                            border
+                            border-blue-100
+
+                            text-blue-700
+
+                            px-4
+                            py-2
+
+                            rounded-full
+
+                            text-sm
+                            sm:text-base
+
+                            font-semibold
+
+                            shadow-sm
+                          "
+                        >
+
+                          {item}
+
+                        </div>
+                      )
+                    )}
+
+                  </div>
+
+                </div>
+              )}
+
               {/* DESCRIPTION */}
+
               <div className="mt-8">
 
                 <h2 className="text-2xl font-bold mb-4">
@@ -688,7 +1224,15 @@ export default function PropertyDetails() {
 
                 </h2>
 
-                <p className="text-slate-600 leading-8 text-lg">
+                <p className="
+                    text-slate-600
+
+                    leading-7
+                    sm:leading-8
+
+                    text-base
+                    sm:text-lg
+                  ">
 
                   {property.description}
 
@@ -707,13 +1251,31 @@ export default function PropertyDetails() {
           <div>
 
             {/* CONTACT CARD */}
-            <div className="bg-white rounded-[32px] shadow-sm p-8 sticky top-6">
+            <div className="
+              bg-white
+
+              rounded-[24px]
+              sm:rounded-[32px]
+
+              shadow-sm
+
+              p-5
+              sm:p-8
+
+              lg:sticky
+              lg:top-6
+            ">
 
               <div className="flex items-center gap-3 mb-6">
 
                 <Building2 className="text-blue-700" />
 
-                <h2 className="text-2xl font-bold">
+                <h2 className="
+                text-xl
+                sm:text-2xl
+
+                font-bold
+              ">
 
                   Inquiry Form
 
@@ -724,7 +1286,7 @@ export default function PropertyDetails() {
               {/* SUCCESS */}
               {success && (
 
-                <div className="bg-green-100 text-green-700 px-4 py-3 rounded-2xl mb-5">
+                <div className="bg-green-100 text-green-700 px-4 py-3.5 rounded-2xl mb-5">
 
                   {success}
 
@@ -734,7 +1296,7 @@ export default function PropertyDetails() {
               {/* ERROR */}
               {error && (
 
-                <div className="bg-red-100 text-red-700 px-4 py-3 rounded-2xl mb-5">
+                <div className="bg-red-100 text-red-700 px-4 py-3.5 rounded-2xl mb-5">
 
                   {error}
 
@@ -780,7 +1342,7 @@ export default function PropertyDetails() {
                         handleChange
                       }
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                   </div>
@@ -806,7 +1368,7 @@ export default function PropertyDetails() {
                         handleChange
                       }
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                   </div>
@@ -832,7 +1394,7 @@ export default function PropertyDetails() {
                         handleChange
                       }
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                   </div>
@@ -856,7 +1418,7 @@ export default function PropertyDetails() {
                         handleChange
                       }
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
                     />
 
                   </div>
@@ -880,7 +1442,7 @@ export default function PropertyDetails() {
                         handleChange
                       }
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
 
                   </div>
@@ -891,11 +1453,32 @@ export default function PropertyDetails() {
                     disabled={
                       sending
                     }
-                    className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-3 transition ${
-                      sending
-                        ? "bg-slate-400 cursor-not-allowed"
-                        : "bg-blue-600 hover:bg-blue-700 text-white"
-                    }`}
+                    className={`
+                      w-full
+
+                      py-3.5
+                      sm:py-4
+
+                      rounded-2xl
+
+                      font-bold
+
+                      text-base
+                      sm:text-lg
+
+                      flex
+                      items-center
+                      justify-center
+                      gap-3
+
+                      transition
+
+                      ${
+                        sending
+                          ? "bg-slate-400 cursor-not-allowed"
+                          : "bg-blue-600 hover:bg-blue-700 text-white"
+                      }
+                    `}
                   >
 
                     <Send size={20} />

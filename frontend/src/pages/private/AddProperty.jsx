@@ -8,7 +8,9 @@ function AddProperty() {
   const navigate =
     useNavigate();
 
-  // ================= FORM DATA =================
+  // ======================================================
+  // ================= FORM DATA ==========================
+  // ======================================================
 
   const [formData,
     setFormData] =
@@ -24,28 +26,41 @@ function AddProperty() {
       area: "",
       areaUnit: "sqft",
 
+      // LOCATION
       location: "",
 
+      // CATEGORY TYPE
       type: "",
 
+      // SUB TYPE
+      subType: "",
+
+      // CONSTRUCTION
       constructionStatus: "",
 
+      // DESCRIPTION
       description: "",
     });
 
-  // ================= IMAGES =================
+  // ======================================================
+  // ================= IMAGES =============================
+  // ======================================================
 
   const [images,
     setImages] =
     useState([]);
 
-  // ================= LOADING =================
+  // ======================================================
+  // ================= LOADING ============================
+  // ======================================================
 
   const [loading,
     setLoading] =
     useState(false);
 
-  // ================= HANDLE CHANGE =================
+  // ======================================================
+  // ================= HANDLE CHANGE ======================
+  // ======================================================
 
   const handleChange =
     (e) => {
@@ -59,7 +74,9 @@ function AddProperty() {
       });
     };
 
-  // ================= HANDLE IMAGES =================
+  // ======================================================
+  // ================= HANDLE IMAGES ======================
+  // ======================================================
 
   const handleImage =
     (e) => {
@@ -71,7 +88,9 @@ function AddProperty() {
       );
     };
 
-  // ================= SUBMIT =================
+  // ======================================================
+  // ================= SUBMIT =============================
+  // ======================================================
 
   const handleSubmit =
     async (e) => {
@@ -90,7 +109,9 @@ function AddProperty() {
         const data =
           new FormData();
 
-        // ================= APPEND FORM DATA =================
+        // ======================================================
+        // ================= APPEND FORM DATA ===================
+        // ======================================================
 
         Object.keys(
           formData
@@ -102,7 +123,9 @@ function AddProperty() {
           );
         });
 
-        // ================= MULTIPLE IMAGES =================
+        // ======================================================
+        // ================= MULTIPLE IMAGES ====================
+        // ======================================================
 
         images.forEach((img) => {
 
@@ -112,7 +135,9 @@ function AddProperty() {
           );
         });
 
-        // ================= API =================
+        // ======================================================
+        // ================= API ================================
+        // ======================================================
 
         const res =
           await axios.post(
@@ -162,6 +187,32 @@ function AddProperty() {
       }
     };
 
+  // ======================================================
+  // ================= SUBTYPE OPTIONS ====================
+  // ======================================================
+
+  const subTypeOptions = {
+
+    Residential: [
+      "House",
+      "Villa",
+      "Flat",
+      "Plot",
+    ],
+
+    Commercial: [
+      "Office",
+      "Shop",
+      "Showroom",
+      "Commercial Land",
+    ],
+
+    Agriculture: [
+      "Farm Land",
+      "Agriculture Land",
+    ],
+  };
+
   return (
 
     <div className="add-wrapper">
@@ -169,9 +220,7 @@ function AddProperty() {
       <div className="add-box">
 
         <h1>
-
           Add New Property
-
         </h1>
 
         <form
@@ -181,14 +230,14 @@ function AddProperty() {
           className="space-y-6"
         >
 
-          {/* ================= TITLE ================= */}
+          {/* ====================================================== */}
+          {/* ================= TITLE ============================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
-
               Property Title
-
             </label>
 
             <input
@@ -200,21 +249,22 @@ function AddProperty() {
               onChange={
                 handleChange
               }
+              placeholder="Enter property title"
               required
             />
 
           </div>
 
-          {/* ================= PRICE ================= */}
+          {/* ====================================================== */}
+          {/* ================= PRICE ============================== */}
+          {/* ====================================================== */}
 
           <div className="grid-2">
 
             <div>
 
               <label>
-
                 Price
-
               </label>
 
               <input
@@ -235,9 +285,7 @@ function AddProperty() {
             <div>
 
               <label>
-
                 Price Unit
-
               </label>
 
               <select
@@ -264,16 +312,16 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= AREA ================= */}
+          {/* ====================================================== */}
+          {/* ================= AREA =============================== */}
+          {/* ====================================================== */}
 
           <div className="grid-2">
 
             <div>
 
               <label>
-
                 Area
-
               </label>
 
               <input
@@ -293,9 +341,7 @@ function AddProperty() {
             <div>
 
               <label>
-
                 Area Unit
-
               </label>
 
               <select
@@ -322,14 +368,14 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= LOCATION ================= */}
+          {/* ====================================================== */}
+          {/* ================= LOCATION =========================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
-
               Location
-
             </label>
 
             <input
@@ -341,19 +387,20 @@ function AddProperty() {
               onChange={
                 handleChange
               }
+              placeholder="Enter property location"
               required
             />
 
           </div>
 
-          {/* ================= TYPE ================= */}
+          {/* ====================================================== */}
+          {/* ================= TYPE =============================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
-
-              Property Type
-
+              Property Category
             </label>
 
             <select
@@ -361,51 +408,94 @@ function AddProperty() {
               value={
                 formData.type
               }
-              onChange={
-                handleChange
-              }
+              onChange={(e) => {
+
+                setFormData({
+
+                  ...formData,
+
+                  type:
+                    e.target.value,
+
+                  // RESET SUBTYPE
+                  subType: "",
+                });
+              }}
+              required
             >
 
               <option value="">
                 Select Type
               </option>
 
-              <option value="flat">
-                Flat
+              <option value="Residential">
+                Residential
               </option>
 
-              <option value="villa">
-                Villa
+              <option value="Commercial">
+                Commercial
               </option>
 
-              <option value="house">
-                House
-              </option>
-
-              <option value="plot">
-                Plot
-              </option>
-
-              <option value="farm land">
-                Farm Land
-              </option>
-
-              <option value="office">
-                Office
+              <option value="Agriculture">
+                Agriculture
               </option>
 
             </select>
 
           </div>
 
-          {/* ================= CONSTRUCTION ================= */}
+          {/* ====================================================== */}
+          {/* ================= SUB TYPE =========================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
+              Property Sub Type
+            </label>
 
+            <select
+              name="subType"
+              value={
+                formData.subType
+              }
+              onChange={
+                handleChange
+              }
+              required
+            >
+
+              <option value="">
+                Select Sub Type
+              </option>
+
+              {formData.type &&
+                subTypeOptions[
+                  formData.type
+                ]?.map(
+                  (item) => (
+
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                  )
+                )}
+
+            </select>
+
+          </div>
+
+          {/* ====================================================== */}
+          {/* ================= CONSTRUCTION ======================= */}
+          {/* ====================================================== */}
+
+          <div>
+
+            <label>
               Construction Status
-
             </label>
 
             <select
@@ -422,15 +512,15 @@ function AddProperty() {
                 Select Status
               </option>
 
-              <option value="ready to move">
+              <option value="Ready To Move">
                 Ready To Move
               </option>
 
-              <option value="under construction">
+              <option value="Under Construction">
                 Under Construction
               </option>
 
-              <option value="new launch">
+              <option value="New Launch">
                 New Launch
               </option>
 
@@ -438,18 +528,18 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= DESCRIPTION ================= */}
+          {/* ====================================================== */}
+          {/* ================= DESCRIPTION ======================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
-
               Description
-
             </label>
 
             <textarea
-              rows="4"
+              rows="5"
               name="description"
               value={
                 formData.description
@@ -457,18 +547,19 @@ function AddProperty() {
               onChange={
                 handleChange
               }
+              placeholder="Enter property description"
             />
 
           </div>
 
-          {/* ================= MULTIPLE IMAGES ================= */}
+          {/* ====================================================== */}
+          {/* ================= MULTIPLE IMAGES ==================== */}
+          {/* ====================================================== */}
 
           <div>
 
             <label>
-
               Property Images
-
             </label>
 
             <input
@@ -480,7 +571,9 @@ function AddProperty() {
               }
             />
 
-            {/* IMAGE PREVIEW */}
+            {/* ====================================================== */}
+            {/* ================= IMAGE PREVIEW ====================== */}
+            {/* ====================================================== */}
 
             {images.length > 0 && (
 
@@ -502,7 +595,9 @@ function AddProperty() {
 
           </div>
 
-          {/* ================= BUTTON ================= */}
+          {/* ====================================================== */}
+          {/* ================= BUTTON ============================= */}
+          {/* ====================================================== */}
 
           <button
             type="submit"

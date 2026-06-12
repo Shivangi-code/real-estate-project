@@ -56,6 +56,14 @@ export default function Properties() {
       ) || ""
     );
 
+  const [subType,
+  setSubType] =
+  useState(
+    searchParams.get(
+      "subType"
+    ) || ""
+  );
+
   const [maxPrice,
     setMaxPrice] =
     useState(
@@ -63,6 +71,29 @@ export default function Properties() {
         "maxPrice"
       ) || ""
     );
+// ================= SUB TYPES =================
+
+const subTypeOptions = {
+
+  Residential: [
+    "House",
+    "Plot",
+    "Villa",
+    "Flat",
+  ],
+
+  Commercial: [
+    "Office",
+    "Shop",
+    "Showroom",
+    "Commercial Land",
+  ],
+
+  Agriculture: [
+    "Farm Land",
+    "Agriculture Land",
+  ],
+};
 
   const [sort,
     setSort] =
@@ -84,6 +115,9 @@ export default function Properties() {
     if (type)
       params.type = type;
 
+    if (subType)
+      params.subType = subType;
+
     if (maxPrice)
       params.maxPrice =
         maxPrice;
@@ -91,11 +125,12 @@ export default function Properties() {
     if (sort)
       params.sort = sort;
 
-    setSearchParams(params);
+    setSearchParams(params, { replace: true });
 
   }, [
     search,
     type,
+    subType,
     maxPrice,
     sort,
   ]);
@@ -128,6 +163,14 @@ export default function Properties() {
           );
         }
 
+        if (subType) {
+
+          params.append(
+            "subType",
+            subType
+          );
+        }
+
         if (maxPrice) {
 
           params.append(
@@ -140,7 +183,7 @@ export default function Properties() {
 
         const res =
           await fetch(
-            `http://localhost:5000/api/properties?${params.toString()}`
+            `http://localhost:5000/api/properties/approved?${params.toString()}`
           );
 
         const data =
@@ -148,12 +191,11 @@ export default function Properties() {
 
         // ================= IMPORTANT FIX =================
 
-        let updated =
-          Array.isArray(
-            data?.properties
-          )
-            ? data.properties
-            : [];
+        let updated = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.properties)
+          ? data.properties
+          : [];
 
         // ================= SORT =================
 
@@ -215,6 +257,7 @@ export default function Properties() {
   }, [
     search,
     type,
+    subType,
     maxPrice,
     sort,
   ]);
@@ -241,6 +284,7 @@ export default function Properties() {
   }, [
     search,
     type,
+    subType,
     maxPrice,
     sort,
   ]);
@@ -252,6 +296,7 @@ export default function Properties() {
 
       setSearch("");
       setType("");
+      setSubType("");
       setMaxPrice("");
       setSort("");
     };
@@ -293,7 +338,20 @@ export default function Properties() {
       {/* HERO SECTION */}
 
       <section
-        className="text-white px-6 md:px-10 py-24 relative overflow-hidden"
+        className="
+          text-white
+
+          px-4
+          sm:px-6
+          md:px-10
+
+          py-16
+          sm:py-20
+          md:py-24
+
+          relative
+          overflow-hidden
+        "
         style={{
           backgroundImage: `
             linear-gradient(
@@ -342,7 +400,15 @@ export default function Properties() {
 
             </p>
 
-            <h1 className="text-5xl md:text-7xl font-black leading-tight">
+            <h1 className="
+                  text-3xl
+                  sm:text-5xl
+                  md:text-7xl
+
+                  font-black
+
+                  leading-tight
+                ">
 
               <span className="text-white">
 
@@ -372,7 +438,23 @@ export default function Properties() {
 
             </div>
 
-            <div className="mt-8 text-xl md:text-2xl text-slate-200 leading-10 font-light max-w-3xl">
+            <div className="
+                  mt-6
+                  sm:mt-8
+
+                  text-base
+                  sm:text-xl
+                  md:text-2xl
+
+                  text-slate-200
+
+                  leading-8
+                  sm:leading-10
+
+                  font-light
+
+                  max-w-3xl
+                ">
 
               <TypeAnimation
                 sequence={[
@@ -398,13 +480,47 @@ export default function Properties() {
 
       {/* FILTER BAR */}
 
-      <section className="max-w-7xl mx-auto px-6 md:px-10 -mt-12 relative z-20">
+      <section className="
+                max-w-7xl
+                mx-auto
 
-        <div className="bg-white rounded-3xl shadow-xl p-5 grid lg:grid-cols-4 gap-4">
+                px-4
+                sm:px-6
+                md:px-10
+
+                -mt-8
+                sm:-mt-10
+                md:-mt-12
+
+                relative
+                z-20
+              ">
+
+        <div className="
+          bg-white
+
+          rounded-[24px]
+          sm:rounded-3xl
+
+          shadow-xl
+
+          p-4
+          sm:p-5
+
+          grid
+
+          grid-cols-1
+          sm:grid-cols-2
+          md:grid-cols-2
+          xl:grid-cols-5
+
+          gap-3
+          sm:gap-4
+        ">
 
           {/* SEARCH */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
 
             <Search
               size={18}
@@ -415,11 +531,15 @@ export default function Properties() {
               type="text"
               placeholder="Search city or property"
               value={search}
-              onChange={(e) =>
+              onChange={(e) => {
+
                 setSearch(
                   e.target.value
-                )
-              }
+                );
+
+                // RESET SUBTYPE
+                setSubType("");
+              }}
               className="w-full outline-none"
             />
 
@@ -427,7 +547,7 @@ export default function Properties() {
 
           {/* TYPE */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
 
             <Building2
               size={18}
@@ -436,11 +556,15 @@ export default function Properties() {
 
             <select
               value={type}
-              onChange={(e) =>
+              onChange={(e) => {
+
                 setType(
                   e.target.value
-                )
-              }
+                );
+
+                // RESET SUBTYPE
+                setSubType("");
+              }}
               className="w-full outline-none bg-transparent"
             >
 
@@ -448,17 +572,67 @@ export default function Properties() {
                 All Types
               </option>
 
-              <option value="residential">
+              <option value="Residential">
                 Residential
               </option>
 
-              <option value="commercial">
+              <option value="Commercial">
                 Commercial
               </option>
 
-              <option value="agriculture">
+              <option value="Agriculture">
                 Agriculture
               </option>
+
+            </select>
+
+          </div>
+          
+          {/* SUB TYPE */}
+
+          <div className="
+            flex items-center gap-3
+            border rounded-2xl
+            px-4 py-3.5 sm:py-4
+          ">
+
+            <Home
+              size={18}
+              className="text-slate-500"
+            />
+
+            <select
+              value={subType}
+              onChange={(e) =>
+                setSubType(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                outline-none
+                bg-transparent
+                text-sm
+                sm:text-base
+              "
+            >
+
+              <option value="">
+                All Sub Types
+              </option>
+
+              {type &&
+                subTypeOptions[type]?.map(
+                  (item) => (
+
+                    <option
+                      key={item}
+                      value={item}
+                    >
+                      {item}
+                    </option>
+                    )
+                )}
 
             </select>
 
@@ -466,7 +640,7 @@ export default function Properties() {
 
           {/* PRICE */}
 
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
+          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
 
             <IndianRupee
               size={18}
@@ -528,13 +702,45 @@ export default function Properties() {
 
       {/* LISTINGS */}
 
-      <section className="max-w-7xl mx-auto px-6 md:px-10 py-12">
+      <section className="
+        max-w-7xl
+        mx-auto
 
-        <div className="flex justify-between items-center mb-8">
+        px-4
+        sm:px-6
+        md:px-10
+
+        py-8
+        sm:py-12
+      ">
+
+        <div className="
+          flex
+
+          flex-col
+          sm:flex-row
+
+          justify-between
+
+          items-start
+          sm:items-center
+
+          gap-4
+
+          mb-6
+          sm:mb-8
+        ">
 
           <div>
 
-            <h2 className="text-2xl font-bold">
+            <h2
+              className="
+                text-xl
+                sm:text-2xl
+
+                font-bold
+              "
+            >
 
               Available Properties
 
@@ -545,7 +751,36 @@ export default function Properties() {
               {properties.length}
               {" "}
               properties found
+              <button
+                onClick={clearFilters}
+                className="
+                  mt-3
+                  inline-flex
+                  items-center
+                  gap-2
 
+                  bg-slate-900
+                  hover:bg-slate-700
+
+                  text-white
+
+                  px-4
+                  py-2
+
+                  rounded-xl
+
+                  text-sm
+                  font-medium
+
+                  transition-all
+                "
+              >
+
+                <X size={16} />
+
+                Clear Filters
+
+              </button>
             </p>
 
           </div>
@@ -562,7 +797,19 @@ export default function Properties() {
 
         ) : properties.length === 0 ? (
 
-          <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+          <div className="
+  bg-white
+
+  rounded-[24px]
+  sm:rounded-3xl
+
+  p-6
+  sm:p-12
+
+  text-center
+
+  shadow-sm
+">
 
             <h3 className="text-2xl font-bold">
 
@@ -580,7 +827,16 @@ export default function Properties() {
 
         ) : (
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
+          <div className="
+              grid
+
+              grid-cols-1
+              sm:grid-cols-2
+              xl:grid-cols-3
+
+              gap-4
+              sm:gap-6
+            ">
 
             {properties.map(
               (

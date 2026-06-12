@@ -21,7 +21,8 @@
 
   white-space: nowrap;
 
-  overflow: hidden;
+  overflow-x: hidden;
+
 }
 
 /* ================= GOLDEN MOVING LIGHT ================= */
@@ -282,4 +283,114 @@
   border-color: rgba(212,175,55,0.35);
 
   box-shadow: 0 14px 32px rgba(212,175,55,0.16);
+}
+
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    height: 68px;
+    padding: 0 14px;
+  }
+
+  .nav-logo {
+    height: 56px;
+  }
+
+  .brand-name-img {
+    height: 48px;
+    margin-left: -36px;
+  }
+
+  .nav-right {
+    gap: 0;
+  }
+
+  /* Hide desktop menu links */
+
+  .nav-right a,
+  .login-btn {
+    display: none;
+  }
+
+  /* Show hamburger only */
+
+  .menu-btn {
+    width: 46px;
+    height: 46px;
+    display: flex;
+  }
+}
+
+/* ================= TABLET ================= */
+
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .navbar {
+    padding: 0 18px;
+  }
+
+  .brand-name-img {
+    height: 65px;
+    margin-left: -48px;
+  }
+
+  .nav-right {
+    gap: 16px;
+  }
+
+  .nav-right a,
+  .login-btn {
+    font-size: 15px;
+  }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .navbar {
+
+    height: 66px;
+
+    padding: 0 12px;
+  }
+
+  .nav-logo {
+
+    height: 52px;
+  }
+
+  .brand-name-img {
+
+    height: 44px;
+
+    margin-left: -32px;
+  }
+
+  .menu-btn {
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 14px;
+  }
+}
+
+/* ================= ULTRA SMOOTH ================= */
+
+.navbar,
+.menu-btn,
+.nav-right a,
+.login-btn {
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ================= BETTER TOUCH ================= */
+
+.menu-btn {
+
+  touch-action: manipulation;
 }
