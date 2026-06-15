@@ -25,7 +25,7 @@ const generateToken = (user) => {
 
     {
       expiresIn: "7d",
-    }
+    },
   );
 };
 
@@ -35,7 +35,6 @@ const generateToken = (user) => {
 
 router.post("/send-otp", async (req, res) => {
   try {
-
     const { mobile } = req.body;
 
     if (!mobile) {
@@ -46,77 +45,54 @@ router.post("/send-otp", async (req, res) => {
 
     // ================= FIND USER =================
 
-    const existingUser =
-      await User.findOne({
-        mobile,
-      });
+    const existingUser = await User.findOne({
+      mobile,
+    });
 
     if (!existingUser) {
       return res.status(404).json({
-        message:
-          "User not found. Please signup first.",
+        message: "User not found. Please signup first.",
       });
     }
 
     // ================= EXISTING OTP =================
 
-    const existingOtp =
-      await Otp.findOne({
-        mobile,
-        purpose: "login",
-      });
+    const existingOtp = await Otp.findOne({
+      mobile,
+      purpose: "login",
+    });
 
     // ================= BLOCKED =================
 
-    if (
-      existingOtp?.blocked &&
-      existingOtp?.blockedUntil >
-        new Date()
-    ) {
+    if (existingOtp?.blocked && existingOtp?.blockedUntil > new Date()) {
       return res.status(429).json({
-        message:
-          "Too many attempts. Try again later.",
+        message: "Too many attempts. Try again later.",
       });
     }
 
     // ================= COOLDOWN =================
 
-    if (
-      existingOtp?.resendAvailableAt >
-      new Date()
-    ) {
+    if (existingOtp?.resendAvailableAt > new Date()) {
       const seconds = Math.ceil(
-        (
-          existingOtp.resendAvailableAt -
-          new Date()
-        ) / 1000
+        (existingOtp.resendAvailableAt - new Date()) / 1000,
       );
 
       return res.status(429).json({
-        message:
-          `Please wait ${seconds}s before requesting another OTP`,
+        message: `Please wait ${seconds}s before requesting another OTP`,
       });
     }
 
     // ================= RESEND LIMIT =================
 
-    if (
-      existingOtp?.resendCount >= 3
-    ) {
-
+    if (existingOtp?.resendCount >= 3) {
       existingOtp.blocked = true;
 
-      existingOtp.blockedUntil =
-        new Date(
-          Date.now() +
-            15 * 60 * 1000
-        );
+      existingOtp.blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
 
       await existingOtp.save();
 
       return res.status(429).json({
-        message:
-          "Too many OTP requests. Try again after 15 minutes.",
+        message: "Too many OTP requests. Try again after 15 minutes.",
       });
     }
 
@@ -142,45 +118,29 @@ router.post("/send-otp", async (req, res) => {
 
       purpose: "login",
 
-      resendCount:
-        existingOtp
-          ? existingOtp.resendCount + 1
-          : 1,
+      resendCount: existingOtp ? existingOtp.resendCount + 1 : 1,
 
-      resendAvailableAt:
-        new Date(
-          Date.now() +
-            30 * 1000
-        ),
+      resendAvailableAt: new Date(Date.now() + 30 * 1000),
 
-      ipAddress:
-        req.ip,
+      ipAddress: req.ip,
 
-      userAgent:
-        req.headers[
-          "user-agent"
-        ],
+      userAgent: req.headers["user-agent"],
     });
 
     await sendSMS(
       mobile,
-      otp
+      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
     );
 
     res.json({
       success: true,
 
-      message:
-        "OTP sent successfully",
+      message: "OTP sent successfully",
     });
-
   } catch (error) {
-
     console.log(
       "SEND OTP ERROR:",
-      error.response?.data ||
-      error.message ||
-      error
+      error.response?.data || error.message || error,
     );
 
     res.status(500).json({
@@ -195,73 +155,46 @@ router.post("/send-otp", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-
-    const {
-      mode,
-      email,
-      mobile,
-      password,
-      otp,
-    } = req.body;
+    const { mode, email, mobile, password, otp } = req.body;
 
     // ======================================================
     // ================= EMAIL PASSWORD =====================
     // ======================================================
 
-    if (
-      mode ===
-      "email-password"
-    ) {
-
-      if (
-        !email ||
-        !password
-      ) {
+    if (mode === "email-password") {
+      if (!email || !password) {
         return res.status(400).json({
-          message:
-            "Email & password required",
+          message: "Email & password required",
         });
       }
 
-      const user =
-        await User.findOne({
-          email,
-        }).select(
-          "+password"
-        );
+      const user = await User.findOne({
+        email,
+      }).select("+password");
 
       if (!user) {
         return res.status(400).json({
-          message:
-            "User not found",
+          message: "User not found",
         });
       }
 
       if (!user.password) {
         return res.status(400).json({
-          message:
-            "Password not set for this account",
+          message: "Password not set for this account",
         });
       }
 
-      const match =
-        await bcrypt.compare(
-          password,
-          user.password
-        );
+      const match = await bcrypt.compare(password, user.password);
 
       if (!match) {
         return res.status(400).json({
-          message:
-            "Invalid credentials",
+          message: "Invalid credentials",
         });
       }
 
-      const token =
-        generateToken(user);
+      const token = generateToken(user);
 
-      user.password =
-        undefined;
+      user.password = undefined;
 
       return res.json({
         success: true,
@@ -274,60 +207,40 @@ router.post("/login", async (req, res) => {
     // ================= MOBILE PASSWORD ====================
     // ======================================================
 
-    if (
-      mode ===
-      "mobile-password"
-    ) {
-
-      if (
-        !mobile ||
-        !password
-      ) {
+    if (mode === "mobile-password") {
+      if (!mobile || !password) {
         return res.status(400).json({
-          message:
-            "Mobile & password required",
+          message: "Mobile & password required",
         });
       }
 
-      const user =
-        await User.findOne({
-          mobile,
-        }).select(
-          "+password"
-        );
+      const user = await User.findOne({
+        mobile,
+      }).select("+password");
 
       if (!user) {
         return res.status(400).json({
-          message:
-            "User not found",
+          message: "User not found",
         });
       }
 
       if (!user.password) {
         return res.status(400).json({
-          message:
-            "Password not set for this account",
+          message: "Password not set for this account",
         });
       }
 
-      const match =
-        await bcrypt.compare(
-          password,
-          user.password
-        );
+      const match = await bcrypt.compare(password, user.password);
 
       if (!match) {
         return res.status(400).json({
-          message:
-            "Invalid credentials",
+          message: "Invalid credentials",
         });
       }
 
-      const token =
-        generateToken(user);
+      const token = generateToken(user);
 
-      user.password =
-        undefined;
+      user.password = undefined;
 
       return res.json({
         success: true,
@@ -340,97 +253,66 @@ router.post("/login", async (req, res) => {
     // ================= MOBILE OTP =========================
     // ======================================================
 
-    if (
-      mode ===
-      "mobile-otp"
-    ) {
-
-      if (
-        !mobile ||
-        !otp
-      ) {
+    if (mode === "mobile-otp") {
+      if (!mobile || !otp) {
         return res.status(400).json({
-          message:
-            "Mobile & OTP required",
+          message: "Mobile & OTP required",
         });
       }
 
-      const existingOtp =
-        await Otp.findOne({
-          mobile,
-          otp,
-          purpose: "login",
-        });
+      const existingOtp = await Otp.findOne({
+        mobile,
+        otp,
+        purpose: "login",
+      });
 
-      if (
-        !existingOtp
-      ) {
+      if (!existingOtp) {
         return res.status(400).json({
-          message:
-            "Invalid OTP",
+          message: "Invalid OTP",
         });
       }
 
       // ================= ATTEMPTS =================
 
-      if (
-        existingOtp.attempts >=
-        existingOtp.maxAttempts
-      ) {
+      if (existingOtp.attempts >= existingOtp.maxAttempts) {
+        existingOtp.blocked = true;
 
-        existingOtp.blocked =
-          true;
-
-        existingOtp.blockedUntil =
-          new Date(
-            Date.now() +
-              15 * 60 * 1000
-          );
+        existingOtp.blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
 
         await existingOtp.save();
 
         return res.status(429).json({
-          message:
-            "Too many invalid attempts. Try again later.",
+          message: "Too many invalid attempts. Try again later.",
         });
       }
 
       // ================= EXPIRED =================
 
-      if (
-        existingOtp.expiresAt <
-        new Date()
-      ) {
+      if (existingOtp.expiresAt < new Date()) {
         return res.status(400).json({
-          message:
-            "OTP expired",
+          message: "OTP expired",
         });
       }
 
-      const user =
-        await User.findOne({
-          mobile,
-        });
+      const user = await User.findOne({
+        mobile,
+      });
 
       if (!user) {
         return res.status(400).json({
-          message:
-            "User not found. Please signup first.",
+          message: "User not found. Please signup first.",
         });
       }
 
-      user.isMobileVerified =
-        true;
+      user.isMobileVerified = true;
 
       await user.save();
 
-      existingOtp.verified =
-        true;
+      existingOtp.verified = true;
 
       await existingOtp.save();
 
-      const token =
-        generateToken(user);
+      const token = generateToken(user);
 
       await Otp.deleteMany({
         mobile,
@@ -445,22 +327,13 @@ router.post("/login", async (req, res) => {
     }
 
     return res.status(400).json({
-      message:
-        "Invalid login mode",
+      message: "Invalid login mode",
     });
-
   } catch (error) {
-
-    console.log(
-      "LOGIN ERROR:",
-      error.response?.data ||
-      error.message ||
-      error
-    );
+    console.log("LOGIN ERROR:", error.response?.data || error.message || error);
 
     res.status(500).json({
-      message:
-        "Server error",
+      message: "Server error",
     });
   }
 });
@@ -473,60 +346,43 @@ router.post(
   "/register-send-otp",
 
   async (req, res) => {
-
     try {
-
-      const { mobile } =
-        req.body;
+      const { mobile } = req.body;
 
       if (!mobile) {
         return res.status(400).json({
-          message:
-            "Mobile required",
+          message: "Mobile required",
         });
       }
 
-      const existingUser =
-        await User.findOne({
-          mobile,
-        });
+      const existingUser = await User.findOne({
+        mobile,
+      });
 
       if (existingUser) {
         return res.status(400).json({
-          message:
-            "User already exists",
+          message: "User already exists",
         });
       }
 
-      const existingOtp =
-        await Otp.findOne({
-          mobile,
-          purpose: "signup",
-        });
+      const existingOtp = await Otp.findOne({
+        mobile,
+        purpose: "signup",
+      });
 
       // ================= COOLDOWN =================
 
-      if (
-        existingOtp?.resendAvailableAt >
-        new Date()
-      ) {
-
-        const seconds =
-          Math.ceil(
-            (
-              existingOtp.resendAvailableAt -
-              new Date()
-            ) / 1000
-          );
+      if (existingOtp?.resendAvailableAt > new Date()) {
+        const seconds = Math.ceil(
+          (existingOtp.resendAvailableAt - new Date()) / 1000,
+        );
 
         return res.status(429).json({
-          message:
-            `Please wait ${seconds}s before requesting another OTP`,
+          message: `Please wait ${seconds}s before requesting another OTP`,
         });
       }
 
-      const otp =
-        generateOtp();
+      const otp = generateOtp();
 
       await Otp.deleteMany({
         mobile,
@@ -542,47 +398,33 @@ router.post(
 
         purpose: "signup",
 
-        resendAvailableAt:
-          new Date(
-            Date.now() +
-              30 * 1000
-          ),
+        resendAvailableAt: new Date(Date.now() + 30 * 1000),
 
-        ipAddress:
-          req.ip,
+        ipAddress: req.ip,
 
-        userAgent:
-          req.headers[
-            "user-agent"
-          ],
+        userAgent: req.headers["user-agent"],
       });
 
       await sendSMS(
         mobile,
-        otp
+        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
       );
 
       res.json({
         success: true,
-        message:
-          "OTP sent successfully",
+        message: "OTP sent successfully",
       });
-
     } catch (error) {
-
       console.log(
         "REGISTER OTP ERROR:",
-        error.response?.data ||
-        error.message ||
-        error
+        error.response?.data || error.message || error,
       );
 
       res.status(500).json({
-        message:
-          "Server error",
+        message: "Server error",
       });
     }
-  }
+  },
 );
 
 // ======================================================
@@ -591,105 +433,63 @@ router.post(
 
 router.post("/register", async (req, res) => {
   try {
+    const { name, email, mobile, password, otp, role } = req.body;
 
-    const {
-      name,
-      email,
-      mobile,
-      password,
-      otp,
-      role,
-    } = req.body;
-
-    if (
-      !name ||
-      !mobile ||
-      !password ||
-      !otp
-    ) {
+    if (!name || !mobile || !password || !otp) {
       return res.status(400).json({
-        message:
-          "Required fields missing",
+        message: "Required fields missing",
       });
     }
 
-    const existingOtp =
-      await Otp.findOne({
-        mobile,
-        otp,
-        purpose: "signup",
-      });
+    const existingOtp = await Otp.findOne({
+      mobile,
+      otp,
+      purpose: "signup",
+    });
 
     if (!existingOtp) {
-
       return res.status(400).json({
-        message:
-          "Invalid OTP",
+        message: "Invalid OTP",
       });
     }
 
-    if (
-      existingOtp.expiresAt <
-      new Date()
-    ) {
-
+    if (existingOtp.expiresAt < new Date()) {
       return res.status(400).json({
-        message:
-          "OTP expired",
+        message: "OTP expired",
       });
     }
 
-    const existingUser =
-      await User.findOne({
-        $or: [
-          { email },
-          { mobile },
-        ],
-      });
+    const existingUser = await User.findOne({
+      $or: [{ email }, { mobile }],
+    });
 
     if (existingUser) {
-
       return res.status(400).json({
-        message:
-          "User already exists",
+        message: "User already exists",
       });
     }
 
-    const allowedRoles = [
-      "buyer",
-      "seller",
-      "builder",
-    ];
+    const allowedRoles = ["buyer", "seller", "builder"];
 
-    const finalRole =
-      allowedRoles.includes(
-        role
-      )
-        ? role
-        : "buyer";
+    const finalRole = allowedRoles.includes(role) ? role : "buyer";
 
-    const user =
-      await User.create({
-        name,
+    const user = await User.create({
+      name,
 
-        email,
+      email,
 
-        mobile,
+      mobile,
 
-        password,
+      password,
 
-        role:
-          finalRole,
+      role: finalRole,
 
-        authProvider:
-          "email",
+      authProvider: "email",
 
-        isMobileVerified:
-          true,
-      });
+      isMobileVerified: true,
+    });
 
-    const token =
-      generateToken(user);
+    const token = generateToken(user);
 
     await Otp.deleteMany({
       mobile,
@@ -698,24 +498,18 @@ router.post("/register", async (req, res) => {
 
     res.json({
       success: true,
-      message:
-        "Account created successfully",
+      message: "Account created successfully",
       token,
       user,
     });
-
   } catch (error) {
-
     console.log(
       "REGISTER ERROR:",
-      error.response?.data ||
-      error.message ||
-      error
+      error.response?.data || error.message || error,
     );
 
     res.status(500).json({
-      message:
-        "Server error",
+      message: "Server error",
     });
   }
 });
@@ -728,79 +522,49 @@ router.post(
   "/forgot-password/send-otp",
 
   async (req, res) => {
-
     try {
+      const { email, mobile } = req.body;
 
-      const {
-        email,
-        mobile,
-      } = req.body;
-
-      if (
-        !email &&
-        !mobile
-      ) {
+      if (!email && !mobile) {
         return res.status(400).json({
-          message:
-            "Email or mobile required",
+          message: "Email or mobile required",
         });
       }
 
-      const user =
-        await User.findOne({
-          $or: [
-            { email },
-            { mobile },
-          ],
-        });
+      const user = await User.findOne({
+        $or: [{ email }, { mobile }],
+      });
 
       if (!user) {
         return res.status(404).json({
-          message:
-            "User not found",
+          message: "User not found",
         });
       }
 
-      const existingOtp =
-        await Otp.findOne({
-          $or: [
-            { email },
-            { mobile },
-          ],
+      const existingOtp = await Otp.findOne({
+        $or: [{ email }, { mobile }],
 
-          purpose:
-            "forgot-password",
-        });
+        purpose: "forgot-password",
+      });
 
       // ================= COOLDOWN =================
 
-      if (
-        existingOtp?.resendAvailableAt >
-        new Date()
-      ) {
-
-        const seconds =
-          Math.ceil(
-            (
-              existingOtp.resendAvailableAt -
-              new Date()
-            ) / 1000
-          );
+      if (existingOtp?.resendAvailableAt > new Date()) {
+        const seconds = Math.ceil(
+          (existingOtp.resendAvailableAt - new Date()) / 1000,
+        );
 
         return res.status(429).json({
-          message:
-            `Please wait ${seconds}s before requesting another OTP`,
+          message: `Please wait ${seconds}s before requesting another OTP`,
         });
       }
 
-      const otp =
-        generateOtp();
+      const otp = generateOtp();
 
       await Otp.deleteMany({
         email,
         mobile,
-        purpose:
-          "forgot-password",
+        purpose: "forgot-password",
       });
 
       await Otp.create({
@@ -812,49 +576,116 @@ router.post(
 
         type: "sms",
 
-        purpose:
-          "forgot-password",
+        purpose: "forgot-password",
 
-        resendAvailableAt:
-          new Date(
-            Date.now() +
-              30 * 1000
-          ),
+        resendAvailableAt: new Date(Date.now() + 30 * 1000),
 
-        ipAddress:
-          req.ip,
+        ipAddress: req.ip,
 
-        userAgent:
-          req.headers[
-            "user-agent"
-          ],
+        userAgent: req.headers["user-agent"],
       });
 
       await sendSMS(
         mobile,
-        otp
+        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
       );
 
       res.json({
         success: true,
-        message:
-          "Reset OTP sent",
+        message: "Reset OTP sent",
       });
-
     } catch (error) {
-
-      await sendSMS(
-        mobile,
-        otp
+      console.log(
+        "FORGOT PASSWORD OTP ERROR:",
+        error.response?.data || error.message || error,
       );
 
       res.status(500).json({
-        message:
-          "Server error",
+        message: "Server error",
       });
     }
-  }
+  },
 );
+
+// ================= COOLDOWN =================
+
+router.post("/forgot-password/send-otp", async (req, res) => {
+  try {
+    const { email, mobile } = req.body;
+
+    if (!email && !mobile) {
+      return res.status(400).json({
+        message: "Email or mobile required",
+      });
+    }
+
+    const user = await User.findOne({
+      $or: [{ email }, { mobile }],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    const existingOtp = await Otp.findOne({
+      $or: [{ email }, { mobile }],
+      purpose: "forgot-password",
+    });
+
+    if (existingOtp?.resendAvailableAt > new Date()) {
+      const seconds = Math.ceil(
+        (existingOtp.resendAvailableAt - new Date()) / 1000,
+      );
+
+      return res.status(429).json({
+        message: `Please wait ${seconds}s before requesting another OTP`,
+      });
+    }
+
+    const otp = generateOtp();
+
+    await Otp.deleteMany({
+      email,
+      mobile,
+      purpose: "forgot-password",
+    });
+
+    await Otp.create({
+      email,
+      mobile,
+      otp,
+      type: "sms",
+      purpose: "forgot-password",
+
+      resendAvailableAt: new Date(Date.now() + 30 * 1000),
+
+      ipAddress: req.ip,
+
+      userAgent: req.headers["user-agent"],
+    });
+
+    await sendSMS(
+      mobile,
+      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+    );
+
+    return res.json({
+      success: true,
+      message: "Reset OTP sent",
+    });
+  } catch (error) {
+    console.log(
+      "FORGOT PASSWORD OTP ERROR:",
+      error.response?.data || error.message || error,
+    );
+
+    return res.status(500).json({
+      message: "Server error",
+    });
+  }
+});
 
 // ======================================================
 // ================= RESET PASSWORD =====================
@@ -864,77 +695,46 @@ router.post(
   "/reset-password",
 
   async (req, res) => {
-
     try {
+      const { email, mobile, otp, newPassword } = req.body;
 
-      const {
-        email,
-        mobile,
+      if (!otp || !newPassword) {
+        return res.status(400).json({
+          message: "OTP & new password required",
+        });
+      }
+
+      const existingOtp = await Otp.findOne({
         otp,
-        newPassword,
-      } = req.body;
 
-      if (
-        !otp ||
-        !newPassword
-      ) {
+        $or: [{ email }, { mobile }],
+
+        purpose: "forgot-password",
+      });
+
+      if (!existingOtp) {
         return res.status(400).json({
-          message:
-            "OTP & new password required",
+          message: "Invalid OTP",
         });
       }
 
-      const existingOtp =
-        await Otp.findOne({
-          otp,
-
-          $or: [
-            { email },
-            { mobile },
-          ],
-
-          purpose:
-            "forgot-password",
-        });
-
-      if (
-        !existingOtp
-      ) {
+      if (existingOtp.expiresAt < new Date()) {
         return res.status(400).json({
-          message:
-            "Invalid OTP",
+          message: "OTP expired",
         });
       }
 
-      if (
-        existingOtp.expiresAt <
-        new Date()
-      ) {
-        return res.status(400).json({
-          message:
-            "OTP expired",
-        });
-      }
-
-      const user =
-        await User.findOne({
-          $or: [
-            { email },
-            { mobile },
-          ],
-        }).select(
-          "+password"
-        );
+      const user = await User.findOne({
+        $or: [{ email }, { mobile }],
+      }).select("+password");
 
       if (!user) {
         return res.status(404).json({
-          message:
-            "User not found",
+          message: "User not found",
         });
       }
 
-      user.password =
-        newPassword;
+      user.password = newPassword;
 
       await user.save();
 
@@ -942,31 +742,24 @@ router.post(
         email,
         mobile,
 
-        purpose:
-          "forgot-password",
+        purpose: "forgot-password",
       });
 
       res.json({
         success: true,
-        message:
-          "Password updated successfully",
+        message: "Password updated successfully",
       });
-
     } catch (error) {
-
       console.log(
         "RESET PASSWORD ERROR:",
-        error.response?.data ||
-        error.message ||
-        error
+        error.response?.data || error.message || error,
       );
 
       res.status(500).json({
-        message:
-          "Server error",
+        message: "Server error",
       });
     }
-  }
+  },
 );
 
 module.exports = router;
