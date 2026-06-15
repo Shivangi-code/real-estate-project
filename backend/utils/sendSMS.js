@@ -1,35 +1,31 @@
-const axios =
-  require("axios");
+const axios = require("axios");
 
-const sendSMS =
-  async (mobile) => {
+const sendSMS = async (mobile, message) => {
+  try {
+    const response = await axios.get(
+      "https://mobilesmsapi.com/api/send_sms",
+      {
+        params: {
+          api_token: process.env.MOBILE_SMS_API_TOKEN,
+          mobile,
+          message,
+        },
+      }
+    );
 
-    try {
+    console.log("MobileSMSAPI RESPONSE:", response.data);
 
-      const response =
-        await axios.get(
-          `https://control.msg91.com/api/v5/otp?template_id=${process.env.MSG91_TEMPLATE_ID}&mobile=91${mobile}&authkey=${process.env.MSG91_AUTH_KEY}`
-        );
+    return response.data;
 
-      console.log(
-        "MSG91 OTP SENT ✅"
-      );
+  } catch (error) {
 
-      return response.data;
+    console.log(
+      "MobileSMSAPI ERROR:",
+      error.response?.data || error.message
+    );
 
-    } catch (error) {
+    throw error;
+  }
+};
 
-      console.log(
-        "MSG91 SMS ERROR:",
-        error.response?.data ||
-        error.message
-      );
-
-      throw new Error(
-        "Failed to send OTP SMS"
-      );
-    }
-  };
-
-module.exports =
-  sendSMS;
+module.exports = sendSMS;

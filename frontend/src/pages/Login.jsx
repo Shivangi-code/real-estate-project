@@ -185,7 +185,7 @@ export default function Login() {
 
       setOtpSent(true);
 
-      setTimer(30);
+      setTimer(60);
 
       alert(
         "OTP sent successfully ✅"

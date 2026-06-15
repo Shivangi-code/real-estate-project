@@ -324,215 +324,238 @@ exports.addProperty =
 // ================= GET FILTERED PROPERTIES ============
 // ======================================================
 
-exports.getFilteredProperties =
-  async (req, res) => {
+exports.getFilteredProperties = async (req, res) => {
+  try {
+    const {
 
-    try {
+      search,
 
-      const {
+      type,
 
-        search,
+      subType,
 
-        type,
+      maxPrice,
 
-        subType,
+    } = req.query;
 
-        maxPrice,
+    // ======================================================
+    // ================= FILTERS ============================
+    // ======================================================
 
-      } = req.query;
+    const andFilters = [];
 
-      // ======================================================
-      // ================= FILTERS ============================
-      // ======================================================
+    // ======================================================
+    // ================= APPROVED ONLY ======================
+    // ======================================================
 
-      const andFilters = [];
+    andFilters.push({
 
-      // ======================================================
-      // ================= APPROVED ONLY ======================
-      // ======================================================
+      status:
+        "approved",
+    });
+
+    // ======================================================
+    // ================= SEARCH =============================
+    // ======================================================
+
+    if (
+      search &&
+      search.trim() !== ""
+    ) {
+
+      const escapedSearch =
+        escapeRegex(search);
 
       andFilters.push({
 
-        status:
-          "approved",
-      });
+        $or: [
 
-      // ======================================================
-      // ================= SEARCH =============================
-      // ======================================================
-
-      if (
-        search &&
-        search.trim() !== ""
-      ) {
-
-        const escapedSearch =
-          escapeRegex(search);
-
-        andFilters.push({
-
-          $or: [
-
-            {
-              title: {
-                $regex:
-                  escapedSearch,
-                $options: "i",
-              },
+          {
+            title: {
+              $regex:
+                escapedSearch,
+              $options: "i",
             },
-
-            {
-              location: {
-                $regex:
-                  escapedSearch,
-                $options: "i",
-              },
-            },
-
-            {
-              description: {
-                $regex:
-                  escapedSearch,
-                $options: "i",
-              },
-            },
-
-            {
-              type: {
-                $regex:
-                  escapedSearch,
-                $options: "i",
-              },
-            },
-
-            {
-              subType: {
-                $regex:
-                  escapedSearch,
-                $options: "i",
-              },
-            },
-          ],
-        });
-      }
-
-      // ======================================================
-      // ================= TYPE ===============================
-      // ======================================================
-
-      if (
-        type &&
-        type.trim() !== ""
-      ) {
-
-        andFilters.push({
-
-          type: {
-            $regex:
-              escapeRegex(type),
-            $options: "i",
           },
-        });
-      }
 
-      // ======================================================
-      // ================= SUBTYPE ============================
-      // ======================================================
-
-      if (
-        subType &&
-        subType.trim() !== ""
-      ) {
-
-        andFilters.push({
-
-          subType: {
-            $regex:
-              escapeRegex(subType),
-            $options: "i",
+          {
+            location: {
+              $regex:
+                escapedSearch,
+              $options: "i",
+            },
           },
-        });
-      }
 
-      // ======================================================
-      // ================= MAX PRICE ==========================
-      // ======================================================
-
-      if (
-        maxPrice &&
-        !isNaN(maxPrice)
-      ) {
-
-        andFilters.push({
-
-          price: {
-            $lte:
-              Number(maxPrice),
+          {
+            description: {
+              $regex:
+                escapedSearch,
+              $options: "i",
+            },
           },
-        });
-      }
 
-      // ======================================================
-      // ================= FINAL FILTER =======================
-      // ======================================================
+          {
+            type: {
+              $regex:
+                escapedSearch,
+              $options: "i",
+            },
+          },
 
-      const finalFilter =
-
-        andFilters.length > 0
-
-          ? {
-              $and:
-                andFilters,
-            }
-
-          : {};
-
-      // ======================================================
-      // ================= GET ================================
-      // ======================================================
-
-      const properties =
-        await Property.find(
-          finalFilter
-        )
-
-          .sort({
-
-            createdAt: -1,
-          })
-
-          .lean();
-
-      // ======================================================
-      // ================= RESPONSE ===========================
-      // ======================================================
-
-      res.status(200).json({
-
-        success: true,
-
-        count:
-          properties.length,
-
-        properties,
-      });
-
-    } catch (err) {
-
-      console.log(
-        "Property Filter Error ❌",
-        err
-      );
-
-      res.status(500).json({
-
-        success: false,
-
-        message:
-          "Server error",
+          {
+            subType: {
+              $regex:
+                escapedSearch,
+              $options: "i",
+            },
+          },
+        ],
       });
     }
-  };
+
+    // ======================================================
+    // ================= TYPE ===============================
+    // ======================================================
+
+    if (
+      type &&
+      type.trim() !== ""
+    ) {
+
+      andFilters.push({
+
+        type: {
+          $regex:
+            escapeRegex(type),
+          $options: "i",
+        },
+      });
+    }
+
+    // ======================================================
+    // ================= SUBTYPE ============================
+    // ======================================================
+
+    if (
+      subType &&
+      subType.trim() !== ""
+    ) {
+
+      andFilters.push({
+
+        subType: {
+          $regex:
+            escapeRegex(subType),
+          $options: "i",
+        },
+      });
+    }
+
+    // ======================================================
+    // ================= MAX PRICE ==========================
+    // ======================================================
+
+    if (
+      maxPrice &&
+      !isNaN(maxPrice)
+    ) {
+
+      andFilters.push({
+
+        price: {
+          $lte:
+            Number(maxPrice),
+        },
+      });
+    }
+
+    // ======================================================
+    // ================= FINAL FILTER =======================
+    // ======================================================
+
+    const finalFilter =
+
+      andFilters.length > 0
+
+        ? {
+            $and:
+              andFilters,
+          }
+
+        : {};
+
+    // ======================================================
+    // ================= GET ================================
+    // ======================================================
+
+    const properties =
+      await Property.find(
+        finalFilter
+      )
+
+        .sort({
+
+          createdAt: -1,
+        })
+
+        .lean();
+
+    // ======================================================
+    // ================= RESPONSE ===========================
+    // ======================================================
+
+    res.status(200).json({
+
+      success: true,
+
+      count:
+        properties.length,
+
+      properties,
+    });
+
+  } catch (err) {
+
+    console.log(
+      "Property Filter Error ❌",
+      err
+    );
+
+    res.status(500).json({
+
+      success: false,
+
+      message:
+        "Server error",
+    });
+  }
+};
+
+// ======================================================
+// ================= GET PROPERTY BY ID =================
+// ======================================================
+
+exports.getPropertyById = async (req, res) => {
+  try {
+    const property = await Property.findById(req.params.id);
+
+    if (!property) {
+      return res.status(404).json({
+        success: false,
+        message: "Property not found",
+      });
+    }
+
+    res.status(200).json(property);
+  } catch (error) {
+    console.log("Get Property Error ❌", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
 
 // ======================================================
 // ================= GET MY PROPERTIES ==================

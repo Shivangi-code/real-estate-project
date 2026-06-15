@@ -107,7 +107,7 @@ export default function Signup() {
 
         setOtpSent(true);
 
-        setTimer(30);
+        setTimer(60);
 
         alert(
           "OTP sent successfully ✅"
