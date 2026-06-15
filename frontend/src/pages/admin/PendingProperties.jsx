@@ -1,33 +1,119 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
+
+import {
+  Link,
+} from "react-router-dom";
 
 import toast from "react-hot-toast";
 
 import {
+
   Clock3,
+
   CheckCircle2,
+
   XCircle,
+
   Trash2,
+
   MapPin,
+
   IndianRupee,
+
   Hash,
+
   ShieldAlert,
+
   Eye,
+
   Building2,
+
+  Images,
+
+  Loader2,
+
+  RefreshCcw,
+
+  CalendarDays,
+
+  User2,
+
+  BadgeCheck,
+
 } from "lucide-react";
 
+// ======================================================
+// ================= API BASE URL =======================
+// ======================================================
+
+const API_BASE =
+  "http://localhost:5000/api/admin";
+
+// ======================================================
+// ================= SAFE IMAGE =========================
+// ======================================================
+
+const FALLBACK_IMAGE =
+  "https://via.placeholder.com/1200x700?text=Property";
+
+// ======================================================
+// ================= COMPONENT ==========================
+// ======================================================
+
 export default function PendingProperties() {
+
+  // ======================================================
+  // ================= STATES =============================
+  // ======================================================
 
   const [properties, setProperties] =
     useState([]);
 
+  const [counts, setCounts] =
+    useState({
+
+      total: 0,
+
+      pending: 0,
+
+      approved: 0,
+
+      rejected: 0,
+
+      deleted: 0,
+
+    });
+
   const [loading, setLoading] =
     useState(true);
 
+  const [
+
+    actionLoading,
+
+    setActionLoading,
+
+  ] = useState("");
+
   // ======================================================
-  // ================= FETCH ==============================
+  // ================= TOKEN ==============================
+  // ======================================================
+
+  const token =
+    useMemo(
+      () =>
+        localStorage.getItem(
+          "token"
+        ),
+      []
+    );
+
+  // ======================================================
+  // ================= FETCH PENDING ======================
   // ======================================================
 
   const fetchPending =
@@ -35,31 +121,53 @@ export default function PendingProperties() {
 
       try {
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+        setLoading(true);
 
         const res =
           await fetch(
-            "http://localhost:5000/api/admin/properties/pending",
+
+            `${API_BASE}/properties/pending`,
+
             {
+
               headers: {
+
                 Authorization:
                   `Bearer ${token}`,
+
               },
+
             }
           );
 
         const data =
           await res.json();
 
+        if (!res.ok) {
+
+          throw new Error(
+
+            data.message ||
+            "Failed to fetch properties"
+          );
+        }
+
+        // ======================================================
+        // ================= PROPERTIES ==========================
+        // ======================================================
+
         setProperties(
-          Array.isArray(
-            data
-          )
-            ? data
-            : []
+
+          data.properties || []
+        );
+
+        // ======================================================
+        // ================= COUNTS ==============================
+        // ======================================================
+
+        setCounts(
+
+          data.counts || {}
         );
 
       } catch (error) {
@@ -69,6 +177,7 @@ export default function PendingProperties() {
         );
 
         toast.error(
+
           "Failed to fetch pending properties"
         );
 
@@ -84,48 +193,82 @@ export default function PendingProperties() {
 
   const updateStatus =
     async (
-      id,
-      action
+      propertyId,
+      status
     ) => {
 
       try {
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+        setActionLoading(
+          `${propertyId}-${status}`
+        );
+
+        const moderationReason =
+
+          status === "rejected"
+
+            ? window.prompt(
+                "Enter rejection reason"
+              ) || ""
+
+            : "";
 
         const res =
           await fetch(
-            `http://localhost:5000/api/admin/properties/${id}/${action}`,
+
+            `${API_BASE}/property/${propertyId}/status`,
+
             {
+
               method:
-                "PUT",
+                "PATCH",
 
               headers: {
+
+                "Content-Type":
+                  "application/json",
+
                 Authorization:
                   `Bearer ${token}`,
+
               },
+
+              body: JSON.stringify({
+
+                status,
+
+                moderationReason,
+
+              }),
+
             }
           );
 
         const data =
           await res.json();
 
-        if (res.ok) {
+        if (!res.ok) {
 
-          toast.success(
-            data.message
-          );
+          throw new Error(
 
-          fetchPending();
-
-        } else {
-
-          toast.error(
-            data.message
+            data.message ||
+            "Status update failed"
           );
         }
+
+        // ======================================================
+        // ================= TOAST ===============================
+        // ======================================================
+
+        toast.success(
+          data.message
+        );
+
+        // ======================================================
+        // ================= REFRESH =============================
+        // ======================================================
+
+        fetchPending();
 
       } catch (error) {
 
@@ -134,8 +277,14 @@ export default function PendingProperties() {
         );
 
         toast.error(
-          "Server error"
+
+          error.message ||
+          "Server Error"
         );
+
+      } finally {
+
+        setActionLoading("");
       }
     };
 
@@ -177,34 +326,223 @@ export default function PendingProperties() {
     return `₹ ${price}`;
   };
 
+  // ======================================================
+  // ================= DATE FORMAT ========================
+  // ======================================================
+
+  const formatDate = (
+    date
+  ) => {
+
+    if (!date)
+      return "N/A";
+
+    return new Date(
+      date
+    ).toLocaleString(
+      "en-IN",
+      {
+
+        day: "2-digit",
+
+        month: "short",
+
+        year: "numeric",
+
+        hour: "2-digit",
+
+        minute: "2-digit",
+
+      }
+    );
+  };
+
+  // ======================================================
+  // ================= LOADER =============================
+  // ======================================================
+
+  const ButtonLoader = () => (
+
+    <Loader2
+      size={18}
+      className="
+        animate-spin
+      "
+    />
+  );
+
+  // ======================================================
+  // ================= RETURN =============================
+  // ======================================================
+
   return (
-    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
+
+    <div
+      className="
+
+        min-h-screen
+
+        bg-slate-100
+
+        p-4
+        sm:p-6
+        xl:p-8
+
+        overflow-x-hidden
+      "
+    >
 
       {/* ====================================================== */}
       {/* ================= HEADER ============================= */}
       {/* ====================================================== */}
 
-      <div className="bg-gradient-to-r from-yellow-500 via-orange-500 to-slate-900 rounded-[32px] text-white p-8 shadow-xl mb-8">
+      <div
+        className="
 
-        <div className="flex items-center gap-4">
+          bg-gradient-to-r
 
-          <Clock3 size={42} />
+          from-yellow-500
+          via-orange-500
+          to-slate-900
 
-          <div>
+          rounded-[28px]
+          sm:rounded-[36px]
 
-            <h1 className="text-4xl font-bold">
+          text-white
 
-              Pending Properties
+          p-5
+          sm:p-8
+          xl:p-10
 
-            </h1>
+          shadow-xl
 
-            <p className="text-orange-100 mt-2 text-lg">
+          mb-6
+          sm:mb-8
+        "
+      >
 
-              Review and moderate new marketplace submissions
+        <div
+          className="
 
-            </p>
+            flex
+            flex-col
+
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+
+            gap-6
+          "
+        >
+
+          {/* LEFT */}
+          <div
+            className="
+              flex
+              items-start
+              sm:items-center
+              gap-4
+            "
+          >
+
+            <div
+              className="
+                bg-white/15
+                backdrop-blur-md
+
+                p-4
+
+                rounded-3xl
+              "
+            >
+
+              <Clock3
+                className="
+                  w-9
+                  h-9
+                  sm:w-11
+                  sm:h-11
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <h1
+                className="
+                  text-3xl
+                  sm:text-4xl
+                  xl:text-5xl
+
+                  font-bold
+                "
+              >
+
+                Pending Properties
+
+              </h1>
+
+              <p
+                className="
+                  text-orange-100
+
+                  mt-2
+
+                  text-sm
+                  sm:text-base
+                  xl:text-lg
+                "
+              >
+
+                Review and moderate
+                new marketplace
+                submissions
+
+              </p>
+
+            </div>
 
           </div>
+
+          {/* RIGHT */}
+          <button
+
+            onClick={
+              fetchPending
+            }
+
+            className="
+
+              self-start
+              lg:self-auto
+
+              bg-white/15
+              hover:bg-white/20
+
+              border
+              border-white/20
+
+              backdrop-blur-md
+
+              px-5
+              py-3
+
+              rounded-2xl
+
+              flex
+              items-center
+              gap-2
+
+              transition
+            "
+          >
+
+            <RefreshCcw size={18} />
+
+            Refresh
+
+          </button>
 
         </div>
 
@@ -214,9 +552,40 @@ export default function PendingProperties() {
       {/* ================= STATS ============================== */}
       {/* ====================================================== */}
 
-      <div className="grid md:grid-cols-3 gap-6 mb-10">
+      <div
+        className="
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+          grid
+
+          grid-cols-1
+          sm:grid-cols-2
+          xl:grid-cols-4
+
+          gap-4
+          sm:gap-6
+
+          mb-8
+        "
+      >
+
+        {/* PENDING */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
 
           <div className="text-yellow-500">
 
@@ -224,21 +593,158 @@ export default function PendingProperties() {
 
           </div>
 
-          <p className="text-slate-500 mt-4">
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
 
             Pending Listings
 
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
 
-            {properties.length}
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {counts.pending || 0}
 
           </h2>
 
         </div>
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+        {/* APPROVED */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
+
+          <div className="text-green-600">
+
+            <CheckCircle2 size={34} />
+
+          </div>
+
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
+
+            Approved Listings
+
+          </p>
+
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {counts.approved || 0}
+
+          </h2>
+
+        </div>
+
+        {/* REJECTED */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
+
+          <div className="text-red-600">
+
+            <XCircle size={34} />
+
+          </div>
+
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
+
+            Rejected Listings
+
+          </p>
+
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {counts.rejected || 0}
+
+          </h2>
+
+        </div>
+
+        {/* TOTAL */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
 
           <div className="text-blue-600">
 
@@ -246,46 +752,29 @@ export default function PendingProperties() {
 
           </div>
 
-          <p className="text-slate-500 mt-4">
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
 
-            Multi Image Listings
-
-          </p>
-
-          <h2 className="text-4xl font-bold mt-2">
-
-            {
-              properties.filter(
-                (
-                  p
-                ) =>
-                  p.images
-                    ?.length >
-                  1
-              ).length
-            }
-
-          </h2>
-
-        </div>
-
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
-
-          <div className="text-green-600">
-
-            <Eye size={34} />
-
-          </div>
-
-          <p className="text-slate-500 mt-4">
-
-            Ready For Review
+            Total Listings
 
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
 
-            {properties.length}
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {counts.total || 0}
 
           </h2>
 
@@ -299,26 +788,101 @@ export default function PendingProperties() {
 
       {loading ? (
 
-        <div className="text-center text-xl font-semibold py-20">
+        <div
+          className="
 
-          Loading pending properties...
+            bg-white
+
+            rounded-[28px]
+
+            p-10
+
+            flex
+            flex-col
+            items-center
+            justify-center
+
+            gap-4
+
+            shadow-sm
+          "
+        >
+
+          <Loader2
+            size={40}
+            className="
+              animate-spin
+              text-orange-500
+            "
+          />
+
+          <p
+            className="
+              text-lg
+              font-semibold
+              text-slate-700
+            "
+          >
+
+            Loading pending properties...
+
+          </p>
 
         </div>
 
       ) : properties.length ===
         0 ? (
 
-        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+        <div
+          className="
 
-          <h2 className="text-3xl font-bold">
+            bg-white
+
+            rounded-[28px]
+            sm:rounded-[36px]
+
+            p-8
+            sm:p-14
+
+            text-center
+
+            shadow-sm
+          "
+        >
+
+          <ShieldAlert
+            size={54}
+            className="
+              mx-auto
+              text-yellow-500
+            "
+          />
+
+          <h2
+            className="
+              text-2xl
+              sm:text-3xl
+
+              font-bold
+
+              mt-5
+            "
+          >
 
             No Pending Properties
 
           </h2>
 
-          <p className="text-slate-500 mt-3">
+          <p
+            className="
+              text-slate-500
 
-            New property submissions will appear here.
+              mt-3
+            "
+          >
+
+            New submissions will
+            appear here for review.
 
           </p>
 
@@ -326,247 +890,908 @@ export default function PendingProperties() {
 
       ) : (
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div
+          className="
+
+            grid
+
+            grid-cols-1
+            2xl:grid-cols-2
+
+            gap-5
+            sm:gap-7
+          "
+        >
 
           {properties.map(
             (
               property
-            ) => (
+            ) => {
 
-              <div
-                key={
-                  property._id
-                }
-                className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-200"
-              >
+              const approveLoading =
 
-                {/* ====================================================== */}
-                {/* ================= IMAGE ============================== */}
-                {/* ====================================================== */}
+                actionLoading ===
+                `${property._id}-approved`;
 
-                <div className="relative">
+              const rejectLoading =
 
-                  <img
-                    src={
-                      property.image ||
-                      "https://via.placeholder.com/800x500?text=Property"
-                    }
-                    alt={
-                      property.title
-                    }
-                    className="w-full h-72 object-cover"
-                  />
+                actionLoading ===
+                `${property._id}-rejected`;
 
-                  <div className="absolute top-5 left-5 bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-xs font-bold">
+              const deleteLoading =
 
-                    PENDING REVIEW
+                actionLoading ===
+                `${property._id}-deleted`;
 
-                  </div>
+              return (
 
-                </div>
+                <div
 
-                {/* ====================================================== */}
-                {/* ================= BODY =============================== */}
-                {/* ====================================================== */}
+                  key={
+                    property._id
+                  }
 
-                <div className="p-6">
+                  className="
 
-                  {/* PROPERTY ID */}
-                  <div className="flex items-center gap-2 text-slate-500 text-sm mb-3">
+                    bg-white
 
-                    <Hash size={14} />
+                    rounded-[28px]
+                    sm:rounded-[36px]
 
-                    <span className="font-semibold tracking-widest">
+                    overflow-hidden
 
-                      {
-                        property.propertyUniqueId
+                    border
+                    border-slate-200
+
+                    shadow-sm
+
+                    hover:shadow-lg
+
+                    transition-all
+                    duration-300
+                  "
+                >
+
+                  {/* ====================================================== */}
+                  {/* ================= IMAGE ============================== */}
+                  {/* ====================================================== */}
+
+                  <div
+                    className="
+                      relative
+                    "
+                  >
+
+                    <img
+
+                      src={
+                        property.image ||
+                        FALLBACK_IMAGE
                       }
 
-                    </span>
+                      onError={(
+                        e
+                      ) => {
 
-                  </div>
+                        e.target.src =
+                          FALLBACK_IMAGE;
+                      }}
 
-                  {/* TITLE */}
-                  <h2 className="text-2xl font-bold">
+                      alt={
+                        property.title
+                      }
 
-                    {property.title}
+                      className="
 
-                  </h2>
+                        w-full
 
-                  {/* LOCATION */}
-                  <div className="flex items-center gap-2 text-slate-500 mt-3">
+                        h-[250px]
+                        sm:h-[320px]
 
-                    <MapPin size={16} />
+                        object-cover
+                      "
+                    />
 
-                    {property.location}
+                    {/* STATUS */}
+                    <div
+                      className="
 
-                  </div>
+                        absolute
+                        top-4
+                        left-4
 
-                  {/* PRICE */}
-                  <div className="flex items-center gap-2 text-orange-600 mt-5">
+                        bg-yellow-100
 
-                    <IndianRupee size={20} />
+                        text-yellow-700
 
-                    <span className="text-3xl font-bold">
+                        px-4
+                        py-2
 
-                      {formatPrice(
-                        property.price
-                      )}
+                        rounded-full
 
-                    </span>
+                        text-xs
+                        sm:text-sm
 
-                  </div>
+                        font-bold
 
-                  {/* TYPE */}
-                  <div className="flex flex-wrap gap-3 mt-5">
+                        shadow-lg
+                      "
+                    >
 
-                    <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
-
-                      {property.type}
+                      PENDING REVIEW
 
                     </div>
 
-                    <div className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold">
+                    {/* IMAGE COUNT */}
+                    <div
+                      className="
 
-                      {property.subType}
+                        absolute
+                        top-4
+                        right-4
+
+                        bg-black/50
+
+                        backdrop-blur-md
+
+                        text-white
+
+                        px-3
+                        py-2
+
+                        rounded-full
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-xs
+                        sm:text-sm
+
+                        font-semibold
+                      "
+                    >
+
+                      <Images size={14} />
+
+                      {
+                        property
+                          ?.images
+                          ?.length || 0
+                      }
 
                     </div>
 
                   </div>
 
                   {/* ====================================================== */}
-                  {/* ================= GALLERY ============================ */}
+                  {/* ================= BODY =============================== */}
                   {/* ====================================================== */}
 
-                  {property.images
-                    ?.length >
-                    1 && (
+                  <div
+                    className="
 
-                    <div className="grid grid-cols-3 gap-3 mt-6">
+                      p-5
+                      sm:p-7
+                    "
+                  >
 
-                      {property.images
-                        .slice(
-                          0,
-                          6
-                        )
-                        .map(
-                          (
-                            img
-                          ) => (
+                    {/* PROPERTY ID */}
+                    <div
+                      className="
 
-                            <img
-                              key={
-                                img._id
-                              }
-                              src={
-                                img.url
-                              }
-                              alt="gallery"
-                              className="w-full h-24 object-cover rounded-2xl border border-slate-200"
-                            />
-                          )
+                        flex
+                        items-center
+                        gap-2
+
+                        text-slate-500
+
+                        text-sm
+
+                        mb-3
+                      "
+                    >
+
+                      <Hash size={14} />
+
+                      <span
+                        className="
+                          font-semibold
+                          tracking-widest
+                        "
+                      >
+
+                        {
+                          property.propertyUniqueId
+                        }
+
+                      </span>
+
+                    </div>
+
+                    {/* TITLE */}
+                    <h2
+                      className="
+
+                        text-2xl
+                        sm:text-3xl
+
+                        font-bold
+
+                        line-clamp-2
+                      "
+                    >
+
+                      {
+                        property.title
+                      }
+
+                    </h2>
+
+                    {/* LOCATION */}
+                    <div
+                      className="
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-slate-500
+
+                        mt-4
+                      "
+                    >
+
+                      <MapPin size={17} />
+
+                      <span
+                        className="
+                          line-clamp-1
+                        "
+                      >
+
+                        {
+                          property.location
+                        }
+
+                      </span>
+
+                    </div>
+
+                    {/* PRICE */}
+                    <div
+                      className="
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-orange-600
+
+                        mt-5
+                      "
+                    >
+
+                      <IndianRupee size={22} />
+
+                      <span
+                        className="
+
+                          text-2xl
+                          sm:text-3xl
+
+                          font-bold
+                        "
+                      >
+
+                        {formatPrice(
+                          property.price
                         )}
 
+                      </span>
+
                     </div>
-                  )}
 
-                  {/* ====================================================== */}
-                  {/* ================= OWNER ============================== */}
-                  {/* ====================================================== */}
+                    {/* TAGS */}
+                    <div
+                      className="
 
-                  <div className="mt-6 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+                        flex
+                        flex-wrap
 
-                    <p className="text-sm text-slate-500">
+                        gap-3
 
-                      Submitted By
-
-                    </p>
-
-                    <h3 className="font-bold mt-1">
-
-                      {
-                        property
-                          ?.createdBy
-                          ?.name
-                      }
-
-                    </h3>
-
-                    <p className="text-sm text-slate-500 mt-1">
-
-                      {
-                        property
-                          ?.createdBy
-                          ?.role
-                      }
-
-                    </p>
-
-                  </div>
-
-                  {/* ====================================================== */}
-                  {/* ================= ACTIONS ============================ */}
-                  {/* ====================================================== */}
-
-                  <div className="grid grid-cols-3 gap-3 mt-6">
-
-                    {/* APPROVE */}
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          property._id,
-                          "approve"
-                        )
-                      }
-                      className="bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                        mt-5
+                      "
                     >
 
-                      <CheckCircle2 size={18} />
+                      {property.type && (
 
-                      Approve
+                        <div
+                          className="
 
-                    </button>
+                            bg-blue-100
+                            text-blue-700
 
-                    {/* REJECT */}
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          property._id,
-                          "reject"
-                        )
-                      }
-                      className="bg-red-600 hover:bg-red-700 text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                            px-4
+                            py-2
+
+                            rounded-full
+
+                            text-sm
+
+                            font-semibold
+                          "
+                        >
+
+                          {
+                            property.type
+                          }
+
+                        </div>
+                      )}
+
+                      {property.subType && (
+
+                        <div
+                          className="
+
+                            bg-indigo-100
+                            text-indigo-700
+
+                            px-4
+                            py-2
+
+                            rounded-full
+
+                            text-sm
+
+                            font-semibold
+                          "
+                        >
+
+                          {
+                            property.subType
+                          }
+
+                        </div>
+                      )}
+
+                      {property.area > 0 && (
+
+                        <div
+                          className="
+
+                            bg-emerald-100
+                            text-emerald-700
+
+                            px-4
+                            py-2
+
+                            rounded-full
+
+                            text-sm
+
+                            font-semibold
+                          "
+                        >
+
+                          {
+                            property.area
+                          }{" "}
+
+                          {
+                            property.areaUnit ||
+                            "sqft"
+                          }
+
+                        </div>
+                      )}
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= GALLERY ============================ */}
+                    {/* ====================================================== */}
+
+                    {property.images
+                      ?.length > 1 && (
+
+                      <div
+                        className="
+
+                          grid
+
+                          grid-cols-2
+                          sm:grid-cols-3
+
+                          gap-3
+
+                          mt-6
+                        "
+                      >
+
+                        {property.images
+                          .slice(
+                            0,
+                            6
+                          )
+                          .map(
+                            (
+                              img
+                            ) => (
+
+                              <img
+
+                                key={
+                                  img._id
+                                }
+
+                                src={
+                                  img.url
+                                }
+
+                                alt="gallery"
+
+                                className="
+
+                                  w-full
+
+                                  h-20
+                                  sm:h-24
+
+                                  object-cover
+
+                                  rounded-2xl
+
+                                  border
+                                  border-slate-200
+                                "
+                              />
+                            )
+                          )}
+
+                      </div>
+                    )}
+
+                    {/* ====================================================== */}
+                    {/* ================= OWNER ============================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        mt-7
+
+                        bg-slate-50
+
+                        rounded-3xl
+
+                        p-5
+
+                        border
+                        border-slate-200
+                      "
                     >
 
-                      <XCircle size={18} />
+                      <div
+                        className="
+                          flex
+                          items-start
+                          justify-between
+                          gap-4
+                        "
+                      >
 
-                      Reject
+                        <div>
 
-                    </button>
+                          <p
+                            className="
+                              text-sm
+                              text-slate-500
+                            "
+                          >
 
-                    {/* DELETE */}
-                    <button
-                      onClick={() =>
-                        updateStatus(
-                          property._id,
-                          "delete"
-                        )
-                      }
-                      className="bg-slate-900 hover:bg-black text-white py-3 rounded-2xl font-bold flex items-center justify-center gap-2 transition"
+                            Submitted By
+
+                          </p>
+
+                          <h3
+                            className="
+                              font-bold
+                              mt-1
+                            "
+                          >
+
+                            {
+                              property
+                                ?.createdBy
+                                ?.name ||
+                              "Unknown User"
+                            }
+
+                          </h3>
+
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2
+
+                              text-sm
+                              text-slate-500
+
+                              mt-2
+                            "
+                          >
+
+                            <User2 size={14} />
+
+                            {
+                              property
+                                ?.createdBy
+                                ?.role ||
+                              "user"
+                            }
+
+                          </div>
+
+                        </div>
+
+                        <div
+                          className="
+                            text-right
+                          "
+                        >
+
+                          <p
+                            className="
+                              text-xs
+                              text-slate-500
+                            "
+                          >
+
+                            Submitted
+
+                          </p>
+
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2
+
+                              text-sm
+                              text-slate-700
+
+                              mt-2
+                            "
+                          >
+
+                            <CalendarDays
+                              size={14}
+                            />
+
+                            {formatDate(
+                              property.createdAt
+                            )}
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= REVIEW ACTIONS ===================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        grid
+
+                        grid-cols-1
+                        sm:grid-cols-2
+
+                        gap-3
+
+                        mt-6
+                      "
                     >
 
-                      <Trash2 size={18} />
+                      {/* REVIEW */}
+                      <Link
 
-                      Delete
+                        to={`/admin/property/${property._id}`}
 
-                    </button>
+                        className="
+
+                          bg-slate-100
+                          hover:bg-slate-200
+
+                          text-slate-800
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        <Eye size={18} />
+
+                        Review Property
+
+                      </Link>
+
+                      {/* IMAGES */}
+                      <Link
+
+                        to={`/admin/image-verification?property=${property._id}`}
+
+                        className="
+
+                          bg-indigo-100
+                          hover:bg-indigo-200
+
+                          text-indigo-700
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        <Images size={18} />
+
+                        Review Images
+
+                      </Link>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= ACTION BUTTONS ===================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        grid
+
+                        grid-cols-1
+                        sm:grid-cols-3
+
+                        gap-3
+
+                        mt-6
+                      "
+                    >
+
+                      {/* APPROVE */}
+                      <button
+
+                        disabled={
+                          approveLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "approved"
+                          )
+                        }
+
+                        className="
+
+                          bg-green-600
+                          hover:bg-green-700
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {approveLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+
+                            <CheckCircle2 size={18} />
+
+                            Approve
+
+                          </>
+                        )}
+
+                      </button>
+
+                      {/* REJECT */}
+                      <button
+
+                        disabled={
+                          rejectLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "rejected"
+                          )
+                        }
+
+                        className="
+
+                          bg-red-600
+                          hover:bg-red-700
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {rejectLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+
+                            <XCircle size={18} />
+
+                            Reject
+
+                          </>
+                        )}
+
+                      </button>
+
+                      {/* DELETE */}
+                      <button
+
+                        disabled={
+                          deleteLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "deleted"
+                          )
+                        }
+
+                        className="
+
+                          bg-slate-900
+                          hover:bg-black
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {deleteLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+
+                            <Trash2 size={18} />
+
+                            Delete
+
+                          </>
+                        )}
+
+                      </button>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= VERIFICATION READY ================= */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        mt-6
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-sm
+                        text-emerald-600
+
+                        font-medium
+                      "
+                    >
+
+                      <BadgeCheck size={16} />
+
+                      Verification workflow active
+
+                    </div>
 
                   </div>
 
                 </div>
-
-              </div>
-            )
+              );
+            }
           )}
 
         </div>

@@ -5,12 +5,110 @@ const bcrypt =
   require("bcryptjs");
 
 // ======================================================
+// ================= NOTIFICATION SCHEMA ================
+// ======================================================
+
+const notificationSchema =
+  new mongoose.Schema({
+
+    // ======================================================
+    // ================= TYPE ===============================
+    // ======================================================
+
+    type: {
+      type: String,
+      default:
+        "general",
+    },
+
+    // ======================================================
+    // ================= TITLE ==============================
+    // ======================================================
+
+    title: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    // ======================================================
+    // ================= MESSAGE ============================
+    // ======================================================
+
+    message: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    // ======================================================
+    // ================= ICON ===============================
+    // ======================================================
+
+    icon: {
+      type: String,
+      default:
+        "🔔",
+    },
+
+    // ======================================================
+    // ================= STATUS =============================
+    // ======================================================
+
+    status: {
+      type: String,
+      default: "",
+    },
+
+    // ======================================================
+    // ================= PROPERTY ===========================
+    // ======================================================
+
+    propertyId: {
+
+      type:
+        mongoose.Schema.Types
+          .ObjectId,
+
+      ref: "Property",
+
+      default: null,
+    },
+
+    propertyTitle: {
+      type: String,
+      default: "",
+    },
+
+    // ======================================================
+    // ================= READ STATUS ========================
+    // ======================================================
+
+    isRead: {
+      type: Boolean,
+      default: false,
+    },
+
+    // ======================================================
+    // ================= TIMESTAMP ==========================
+    // ======================================================
+
+    createdAt: {
+      type: Date,
+      default:
+        Date.now,
+    },
+
+  });
+
+// ======================================================
 // ================= USER SCHEMA ========================
 // ======================================================
 
 const userSchema =
   new mongoose.Schema(
     {
+
       // ======================================================
       // ================= BASIC INFO =========================
       // ======================================================
@@ -27,10 +125,15 @@ const userSchema =
 
       email: {
         type: String,
+
         unique: true,
+
         sparse: true,
+
         trim: true,
+
         lowercase: true,
+
         default: null,
       },
 
@@ -40,9 +143,13 @@ const userSchema =
 
       mobile: {
         type: String,
+
         unique: true,
+
         sparse: true,
+
         trim: true,
+
         default: null,
       },
 
@@ -52,8 +159,11 @@ const userSchema =
 
       password: {
         type: String,
+
         minlength: 6,
+
         default: null,
+
         select: false,
       },
 
@@ -65,12 +175,16 @@ const userSchema =
         type: String,
 
         enum: [
+
           "email",
+
           "otp",
+
           "google",
         ],
 
-        default: "email",
+        default:
+          "email",
       },
 
       // ======================================================
@@ -81,13 +195,20 @@ const userSchema =
         type: String,
 
         enum: [
+
           "buyer",
+
           "seller",
+
           "builder",
+
           "admin",
+
+          "agent",
         ],
 
-        default: "buyer",
+        default:
+          "buyer",
       },
 
       // ======================================================
@@ -96,7 +217,9 @@ const userSchema =
 
       userUniqueId: {
         type: String,
+
         unique: true,
+
         trim: true,
       },
 
@@ -158,6 +281,40 @@ const userSchema =
         default: "",
         trim: true,
       },
+
+      // ======================================================
+      // ================= NOTIFICATIONS ======================
+      // ======================================================
+
+      notifications: [
+
+        notificationSchema,
+      ],
+
+      unreadNotifications: {
+        type: Number,
+        default: 0,
+      },
+
+      // ======================================================
+      // ================= LAST ACTIVE ========================
+      // ======================================================
+
+      lastActiveAt: {
+        type: Date,
+        default:
+          Date.now,
+      },
+
+      // ======================================================
+      // ================= LOGIN TRACKING =====================
+      // ======================================================
+
+      lastLoginAt: {
+        type: Date,
+        default: null,
+      },
+
     },
 
     {
@@ -170,6 +327,7 @@ const userSchema =
 // ======================================================
 
 userSchema.pre(
+
   "save",
 
   async function (
@@ -178,12 +336,16 @@ userSchema.pre(
 
     try {
 
-      // ================= HASH PASSWORD =================
+      // ======================================================
+      // ================= HASH PASSWORD ======================
+      // ======================================================
 
       if (
+
         this.isModified(
           "password"
         ) &&
+
         this.password
       ) {
 
@@ -194,12 +356,16 @@ userSchema.pre(
 
         this.password =
           await bcrypt.hash(
+
             this.password,
+
             salt
           );
       }
 
-      // ================= UNIQUE USER ID =================
+      // ======================================================
+      // ================= UNIQUE USER ID =====================
+      // ======================================================
 
       if (
         !this.userUniqueId
@@ -207,8 +373,11 @@ userSchema.pre(
 
         const random =
           Math.random()
+
             .toString(36)
+
             .substring(2, 8)
+
             .toUpperCase();
 
         this.userUniqueId =
@@ -217,7 +386,9 @@ userSchema.pre(
 
       next();
 
-    } catch (error) {
+    } catch (
+      error
+    ) {
 
       next(error);
     }
@@ -241,9 +412,108 @@ userSchema.methods.matchPassword =
     }
 
     return await bcrypt.compare(
+
       enteredPassword,
+
       this.password
     );
+  };
+
+// ======================================================
+// ================= ADD NOTIFICATION ===================
+// ======================================================
+
+userSchema.methods.addNotification =
+  async function (
+    notificationData
+  ) {
+
+    this.notifications.unshift({
+
+      type:
+        notificationData.type ||
+
+        "general",
+
+      title:
+        notificationData.title ||
+
+        "",
+
+      message:
+        notificationData.message ||
+
+        "",
+
+      icon:
+        notificationData.icon ||
+
+        "🔔",
+
+      status:
+        notificationData.status ||
+
+        "",
+
+      propertyId:
+        notificationData.propertyId ||
+
+        null,
+
+      propertyTitle:
+        notificationData.propertyTitle ||
+
+        "",
+    });
+
+    // ======================================================
+    // ================= LIMIT STORAGE =======================
+    // ======================================================
+
+    if (
+      this.notifications
+        .length > 100
+    ) {
+
+      this.notifications =
+        this.notifications.slice(
+          0,
+          100
+        );
+    }
+
+    // ======================================================
+    // ================= UNREAD COUNT ========================
+    // ======================================================
+
+    this.unreadNotifications += 1;
+
+    await this.save();
+  };
+
+// ======================================================
+// ================= MARK ALL READ ======================
+// ======================================================
+
+userSchema.methods.markAllNotificationsRead =
+  async function () {
+
+    this.notifications =
+      this.notifications.map(
+
+        (
+          notification
+        ) => ({
+
+          ...notification.toObject(),
+
+          isRead: true,
+        })
+      );
+
+    this.unreadNotifications = 0;
+
+    await this.save();
   };
 
 // ======================================================
@@ -252,6 +522,10 @@ userSchema.methods.matchPassword =
 
 userSchema.index({
   role: 1,
+});
+
+userSchema.index({
+  unreadNotifications: 1,
 });
 
 // ======================================================

@@ -1,765 +1,1861 @@
-const express = require("express");
+const express =
+  require("express");
 
-const router = express.Router();
+const router =
+  express.Router();
 
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
+const bcrypt =
+  require("bcryptjs");
 
-const User = require("../models/User");
-const Otp = require("../models/Otp");
+const jwt =
+  require("jsonwebtoken");
 
-const generateOtp = require("../utils/generateOtp");
-const sendSMS = require("../utils/sendSMS");
+// ======================================================
+// ================= MODELS =============================
+// ======================================================
+
+const User =
+  require("../models/User");
+
+const Otp =
+  require("../models/Otp");
+
+// ======================================================
+// ================= MIDDLEWARE =========================
+// ======================================================
+
+const {
+  protect,
+} = require(
+  "../middleware/authMiddleware"
+);
+
+// ======================================================
+// ================= UTILS ==============================
+// ======================================================
+
+const generateOtp =
+  require(
+    "../utils/generateOtp"
+  );
+
+const sendSMS =
+  require(
+    "../utils/sendSMS"
+  );
+
 // ======================================================
 // ================= JWT TOKEN ==========================
 // ======================================================
 
-const generateToken = (user) => {
-  return jwt.sign(
-    {
-      id: user._id,
-      role: user.role,
-    },
+const generateToken =
+  (user) => {
 
-    process.env.JWT_SECRET,
+    return jwt.sign(
 
-    {
-      expiresIn: "7d",
-    },
-  );
-};
+      {
+
+        id:
+          user._id,
+
+        role:
+          user.role,
+      },
+
+      process.env
+        .JWT_SECRET,
+
+      {
+
+        expiresIn:
+          "7d",
+      }
+    );
+  };
+
+// ======================================================
+// ================= SAFE USER RESPONSE =================
+// ======================================================
+
+const sanitizeUser =
+  (user) => {
+
+    if (!user) {
+
+      return null;
+    }
+
+    const safeUser =
+      user.toObject
+        ? user.toObject()
+        : user;
+
+    delete safeUser.password;
+
+    return safeUser;
+  };
 
 // ======================================================
 // ================= SEND OTP ===========================
 // ======================================================
 
-router.post("/send-otp", async (req, res) => {
-  try {
-    const { mobile } = req.body;
+router.post(
 
-    if (!mobile) {
-      return res.status(400).json({
-        message: "Mobile number required",
+  "/send-otp",
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const {
+        mobile,
+      } = req.body;
+
+      if (
+        !mobile
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Mobile number required",
+        });
+      }
+
+      // ======================================================
+      // ================= FIND USER ==========================
+      // ======================================================
+
+      const existingUser =
+        await User.findOne({
+
+          mobile,
+        });
+
+      if (
+        !existingUser
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found. Please signup first.",
+        });
+      }
+
+      // ======================================================
+      // ================= EXISTING OTP =======================
+      // ======================================================
+
+      const existingOtp =
+        await Otp.findOne({
+
+          mobile,
+
+          purpose:
+            "login",
+        });
+
+      // ======================================================
+      // ================= BLOCKED ============================
+      // ======================================================
+
+      if (
+
+        existingOtp?.blocked &&
+
+        existingOtp
+          ?.blockedUntil >
+
+          new Date()
+      ) {
+
+        return res.status(429).json({
+
+          success: false,
+
+          message:
+            "Too many attempts. Try again later.",
+        });
+      }
+
+      // ======================================================
+      // ================= COOLDOWN ===========================
+      // ======================================================
+
+      if (
+
+        existingOtp
+          ?.resendAvailableAt >
+
+          new Date()
+      ) {
+
+        const seconds =
+          Math.ceil(
+
+            (
+
+              existingOtp.resendAvailableAt -
+
+              new Date()
+
+            ) / 1000
+          );
+
+        return res.status(429).json({
+
+          success: false,
+
+          message:
+            `Please wait ${seconds}s before requesting another OTP`,
+        });
+      }
+
+      // ======================================================
+      // ================= RESEND LIMIT =======================
+      // ======================================================
+
+      if (
+        existingOtp
+          ?.resendCount >=
+        3
+      ) {
+
+        existingOtp.blocked =
+          true;
+
+        existingOtp.blockedUntil =
+          new Date(
+
+            Date.now() +
+
+            15 *
+              60 *
+              1000
+          );
+
+        await existingOtp.save();
+
+        return res.status(429).json({
+
+          success: false,
+
+          message:
+            "Too many OTP requests. Try again after 15 minutes.",
+        });
+      }
+
+      // ======================================================
+      // ================= GENERATE OTP =======================
+      // ======================================================
+
+      const otp =
+        generateOtp();
+
+      // ======================================================
+      // ================= DELETE OLD =========================
+      // ======================================================
+
+      await Otp.deleteMany({
+
+        mobile,
+
+        purpose:
+          "login",
       });
-    }
 
-    // ================= FIND USER =================
+      // ======================================================
+      // ================= SAVE OTP ===========================
+      // ======================================================
 
-    const existingUser = await User.findOne({
-      mobile,
-    });
+      await Otp.create({
 
-    if (!existingUser) {
-      return res.status(404).json({
-        message: "User not found. Please signup first.",
+        mobile,
+
+        otp,
+
+        type:
+          "sms",
+
+        purpose:
+          "login",
+
+        resendCount:
+          existingOtp
+
+            ? existingOtp.resendCount +
+              1
+
+            : 1,
+
+        resendAvailableAt:
+          new Date(
+
+            Date.now() +
+
+            30 * 1000
+          ),
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers[
+            "user-agent"
+          ],
       });
-    }
 
-    // ================= EXISTING OTP =================
+      // ======================================================
+      // ================= SEND SMS ===========================
+      // ======================================================
 
-    const existingOtp = await Otp.findOne({
-      mobile,
-      purpose: "login",
-    });
-
-    // ================= BLOCKED =================
-
-    if (existingOtp?.blocked && existingOtp?.blockedUntil > new Date()) {
-      return res.status(429).json({
-        message: "Too many attempts. Try again later.",
-      });
-    }
-
-    // ================= COOLDOWN =================
-
-    if (existingOtp?.resendAvailableAt > new Date()) {
-      const seconds = Math.ceil(
-        (existingOtp.resendAvailableAt - new Date()) / 1000,
+      await sendSMS(
+        mobile,
+        otp
       );
 
-      return res.status(429).json({
-        message: `Please wait ${seconds}s before requesting another OTP`,
+      // ======================================================
+      // ================= RESPONSE ===========================
+      // ======================================================
+
+      res.json({
+
+        success: true,
+
+        message:
+          "OTP sent successfully",
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "SEND OTP ERROR:",
+
+        error
+          .response
+          ?.data ||
+
+          error.message ||
+
+          error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-
-    // ================= RESEND LIMIT =================
-
-    if (existingOtp?.resendCount >= 3) {
-      existingOtp.blocked = true;
-
-      existingOtp.blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
-
-      await existingOtp.save();
-
-      return res.status(429).json({
-        message: "Too many OTP requests. Try again after 15 minutes.",
-      });
-    }
-
-    // ================= GENERATE OTP =================
-
-    const otp = generateOtp();
-
-    // ================= DELETE OLD =================
-
-    await Otp.deleteMany({
-      mobile,
-      purpose: "login",
-    });
-
-    // ================= SAVE OTP =================
-
-    await Otp.create({
-      mobile,
-
-      otp,
-
-      type: "sms",
-
-      purpose: "login",
-
-      resendCount: existingOtp ? existingOtp.resendCount + 1 : 1,
-
-      resendAvailableAt: new Date(Date.now() + 30 * 1000),
-
-      ipAddress: req.ip,
-
-      userAgent: req.headers["user-agent"],
-    });
-
-    await sendSMS(
-      mobile,
-      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
-    );
-
-    res.json({
-      success: true,
-
-      message: "OTP sent successfully",
-    });
-  } catch (error) {
-    console.log(
-      "SEND OTP ERROR:",
-      error.response?.data || error.message || error,
-    );
-
-    res.status(500).json({
-      message: "Server error",
-    });
   }
-});
+);
 
 // ======================================================
 // ================= LOGIN ==============================
 // ======================================================
 
-router.post("/login", async (req, res) => {
-  try {
-    const { mode, email, mobile, password, otp } = req.body;
+router.post(
 
-    // ======================================================
-    // ================= EMAIL PASSWORD =====================
-    // ======================================================
+  "/login",
 
-    if (mode === "email-password") {
-      if (!email || !password) {
-        return res.status(400).json({
-          message: "Email & password required",
-        });
-      }
+  async (
+    req,
+    res
+  ) => {
 
-      const user = await User.findOne({
+    try {
+
+      const {
+
+        mode,
+
         email,
-      }).select("+password");
 
-      if (!user) {
-        return res.status(400).json({
-          message: "User not found",
-        });
-      }
-
-      if (!user.password) {
-        return res.status(400).json({
-          message: "Password not set for this account",
-        });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-
-      if (!match) {
-        return res.status(400).json({
-          message: "Invalid credentials",
-        });
-      }
-
-      const token = generateToken(user);
-
-      user.password = undefined;
-
-      return res.json({
-        success: true,
-        token,
-        user,
-      });
-    }
-
-    // ======================================================
-    // ================= MOBILE PASSWORD ====================
-    // ======================================================
-
-    if (mode === "mobile-password") {
-      if (!mobile || !password) {
-        return res.status(400).json({
-          message: "Mobile & password required",
-        });
-      }
-
-      const user = await User.findOne({
         mobile,
-      }).select("+password");
 
-      if (!user) {
-        return res.status(400).json({
-          message: "User not found",
-        });
-      }
+        password,
 
-      if (!user.password) {
-        return res.status(400).json({
-          message: "Password not set for this account",
-        });
-      }
-
-      const match = await bcrypt.compare(password, user.password);
-
-      if (!match) {
-        return res.status(400).json({
-          message: "Invalid credentials",
-        });
-      }
-
-      const token = generateToken(user);
-
-      user.password = undefined;
-
-      return res.json({
-        success: true,
-        token,
-        user,
-      });
-    }
-
-    // ======================================================
-    // ================= MOBILE OTP =========================
-    // ======================================================
-
-    if (mode === "mobile-otp") {
-      if (!mobile || !otp) {
-        return res.status(400).json({
-          message: "Mobile & OTP required",
-        });
-      }
-
-      const existingOtp = await Otp.findOne({
-        mobile,
         otp,
-        purpose: "login",
-      });
 
-      if (!existingOtp) {
-        return res.status(400).json({
-          message: "Invalid OTP",
+      } = req.body;
+
+      // ======================================================
+      // ================= EMAIL PASSWORD =====================
+      // ======================================================
+
+      if (
+
+        mode ===
+        "email-password"
+      ) {
+
+        if (
+          !email ||
+          !password
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Email & password required",
+          });
+        }
+
+        const user =
+          await User.findOne({
+
+            email:
+              email.toLowerCase(),
+          }).select(
+            "+password"
+          );
+
+        if (
+          !user
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "User not found",
+          });
+        }
+
+        if (
+          !user.password
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Password not set for this account",
+          });
+        }
+
+        const match =
+          await bcrypt.compare(
+
+            password,
+
+            user.password
+          );
+
+        if (
+          !match
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Invalid credentials",
+          });
+        }
+
+        // ======================================================
+        // ================= LOGIN TRACKING =====================
+        // ======================================================
+
+        user.lastLoginAt =
+          new Date();
+
+        user.lastActiveAt =
+          new Date();
+
+        await user.save();
+
+        const token =
+          generateToken(
+            user
+          );
+
+        return res.json({
+
+          success: true,
+
+          token,
+
+          user:
+            sanitizeUser(
+              user
+            ),
         });
       }
 
-      // ================= ATTEMPTS =================
+      // ======================================================
+      // ================= MOBILE PASSWORD ====================
+      // ======================================================
 
-      if (existingOtp.attempts >= existingOtp.maxAttempts) {
-        existingOtp.blocked = true;
+      if (
 
-        existingOtp.blockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+        mode ===
+        "mobile-password"
+      ) {
+
+        if (
+          !mobile ||
+          !password
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Mobile & password required",
+          });
+        }
+
+        const user =
+          await User.findOne({
+
+            mobile,
+          }).select(
+            "+password"
+          );
+
+        if (
+          !user
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "User not found",
+          });
+        }
+
+        if (
+          !user.password
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Password not set for this account",
+          });
+        }
+
+        const match =
+          await bcrypt.compare(
+
+            password,
+
+            user.password
+          );
+
+        if (
+          !match
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Invalid credentials",
+          });
+        }
+
+        user.lastLoginAt =
+          new Date();
+
+        user.lastActiveAt =
+          new Date();
+
+        await user.save();
+
+        const token =
+          generateToken(
+            user
+          );
+
+        return res.json({
+
+          success: true,
+
+          token,
+
+          user:
+            sanitizeUser(
+              user
+            ),
+        });
+      }
+
+      // ======================================================
+      // ================= MOBILE OTP =========================
+      // ======================================================
+
+      if (
+        mode ===
+        "mobile-otp"
+      ) {
+
+        if (
+          !mobile ||
+          !otp
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Mobile & OTP required",
+          });
+        }
+
+        const existingOtp =
+          await Otp.findOne({
+
+            mobile,
+
+            otp,
+
+            purpose:
+              "login",
+          });
+
+        if (
+          !existingOtp
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "Invalid OTP",
+          });
+        }
+
+        // ======================================================
+        // ================= ATTEMPTS ===========================
+        // ======================================================
+
+        if (
+
+          existingOtp.attempts >=
+
+          existingOtp.maxAttempts
+        ) {
+
+          existingOtp.blocked =
+            true;
+
+          existingOtp.blockedUntil =
+            new Date(
+
+              Date.now() +
+
+              15 *
+                60 *
+                1000
+            );
+
+          await existingOtp.save();
+
+          return res.status(429).json({
+
+            success: false,
+
+            message:
+              "Too many invalid attempts. Try again later.",
+          });
+        }
+
+        // ======================================================
+        // ================= EXPIRED ============================
+        // ======================================================
+
+        if (
+
+          existingOtp.expiresAt <
+
+          new Date()
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "OTP expired",
+          });
+        }
+
+        const user =
+          await User.findOne({
+
+            mobile,
+          });
+
+        if (
+          !user
+        ) {
+
+          return res.status(400).json({
+
+            success: false,
+
+            message:
+              "User not found. Please signup first.",
+          });
+        }
+
+        user.isMobileVerified =
+          true;
+
+        user.lastLoginAt =
+          new Date();
+
+        user.lastActiveAt =
+          new Date();
+
+        await user.save();
+
+        existingOtp.verified =
+          true;
 
         await existingOtp.save();
 
-        return res.status(429).json({
-          message: "Too many invalid attempts. Try again later.",
+        const token =
+          generateToken(
+            user
+          );
+
+        await Otp.deleteMany({
+
+          mobile,
+
+          purpose:
+            "login",
+        });
+
+        return res.json({
+
+          success: true,
+
+          token,
+
+          user:
+            sanitizeUser(
+              user
+            ),
         });
       }
 
-      // ================= EXPIRED =================
+      // ======================================================
+      // ================= INVALID ============================
+      // ======================================================
 
-      if (existingOtp.expiresAt < new Date()) {
-        return res.status(400).json({
-          message: "OTP expired",
-        });
-      }
+      return res.status(400).json({
 
-      const user = await User.findOne({
-        mobile,
+        success: false,
+
+        message:
+          "Invalid login mode",
       });
 
-      if (!user) {
-        return res.status(400).json({
-          message: "User not found. Please signup first.",
-        });
-      }
+    } catch (
+      error
+    ) {
 
-      user.isMobileVerified = true;
+      console.log(
 
-      await user.save();
+        "LOGIN ERROR:",
 
-      existingOtp.verified = true;
+        error
+          .response
+          ?.data ||
 
-      await existingOtp.save();
+          error.message ||
 
-      const token = generateToken(user);
+          error
+      );
 
-      await Otp.deleteMany({
-        mobile,
-        purpose: "login",
-      });
+      res.status(500).json({
 
-      return res.json({
-        success: true,
-        token,
-        user,
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-
-    return res.status(400).json({
-      message: "Invalid login mode",
-    });
-  } catch (error) {
-    console.log("LOGIN ERROR:", error.response?.data || error.message || error);
-
-    res.status(500).json({
-      message: "Server error",
-    });
   }
-});
+);
 
 // ======================================================
 // ================= REGISTER SEND OTP ==================
 // ======================================================
 
 router.post(
+
   "/register-send-otp",
 
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
+
     try {
-      const { mobile } = req.body;
 
-      if (!mobile) {
+      const {
+        mobile,
+      } = req.body;
+
+      if (
+        !mobile
+      ) {
+
         return res.status(400).json({
-          message: "Mobile required",
+
+          success: false,
+
+          message:
+            "Mobile required",
         });
       }
 
-      const existingUser = await User.findOne({
-        mobile,
-      });
+      const existingUser =
+        await User.findOne({
 
-      if (existingUser) {
+          mobile,
+        });
+
+      if (
+        existingUser
+      ) {
+
         return res.status(400).json({
-          message: "User already exists",
+
+          success: false,
+
+          message:
+            "User already exists",
         });
       }
 
-      const existingOtp = await Otp.findOne({
-        mobile,
-        purpose: "signup",
-      });
+      const existingOtp =
+        await Otp.findOne({
 
-      // ================= COOLDOWN =================
+          mobile,
 
-      if (existingOtp?.resendAvailableAt > new Date()) {
-        const seconds = Math.ceil(
-          (existingOtp.resendAvailableAt - new Date()) / 1000,
-        );
+          purpose:
+            "signup",
+        });
+
+      // ======================================================
+      // ================= COOLDOWN ===========================
+      // ======================================================
+
+      if (
+
+        existingOtp
+          ?.resendAvailableAt >
+
+          new Date()
+      ) {
+
+        const seconds =
+          Math.ceil(
+
+            (
+
+              existingOtp.resendAvailableAt -
+
+              new Date()
+
+            ) / 1000
+          );
 
         return res.status(429).json({
-          message: `Please wait ${seconds}s before requesting another OTP`,
+
+          success: false,
+
+          message:
+            `Please wait ${seconds}s before requesting another OTP`,
         });
       }
 
-      const otp = generateOtp();
+      const otp =
+        generateOtp();
 
       await Otp.deleteMany({
+
         mobile,
-        purpose: "signup",
+
+        purpose:
+          "signup",
       });
 
       await Otp.create({
+
         mobile,
 
         otp,
 
-        type: "sms",
+        type:
+          "sms",
 
-        purpose: "signup",
+        purpose:
+          "signup",
 
-        resendAvailableAt: new Date(Date.now() + 30 * 1000),
+        resendAvailableAt:
+          new Date(
 
-        ipAddress: req.ip,
+            Date.now() +
 
-        userAgent: req.headers["user-agent"],
+            30 * 1000
+          ),
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers[
+            "user-agent"
+          ],
       });
 
       await sendSMS(
         mobile,
-        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+        otp
       );
 
       res.json({
+
         success: true,
-        message: "OTP sent successfully",
+
+        message:
+          "OTP sent successfully",
       });
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
+
       console.log(
+
         "REGISTER OTP ERROR:",
-        error.response?.data || error.message || error,
+
+        error
+          .response
+          ?.data ||
+
+          error.message ||
+
+          error
       );
 
       res.status(500).json({
-        message: "Server error",
+
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-  },
+  }
 );
 
 // ======================================================
 // ================= REGISTER ===========================
 // ======================================================
 
-router.post("/register", async (req, res) => {
-  try {
-    const { name, email, mobile, password, otp, role } = req.body;
+router.post(
 
-    if (!name || !mobile || !password || !otp) {
-      return res.status(400).json({
-        message: "Required fields missing",
+  "/register",
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const {
+
+        name,
+
+        email,
+
+        mobile,
+
+        password,
+
+        otp,
+
+        role,
+
+      } = req.body;
+
+      if (
+
+        !name ||
+
+        !mobile ||
+
+        !password ||
+
+        !otp
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Required fields missing",
+        });
+      }
+
+      const existingOtp =
+        await Otp.findOne({
+
+          mobile,
+
+          otp,
+
+          purpose:
+            "signup",
+        });
+
+      if (
+        !existingOtp
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Invalid OTP",
+        });
+      }
+
+      if (
+
+        existingOtp.expiresAt <
+
+        new Date()
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "OTP expired",
+        });
+      }
+
+      const existingUser =
+        await User.findOne({
+
+          $or: [
+
+            { email },
+
+            { mobile },
+          ],
+        });
+
+      if (
+        existingUser
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "User already exists",
+        });
+      }
+
+      const allowedRoles = [
+
+        "buyer",
+
+        "seller",
+
+        "builder",
+
+        "agent",
+      ];
+
+      const finalRole =
+        allowedRoles.includes(
+          role
+        )
+
+          ? role
+
+          : "buyer";
+
+      const user =
+        await User.create({
+
+          name,
+
+          email,
+
+          mobile,
+
+          password,
+
+          role:
+            finalRole,
+
+          authProvider:
+            "email",
+
+          isMobileVerified:
+            true,
+        });
+
+      // ======================================================
+      // ================= WELCOME NOTIFICATION ===============
+      // ======================================================
+
+      await user.addNotification({
+
+        type:
+          "welcome",
+
+        title:
+          "Welcome To Real Estate Platform",
+
+        message:
+          "Your account has been created successfully.",
+
+        icon:
+          "🎉",
+      });
+
+      const token =
+        generateToken(
+          user
+        );
+
+      await Otp.deleteMany({
+
+        mobile,
+
+        purpose:
+          "signup",
+      });
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Account created successfully",
+
+        token,
+
+        user:
+          sanitizeUser(
+            user
+          ),
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "REGISTER ERROR:",
+
+        error
+          .response
+          ?.data ||
+
+          error.message ||
+
+          error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-
-    const existingOtp = await Otp.findOne({
-      mobile,
-      otp,
-      purpose: "signup",
-    });
-
-    if (!existingOtp) {
-      return res.status(400).json({
-        message: "Invalid OTP",
-      });
-    }
-
-    if (existingOtp.expiresAt < new Date()) {
-      return res.status(400).json({
-        message: "OTP expired",
-      });
-    }
-
-    const existingUser = await User.findOne({
-      $or: [{ email }, { mobile }],
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "User already exists",
-      });
-    }
-
-    const allowedRoles = ["buyer", "seller", "builder"];
-
-    const finalRole = allowedRoles.includes(role) ? role : "buyer";
-
-    const user = await User.create({
-      name,
-
-      email,
-
-      mobile,
-
-      password,
-
-      role: finalRole,
-
-      authProvider: "email",
-
-      isMobileVerified: true,
-    });
-
-    const token = generateToken(user);
-
-    await Otp.deleteMany({
-      mobile,
-      purpose: "signup",
-    });
-
-    res.json({
-      success: true,
-      message: "Account created successfully",
-      token,
-      user,
-    });
-  } catch (error) {
-    console.log(
-      "REGISTER ERROR:",
-      error.response?.data || error.message || error,
-    );
-
-    res.status(500).json({
-      message: "Server error",
-    });
   }
-});
+);
+
+// ======================================================
+// ================= GET NOTIFICATIONS ==================
+// ======================================================
+
+router.get(
+
+  "/notifications",
+
+  protect,
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const user =
+        await User.findById(
+          req.user.id
+        );
+
+      if (
+        !user
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found",
+        });
+      }
+
+      res.json({
+
+        success: true,
+
+        notifications:
+          user.notifications ||
+
+          [],
+
+        unreadCount:
+          user.unreadNotifications ||
+          0,
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "GET NOTIFICATIONS ERROR:",
+
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
+      });
+    }
+  }
+);
+
+// ======================================================
+// ================= MARK ALL AS READ ===================
+// ======================================================
+
+router.patch(
+
+  "/notifications/read-all",
+
+  protect,
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const user =
+        await User.findById(
+          req.user.id
+        );
+
+      if (
+        !user
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found",
+        });
+      }
+
+      await user.markAllNotificationsRead();
+
+      res.json({
+
+        success: true,
+
+        message:
+          "All notifications marked as read",
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "READ NOTIFICATIONS ERROR:",
+
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
+      });
+    }
+  }
+);
+
+// ======================================================
+// ================= DELETE NOTIFICATION ================
+// ======================================================
+
+router.delete(
+
+  "/notifications/:id",
+
+  protect,
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const user =
+        await User.findById(
+          req.user.id
+        );
+
+      if (
+        !user
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found",
+        });
+      }
+
+      user.notifications =
+        user.notifications.filter(
+
+          (
+            notification
+          ) =>
+
+            notification._id.toString() !==
+            req.params.id
+        );
+
+      user.unreadNotifications =
+        user.notifications.filter(
+
+          (
+            notification
+          ) =>
+
+            !notification.isRead
+        ).length;
+
+      await user.save();
+
+      res.json({
+
+        success: true,
+
+        message:
+          "Notification deleted successfully",
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "DELETE NOTIFICATION ERROR:",
+
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
+      });
+    }
+  }
+);
+
+// ======================================================
+// ================= CLEAR ALL NOTIFICATIONS ============
+// ======================================================
+
+router.delete(
+
+  "/notifications",
+
+  protect,
+
+  async (
+    req,
+    res
+  ) => {
+
+    try {
+
+      const user =
+        await User.findById(
+          req.user.id
+        );
+
+      if (
+        !user
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "User not found",
+        });
+      }
+
+      user.notifications =
+        [];
+
+      user.unreadNotifications =
+        0;
+
+      await user.save();
+
+      res.json({
+
+        success: true,
+
+        message:
+          "All notifications cleared successfully",
+      });
+
+    } catch (
+      error
+    ) {
+
+      console.log(
+
+        "CLEAR NOTIFICATIONS ERROR:",
+
+        error
+      );
+
+      res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server error",
+      });
+    }
+  }
+);
 
 // ======================================================
 // ================= FORGOT PASSWORD OTP ================
 // ======================================================
 
 router.post(
+
   "/forgot-password/send-otp",
 
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
+
     try {
-      const { email, mobile } = req.body;
 
-      if (!email && !mobile) {
+      const {
+
+        email,
+
+        mobile,
+
+      } = req.body;
+
+      if (
+        !email &&
+        !mobile
+      ) {
+
         return res.status(400).json({
-          message: "Email or mobile required",
+
+          success: false,
+
+          message:
+            "Email or mobile required",
         });
       }
 
-      const user = await User.findOne({
-        $or: [{ email }, { mobile }],
-      });
+      const user =
+        await User.findOne({
 
-      if (!user) {
+          $or: [
+
+            { email },
+
+            { mobile },
+          ],
+        });
+
+      if (
+        !user
+      ) {
+
         return res.status(404).json({
-          message: "User not found",
+
+          success: false,
+
+          message:
+            "User not found",
         });
       }
 
-      const existingOtp = await Otp.findOne({
-        $or: [{ email }, { mobile }],
+      const existingOtp =
+        await Otp.findOne({
 
-        purpose: "forgot-password",
-      });
+          $or: [
 
-      // ================= COOLDOWN =================
+            { email },
 
-      if (existingOtp?.resendAvailableAt > new Date()) {
-        const seconds = Math.ceil(
-          (existingOtp.resendAvailableAt - new Date()) / 1000,
-        );
+            { mobile },
+          ],
+
+          purpose:
+            "forgot-password",
+        });
+
+      if (
+
+        existingOtp
+          ?.resendAvailableAt >
+
+          new Date()
+      ) {
+
+        const seconds =
+          Math.ceil(
+
+            (
+
+              existingOtp.resendAvailableAt -
+
+              new Date()
+
+            ) / 1000
+          );
 
         return res.status(429).json({
-          message: `Please wait ${seconds}s before requesting another OTP`,
+
+          success: false,
+
+          message:
+            `Please wait ${seconds}s before requesting another OTP`,
         });
       }
 
-      const otp = generateOtp();
+      const otp =
+        generateOtp();
 
       await Otp.deleteMany({
+
         email,
+
         mobile,
-        purpose: "forgot-password",
+
+        purpose:
+          "forgot-password",
       });
 
       await Otp.create({
+
         email,
 
         mobile,
 
         otp,
 
-        type: "sms",
+        type:
+          "sms",
 
-        purpose: "forgot-password",
+        purpose:
+          "forgot-password",
 
-        resendAvailableAt: new Date(Date.now() + 30 * 1000),
+        resendAvailableAt:
+          new Date(
 
-        ipAddress: req.ip,
+            Date.now() +
 
-        userAgent: req.headers["user-agent"],
+            30 * 1000
+          ),
+
+        ipAddress:
+          req.ip,
+
+        userAgent:
+          req.headers[
+            "user-agent"
+          ],
       });
 
       await sendSMS(
         mobile,
-        `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
+        otp
       );
 
       res.json({
+
         success: true,
-        message: "Reset OTP sent",
+
+        message:
+          "Reset OTP sent",
       });
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
+
       console.log(
+
         "FORGOT PASSWORD OTP ERROR:",
-        error.response?.data || error.message || error,
+
+        error
       );
 
       res.status(500).json({
-        message: "Server error",
+
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-  },
-);
-
-// ================= COOLDOWN =================
-
-router.post("/forgot-password/send-otp", async (req, res) => {
-  try {
-    const { email, mobile } = req.body;
-
-    if (!email && !mobile) {
-      return res.status(400).json({
-        message: "Email or mobile required",
-      });
-    }
-
-    const user = await User.findOne({
-      $or: [{ email }, { mobile }],
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    const existingOtp = await Otp.findOne({
-      $or: [{ email }, { mobile }],
-      purpose: "forgot-password",
-    });
-
-    if (existingOtp?.resendAvailableAt > new Date()) {
-      const seconds = Math.ceil(
-        (existingOtp.resendAvailableAt - new Date()) / 1000,
-      );
-
-      return res.status(429).json({
-        message: `Please wait ${seconds}s before requesting another OTP`,
-      });
-    }
-
-    const otp = generateOtp();
-
-    await Otp.deleteMany({
-      email,
-      mobile,
-      purpose: "forgot-password",
-    });
-
-    await Otp.create({
-      email,
-      mobile,
-      otp,
-      type: "sms",
-      purpose: "forgot-password",
-
-      resendAvailableAt: new Date(Date.now() + 30 * 1000),
-
-      ipAddress: req.ip,
-
-      userAgent: req.headers["user-agent"],
-    });
-
-    await sendSMS(
-      mobile,
-      `Your Housify Realty OTP is ${otp}. Do not share this OTP with anyone.`,
-    );
-
-    return res.json({
-      success: true,
-      message: "Reset OTP sent",
-    });
-  } catch (error) {
-    console.log(
-      "FORGOT PASSWORD OTP ERROR:",
-      error.response?.data || error.message || error,
-    );
-
-    return res.status(500).json({
-      message: "Server error",
-    });
   }
-});
+);
 
 // ======================================================
 // ================= RESET PASSWORD =====================
 // ======================================================
 
 router.post(
+
   "/reset-password",
 
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
+
     try {
-      const { email, mobile, otp, newPassword } = req.body;
 
-      if (!otp || !newPassword) {
-        return res.status(400).json({
-          message: "OTP & new password required",
-        });
-      }
+      const {
 
-      const existingOtp = await Otp.findOne({
+        email,
+
+        mobile,
+
         otp,
 
-        $or: [{ email }, { mobile }],
+        newPassword,
 
-        purpose: "forgot-password",
-      });
+      } = req.body;
 
-      if (!existingOtp) {
+      if (
+        !otp ||
+        !newPassword
+      ) {
+
         return res.status(400).json({
-          message: "Invalid OTP",
+
+          success: false,
+
+          message:
+            "OTP & new password required",
         });
       }
 
-      if (existingOtp.expiresAt < new Date()) {
+      const existingOtp =
+        await Otp.findOne({
+
+          otp,
+
+          $or: [
+
+            { email },
+
+            { mobile },
+          ],
+
+          purpose:
+            "forgot-password",
+        });
+
+      if (
+        !existingOtp
+      ) {
+
         return res.status(400).json({
-          message: "OTP expired",
+
+          success: false,
+
+          message:
+            "Invalid OTP",
         });
       }
 
-      const user = await User.findOne({
-        $or: [{ email }, { mobile }],
-      }).select("+password");
+      if (
 
-      if (!user) {
+        existingOtp.expiresAt <
+
+        new Date()
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "OTP expired",
+        });
+      }
+
+      const user =
+        await User.findOne({
+
+          $or: [
+
+            { email },
+
+            { mobile },
+          ],
+        }).select(
+          "+password"
+        );
+
+      if (
+        !user
+      ) {
+
         return res.status(404).json({
-          message: "User not found",
+
+          success: false,
+
+          message:
+            "User not found",
         });
       }
 
-      user.password = newPassword;
+      user.password =
+        newPassword;
 
       await user.save();
 
       await Otp.deleteMany({
+
         email,
+
         mobile,
 
-        purpose: "forgot-password",
+        purpose:
+          "forgot-password",
       });
 
       res.json({
+
         success: true,
-        message: "Password updated successfully",
+
+        message:
+          "Password updated successfully",
       });
-    } catch (error) {
+
+    } catch (
+      error
+    ) {
+
       console.log(
+
         "RESET PASSWORD ERROR:",
-        error.response?.data || error.message || error,
+
+        error
       );
 
       res.status(500).json({
-        message: "Server error",
+
+        success: false,
+
+        message:
+          "Server error",
       });
     }
-  },
+  }
 );
 
-module.exports = router;
+// ======================================================
+// ================= EXPORT =============================
+// ======================================================
+
+module.exports =
+  router;
