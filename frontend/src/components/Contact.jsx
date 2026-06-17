@@ -131,7 +131,20 @@ function Contact() {
     <div className="min-h-screen bg-slate-50">
 
       {/* HERO */}
-      <section className="bg-gradient-to-r from-slate-900 to-slate-700 text-white py-20 px-6">
+      <section className="
+          bg-gradient-to-r
+          from-slate-900
+          to-slate-700
+
+          text-white
+
+          py-14
+          sm:py-16
+          md:py-20
+
+          px-4
+          sm:px-6
+        ">
 
         <div className="max-w-6xl mx-auto text-center">
 
@@ -155,13 +168,33 @@ function Contact() {
 
             </p>
 
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+            <h1 className="
+                text-3xl
+                sm:text-5xl
+                md:text-6xl
+
+                font-bold
+
+                leading-tight
+              ">
 
               Contact Our Team
 
             </h1>
 
-            <p className="mt-6 text-slate-300 text-lg max-w-2xl mx-auto">
+            <p className="
+                mt-5
+
+                text-slate-300
+
+                text-base
+                sm:text-lg
+
+                max-w-2xl
+                mx-auto
+
+                leading-7
+              ">
 
               Connect with our verified real estate support team
               for inquiries, partnerships and property assistance.
@@ -173,9 +206,28 @@ function Contact() {
       </section>
 
       {/* CONTENT */}
-      <section className="max-w-7xl mx-auto px-6 py-16">
+      <section className="
+            max-w-7xl
+            mx-auto
 
-        <div className="grid lg:grid-cols-2 gap-10">
+            px-4
+            sm:px-6
+
+            py-10
+            sm:py-14
+            md:py-16
+          ">
+
+        <div className="
+  grid
+
+  grid-cols-1
+  lg:grid-cols-2
+
+  gap-6
+  sm:gap-8
+  lg:gap-10
+">
 
           {/* LEFT INFO */}
           <motion.div
@@ -197,13 +249,28 @@ function Contact() {
           >
 
             {/* CARD */}
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
+            <div className="
+                bg-white
+
+                rounded-[24px]
+                sm:rounded-3xl
+
+                p-5
+                sm:p-8
+
+                shadow-sm
+              ">
 
               <div className="flex items-center gap-3 mb-5">
 
                 <Building2 className="text-slate-700" />
 
-                <h2 className="text-3xl font-bold">
+                <h2 className="
+                    text-2xl
+                    sm:text-3xl
+
+                    font-bold
+                  ">
                   Contact Information
                 </h2>
 
@@ -225,7 +292,14 @@ function Contact() {
                       Email Support
                     </p>
 
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="
+                        font-semibold
+
+                        text-base
+                        sm:text-lg
+
+                        break-words
+                      ">
                       housifyrealty.info@gmail.com
                     </h3>
 
@@ -246,7 +320,14 @@ function Contact() {
                       Phone
                     </p>
 
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="
+                        font-semibold
+
+                        text-base
+                        sm:text-lg
+
+                        break-words
+                      ">
                       +91-7415930089
                     </h3>
 
@@ -267,7 +348,14 @@ function Contact() {
                       Office Address
                     </p>
 
-                    <h3 className="font-semibold text-lg">
+                    <h3 className="
+                        font-semibold
+
+                        text-base
+                        sm:text-lg
+
+                        break-words
+                      ">
                       India
                     </h3>
 
@@ -278,9 +366,27 @@ function Contact() {
             </div>
 
             {/* FEATURES */}
-            <div className="grid md:grid-cols-2 gap-5">
+            <div className="
+                grid
 
-              <div className="bg-white rounded-3xl p-6 shadow-sm">
+                grid-cols-1
+                sm:grid-cols-2
+
+                gap-4
+                sm:gap-5
+              ">
+
+              <div className="
+                  bg-white
+
+                  rounded-[24px]
+                  sm:rounded-3xl
+
+                  p-5
+                  sm:p-6
+
+                  shadow-sm
+                ">
 
                 <ShieldCheck className="text-green-600 mb-4" />
 
@@ -296,7 +402,17 @@ function Contact() {
 
               </div>
 
-              <div className="bg-white rounded-3xl p-6 shadow-sm">
+              <div className="
+                  bg-white
+
+                  rounded-[24px]
+                  sm:rounded-3xl
+
+                  p-5
+                  sm:p-6
+
+                  shadow-sm
+                ">
 
                 <MessageSquare className="text-blue-600 mb-4" />
 
@@ -333,7 +449,17 @@ function Contact() {
             }}
           >
 
-            <div className="bg-white rounded-3xl p-8 shadow-sm">
+            <div className="
+                bg-white
+
+                rounded-[24px]
+                sm:rounded-3xl
+
+                p-5
+                sm:p-8
+
+                shadow-sm
+              ">
 
               <div className="mb-6">
 
@@ -343,7 +469,15 @@ function Contact() {
 
                 </p>
 
-                <h2 className="text-4xl font-bold mt-2">
+                <h2 className="
+                    text-2xl
+                    sm:text-3xl
+                    md:text-4xl
+
+                    font-bold
+
+                    mt-2
+                  ">
 
                   Send Us A Message
 
@@ -354,7 +488,7 @@ function Contact() {
               {/* SUCCESS */}
               {success && (
 
-                <div className="bg-green-100 text-green-700 px-5 py-4 rounded-2xl mb-5">
+                <div className="bg-green-100 text-green-700 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl mb-5">
 
                   {success}
 
@@ -364,7 +498,7 @@ function Contact() {
               {/* ERROR */}
               {error && (
 
-                <div className="bg-red-100 text-red-700 px-5 py-4 rounded-2xl mb-5">
+                <div className="bg-red-100 text-red-700 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl mb-5">
 
                   {error}
 
@@ -376,7 +510,10 @@ function Contact() {
                 onSubmit={
                   handleSubmit
                 }
-                className="space-y-5"
+                className="
+                  space-y-4
+                  sm:space-y-5
+                "
               >
 
                 <input
@@ -390,7 +527,7 @@ function Contact() {
                   }
                   placeholder="Full Name"
                   required
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-slate-900"
+                  className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
                 />
 
                 <input
@@ -404,7 +541,7 @@ function Contact() {
                   }
                   placeholder="Email Address"
                   required
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-slate-900"
+                  className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
                 />
 
                 <input
@@ -418,7 +555,7 @@ function Contact() {
                   }
                   placeholder="Mobile Number"
                   required
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-slate-900"
+                  className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
                 />
 
                 <input
@@ -431,12 +568,12 @@ function Contact() {
                     handleChange
                   }
                   placeholder="Your City"
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-slate-900"
+                  className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
                 />
 
                 <textarea
                   name="message"
-                  rows="6"
+                  rows="5"
                   value={
                     form.message
                   }
@@ -445,7 +582,7 @@ function Contact() {
                   }
                   placeholder="Write your message..."
                   required
-                  className="w-full border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-slate-900 resize-none"
+                  className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900 resize-none"
                 />
 
                 <button
@@ -453,7 +590,31 @@ function Contact() {
                   disabled={
                     loading
                   }
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-3 transition"
+                  className="
+                      w-full
+
+                      bg-slate-900
+                      hover:bg-slate-800
+
+                      text-white
+
+                      py-3.5
+                      sm:py-4
+
+                      rounded-2xl
+
+                      font-semibold
+
+                      text-base
+                      sm:text-lg
+
+                      flex
+                      items-center
+                      justify-center
+                      gap-3
+
+                      transition
+                    "
                 >
 
                   <Send size={18} />

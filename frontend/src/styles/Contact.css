@@ -36,3 +36,29 @@
   margin-bottom: 10px;
   font-weight: bold;
 }
+
+/* ================= MOBILE OPTIMIZATION ================= */
+
+@media (max-width: 768px) {
+
+  input,
+  textarea,
+  button {
+
+    font-size: 16px !important;
+  }
+
+  textarea {
+
+    min-height: 140px;
+  }
+}
+
+/* ================= TOUCH UX ================= */
+
+button,
+input,
+textarea {
+
+  -webkit-tap-highlight-color: transparent;
+}

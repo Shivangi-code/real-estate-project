@@ -231,17 +231,42 @@ export default function VerificationBoard() {
     color,
   }) => (
 
-    <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+    <div
+      className="
+        bg-white
+        rounded-[24px]
+        sm:rounded-3xl
+        p-5
+        sm:p-6
+        shadow-sm
+        border
+        border-slate-200
+      "
+    >
 
       <div className={color}>
         {icon}
       </div>
 
-      <p className="text-slate-500 mt-4">
+      <p
+        className="
+          text-slate-500
+          mt-4
+          text-sm
+          sm:text-base
+        "
+      >
         {title}
       </p>
 
-      <h2 className="text-4xl font-bold mt-2">
+      <h2
+        className="
+          text-3xl
+          sm:text-4xl
+          font-bold
+          mt-2
+        "
+      >
         {value}
       </h2>
 
@@ -249,27 +274,80 @@ export default function VerificationBoard() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
+
+    <div
+      className="
+        min-h-screen
+        bg-slate-100
+        p-4
+        sm:p-6
+        md:p-10
+        overflow-x-hidden
+      "
+    >
 
       {/* ====================================================== */}
       {/* ================= HEADER ============================= */}
       {/* ====================================================== */}
 
-      <div className="bg-gradient-to-r from-indigo-700 via-blue-700 to-slate-900 rounded-[32px] text-white p-8 shadow-xl mb-8">
+      <div
+        className="
+          bg-gradient-to-r
+          from-indigo-700
+          via-blue-700
+          to-slate-900
+          rounded-[24px]
+          sm:rounded-[32px]
+          text-white
+          p-5
+          sm:p-8
+          shadow-xl
+          mb-6
+          sm:mb-8
+        "
+      >
 
-        <div className="flex items-center gap-4">
+        <div
+          className="
+            flex
+            flex-col
+            sm:flex-row
+            sm:items-center
+            gap-4
+          "
+        >
 
-          <ShieldCheck size={42} />
+          <ShieldCheck
+            className="
+              w-10
+              h-10
+              sm:w-11
+              sm:h-11
+            "
+          />
 
           <div>
 
-            <h1 className="text-4xl font-bold">
+            <h1
+              className="
+                text-3xl
+                sm:text-4xl
+                font-bold
+              "
+            >
 
               Image Verification Board
 
             </h1>
 
-            <p className="text-blue-100 mt-2 text-lg">
+            <p
+              className="
+                text-blue-100
+                mt-2
+                text-sm
+                sm:text-lg
+              "
+            >
 
               Moderate and manage property gallery uploads
 
@@ -285,7 +363,18 @@ export default function VerificationBoard() {
       {/* ================= STATS ============================== */}
       {/* ====================================================== */}
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-6 mb-10">
+      <div
+        className="
+          grid
+          grid-cols-1
+          sm:grid-cols-2
+          xl:grid-cols-4
+          gap-4
+          sm:gap-6
+          mb-8
+          sm:mb-10
+        "
+      >
 
         <StatCard
           icon={
@@ -331,7 +420,15 @@ export default function VerificationBoard() {
 
       {loading ? (
 
-        <div className="text-center text-xl font-semibold py-20">
+        <div
+          className="
+            text-center
+            text-lg
+            sm:text-xl
+            font-semibold
+            py-20
+          "
+        >
 
           Loading verification board...
 
@@ -340,15 +437,38 @@ export default function VerificationBoard() {
       ) : properties.length ===
         0 ? (
 
-        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+        <div
+          className="
+            bg-white
+            rounded-[24px]
+            sm:rounded-3xl
+            p-8
+            sm:p-12
+            text-center
+            shadow-sm
+          "
+        >
 
-          <h2 className="text-3xl font-bold">
+          <h2
+            className="
+              text-2xl
+              sm:text-3xl
+              font-bold
+            "
+          >
 
             No Properties Found
 
           </h2>
 
-          <p className="text-slate-500 mt-3">
+          <p
+            className="
+              text-slate-500
+              mt-3
+              text-sm
+              sm:text-base
+            "
+          >
 
             No uploaded properties available for moderation.
 
@@ -358,7 +478,15 @@ export default function VerificationBoard() {
 
       ) : (
 
-        <div className="grid lg:grid-cols-2 gap-6">
+        <div
+          className="
+            grid
+            grid-cols-1
+            xl:grid-cols-2
+            gap-5
+            sm:gap-6
+          "
+        >
 
           {properties.map(
             (
@@ -369,22 +497,58 @@ export default function VerificationBoard() {
                 key={
                   property._id
                 }
-                className="bg-white rounded-[32px] p-6 shadow-sm border border-slate-200"
+                className="
+                  bg-white
+                  rounded-[24px]
+                  sm:rounded-[32px]
+                  p-4
+                  sm:p-6
+                  shadow-sm
+                  border
+                  border-slate-200
+                "
               >
 
                 {/* ====================================================== */}
                 {/* ================= HEADER ============================= */}
                 {/* ====================================================== */}
 
-                <div className="flex items-start justify-between mb-5">
+                <div
+                  className="
+                    flex
+                    flex-col
+                    sm:flex-row
+                    sm:items-start
+                    sm:justify-between
+                    gap-4
+                    mb-5
+                  "
+                >
 
-                  <div>
+                  <div className="min-w-0">
 
-                    <div className="flex items-center gap-2 text-slate-500 text-sm mb-2">
+                    <div
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        text-slate-500
+                        text-xs
+                        sm:text-sm
+                        mb-2
+                        flex-wrap
+                      "
+                    >
 
                       <Hash size={14} />
 
-                      <span className="font-semibold tracking-widest">
+                      <span
+                        className="
+                          font-semibold
+                          tracking-widest
+                          break-all
+                        "
+                      >
 
                         {property.propertyUniqueId}
 
@@ -392,23 +556,54 @@ export default function VerificationBoard() {
 
                     </div>
 
-                    <h2 className="text-2xl font-bold">
+                    <h2
+                      className="
+                        text-xl
+                        sm:text-2xl
+                        font-bold
+                        line-clamp-2
+                      "
+                    >
 
                       {property.title}
 
                     </h2>
 
-                    <div className="flex items-center gap-2 text-slate-500 mt-2">
+                    <div
+                      className="
+                        flex
+                        items-center
+                        gap-2
+                        text-slate-500
+                        mt-2
+                        text-sm
+                      "
+                    >
 
                       <MapPin size={16} />
 
-                      {property.location}
+                      <span className="line-clamp-1">
+
+                        {property.location}
+
+                      </span>
 
                     </div>
 
                   </div>
 
-                  <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-2xl text-sm font-bold">
+                  <div
+                    className="
+                      bg-blue-100
+                      text-blue-700
+                      px-4
+                      py-2
+                      rounded-2xl
+                      text-sm
+                      font-bold
+                      w-fit
+                    "
+                  >
 
                     {property.images
                       ?.length || 0} Images
@@ -421,7 +616,15 @@ export default function VerificationBoard() {
                 {/* ================= GALLERY ============================ */}
                 {/* ====================================================== */}
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                <div
+                  className="
+                    grid
+                    grid-cols-1
+                    sm:grid-cols-2
+                    lg:grid-cols-3
+                    gap-4
+                  "
+                >
 
                   {property.images?.map(
                     (
@@ -432,38 +635,71 @@ export default function VerificationBoard() {
                         key={
                           img._id
                         }
-                        className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50"
+                        className="
+                          border
+                          border-slate-200
+                          rounded-2xl
+                          overflow-hidden
+                          bg-slate-50
+                        "
                       >
 
                         {/* IMAGE */}
+
                         <img
                           src={
                             img.url
                           }
                           alt="property"
-                          className="w-full h-40 object-cover"
+                          className="
+                            w-full
+                            h-48
+                            sm:h-40
+                            object-cover
+                          "
                         />
 
                         {/* BODY */}
+
                         <div className="p-3">
 
                           {/* STATUS */}
-                          <div className={`w-fit px-3 py-1 rounded-full text-xs font-bold mb-4 ${
-                            img.status ===
-                            "approved"
-                              ? "bg-green-100 text-green-700"
-                              : img.status ===
-                                "rejected"
-                              ? "bg-red-100 text-red-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}>
+
+                          <div
+                            className={`
+                              w-fit
+                              px-3
+                              py-1
+                              rounded-full
+                              text-xs
+                              font-bold
+                              mb-4
+                              ${
+                                img.status ===
+                                "approved"
+                                  ? "bg-green-100 text-green-700"
+                                  : img.status ===
+                                      "rejected"
+                                    ? "bg-red-100 text-red-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                              }
+                            `}
+                          >
 
                             {img.status}
 
                           </div>
 
                           {/* BUTTONS */}
-                          <div className="flex gap-2">
+
+                          <div
+                            className="
+                              flex
+                              flex-col
+                              sm:flex-row
+                              gap-2
+                            "
+                          >
 
                             <button
                               onClick={() =>
@@ -473,7 +709,17 @@ export default function VerificationBoard() {
                                   "approve"
                                 )
                               }
-                              className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-xl text-xs font-bold transition"
+                              className="
+                                flex-1
+                                bg-green-600
+                                hover:bg-green-700
+                                text-white
+                                py-2.5
+                                rounded-xl
+                                text-xs
+                                font-bold
+                                transition
+                              "
                             >
 
                               Approve
@@ -488,7 +734,17 @@ export default function VerificationBoard() {
                                   "reject"
                                 )
                               }
-                              className="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-xl text-xs font-bold transition"
+                              className="
+                                flex-1
+                                bg-red-600
+                                hover:bg-red-700
+                                text-white
+                                py-2.5
+                                rounded-xl
+                                text-xs
+                                font-bold
+                                transition
+                              "
                             >
 
                               Reject

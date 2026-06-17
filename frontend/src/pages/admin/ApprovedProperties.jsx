@@ -1,31 +1,119 @@
 import {
   useEffect,
+  useMemo,
   useState,
 } from "react";
+
+import {
+  Link,
+} from "react-router-dom";
 
 import toast from "react-hot-toast";
 
 import {
+
   CheckCircle2,
+
   MapPin,
+
   IndianRupee,
+
   Hash,
+
   BadgeCheck,
+
   ShieldCheck,
+
   Eye,
+
   Building2,
+
+  Images,
+
+  Loader2,
+
+  RefreshCcw,
+
+  User2,
+
+  CalendarDays,
+
+  TrendingUp,
+
+  XCircle,
+
+  Trash2,
+
 } from "lucide-react";
 
+// ======================================================
+// ================= API BASE ===========================
+// ======================================================
+
+const API_BASE =
+  "http://localhost:5000/api/admin";
+
+// ======================================================
+// ================= FALLBACK IMAGE =====================
+// ======================================================
+
+const FALLBACK_IMAGE =
+  "https://via.placeholder.com/1200x700?text=Approved+Property";
+
+// ======================================================
+// ================= COMPONENT ==========================
+// ======================================================
+
 export default function ApprovedProperties() {
+
+  // ======================================================
+  // ================= STATES =============================
+  // ======================================================
 
   const [properties, setProperties] =
     useState([]);
 
+  const [counts, setCounts] =
+    useState({
+
+      total: 0,
+
+      pending: 0,
+
+      approved: 0,
+
+      rejected: 0,
+
+      deleted: 0,
+
+    });
+
   const [loading, setLoading] =
     useState(true);
 
+  const [
+
+    actionLoading,
+
+    setActionLoading,
+
+  ] = useState("");
+
   // ======================================================
-  // ================= FETCH ==============================
+  // ================= TOKEN ==============================
+  // ======================================================
+
+  const token =
+    useMemo(
+      () =>
+        localStorage.getItem(
+          "token"
+        ),
+      []
+    );
+
+  // ======================================================
+  // ================= FETCH APPROVED =====================
   // ======================================================
 
   const fetchApproved =
@@ -33,31 +121,49 @@ export default function ApprovedProperties() {
 
       try {
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+        setLoading(true);
 
         const res =
           await fetch(
-            "http://localhost:5000/api/admin/properties/approved",
+
+            `${API_BASE}/properties/approved`,
+
             {
+
               headers: {
+
                 Authorization:
                   `Bearer ${token}`,
+
               },
+
             }
           );
 
         const data =
           await res.json();
 
+        if (!res.ok) {
+
+          throw new Error(
+
+            data.message ||
+            "Failed to fetch approved properties"
+          );
+        }
+
+        // ======================================================
+        // ================= SET DATA ============================
+        // ======================================================
+
         setProperties(
-          Array.isArray(
-            data
-          )
-            ? data
-            : []
+
+          data.properties || []
+        );
+
+        setCounts(
+
+          data.counts || {}
         );
 
       } catch (error) {
@@ -67,12 +173,106 @@ export default function ApprovedProperties() {
         );
 
         toast.error(
+
           "Failed to fetch approved properties"
         );
 
       } finally {
 
         setLoading(false);
+      }
+    };
+
+  // ======================================================
+  // ================= UPDATE STATUS ======================
+  // ======================================================
+
+  const updateStatus =
+    async (
+      propertyId,
+      status
+    ) => {
+
+      try {
+
+        setActionLoading(
+          `${propertyId}-${status}`
+        );
+
+        const moderationReason =
+
+          status === "rejected"
+
+            ? window.prompt(
+                "Enter rejection reason"
+              ) || ""
+
+            : "";
+
+        const res =
+          await fetch(
+
+            `${API_BASE}/property/${propertyId}/status`,
+
+            {
+
+              method:
+                "PATCH",
+
+              headers: {
+
+                "Content-Type":
+                  "application/json",
+
+                Authorization:
+                  `Bearer ${token}`,
+
+              },
+
+              body: JSON.stringify({
+
+                status,
+
+                moderationReason,
+
+              }),
+
+            }
+          );
+
+        const data =
+          await res.json();
+
+        if (!res.ok) {
+
+          throw new Error(
+
+            data.message ||
+            "Status update failed"
+          );
+        }
+
+        toast.success(
+          data.message
+        );
+
+        fetchApproved();
+
+      } catch (error) {
+
+        console.log(
+          error
+        );
+
+        toast.error(
+
+          error.message ||
+          "Server Error"
+        );
+
+      } finally {
+
+        setActionLoading("");
       }
     };
 
@@ -115,7 +315,61 @@ export default function ApprovedProperties() {
   };
 
   // ======================================================
-  // ================= STATUS =============================
+  // ================= DATE FORMAT ========================
+  // ======================================================
+
+  const formatDate = (
+    date
+  ) => {
+
+    if (!date)
+      return "N/A";
+
+    return new Date(
+      date
+    ).toLocaleString(
+      "en-IN",
+      {
+
+        day: "2-digit",
+
+        month: "short",
+
+        year: "numeric",
+
+        hour: "2-digit",
+
+        minute: "2-digit",
+
+      }
+    );
+  };
+
+  // ======================================================
+  // ================= PRICE PER UNIT =====================
+  // ======================================================
+
+  const getPricePerUnit =
+    (
+      price,
+      area
+    ) => {
+
+      if (
+        !price ||
+        !area
+      ) {
+
+        return 0;
+      }
+
+      return Math.round(
+        price / area
+      );
+    };
+
+  // ======================================================
+  // ================= BUSINESS BADGE =====================
   // ======================================================
 
   const getBusinessBadge =
@@ -130,7 +384,26 @@ export default function ApprovedProperties() {
       ) {
 
         return (
-          <div className="bg-red-100 text-red-700 px-4 py-2 rounded-full text-xs font-bold">
+
+          <div
+            className="
+
+              bg-red-100
+              text-red-700
+
+              px-4
+              py-2
+
+              rounded-full
+
+              text-xs
+              sm:text-sm
+
+              font-bold
+
+              shadow-lg
+            "
+          >
 
             SOLD
 
@@ -143,7 +416,26 @@ export default function ApprovedProperties() {
       ) {
 
         return (
-          <div className="bg-yellow-100 text-yellow-700 px-4 py-2 rounded-full text-xs font-bold">
+
+          <div
+            className="
+
+              bg-yellow-100
+              text-yellow-700
+
+              px-4
+              py-2
+
+              rounded-full
+
+              text-xs
+              sm:text-sm
+
+              font-bold
+
+              shadow-lg
+            "
+          >
 
             UNDER NEGOTIATION
 
@@ -152,7 +444,26 @@ export default function ApprovedProperties() {
       }
 
       return (
-        <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-xs font-bold">
+
+        <div
+          className="
+
+            bg-green-100
+            text-green-700
+
+            px-4
+            py-2
+
+            rounded-full
+
+            text-xs
+            sm:text-sm
+
+            font-bold
+
+            shadow-lg
+          "
+        >
 
           AVAILABLE
 
@@ -160,34 +471,191 @@ export default function ApprovedProperties() {
       );
     };
 
+  // ======================================================
+  // ================= BUTTON LOADER ======================
+  // ======================================================
+
+  const ButtonLoader = () => (
+
+    <Loader2
+      size={18}
+      className="
+        animate-spin
+      "
+    />
+  );
+
+  // ======================================================
+  // ================= RETURN =============================
+  // ======================================================
+
   return (
-    <div className="min-h-screen bg-slate-100 p-6 md:p-10">
+
+    <div
+      className="
+
+        min-h-screen
+
+        bg-slate-100
+
+        p-4
+        sm:p-6
+        xl:p-8
+
+        overflow-x-hidden
+      "
+    >
 
       {/* ====================================================== */}
       {/* ================= HEADER ============================= */}
       {/* ====================================================== */}
 
-      <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-slate-900 rounded-[32px] text-white p-8 shadow-xl mb-8">
+      <div
+        className="
 
-        <div className="flex items-center gap-4">
+          bg-gradient-to-r
 
-          <CheckCircle2 size={42} />
+          from-green-600
+          via-emerald-600
+          to-slate-900
 
-          <div>
+          rounded-[24px]
+          sm:rounded-[36px]
 
-            <h1 className="text-4xl font-bold">
+          text-white
 
-              Approved Properties
+          p-5
+          sm:p-8
+          xl:p-10
 
-            </h1>
+          shadow-xl
 
-            <p className="text-green-100 mt-2 text-lg">
+          mb-6
+          sm:mb-8
+        "
+      >
 
-              Monitor verified and approved marketplace listings
+        <div
+          className="
 
-            </p>
+            flex
+            flex-col
+
+            lg:flex-row
+            lg:items-center
+            lg:justify-between
+
+            gap-6
+          "
+        >
+
+          {/* LEFT */}
+          <div
+            className="
+              flex
+              items-start
+              sm:items-center
+              gap-4
+            "
+          >
+
+            <div
+              className="
+                bg-white/15
+                backdrop-blur-md
+
+                p-4
+
+                rounded-3xl
+              "
+            >
+
+              <CheckCircle2
+                className="
+                  w-9
+                  h-9
+                  sm:w-11
+                  sm:h-11
+                "
+              />
+
+            </div>
+
+            <div>
+
+              <h1
+                className="
+                  text-3xl
+                  sm:text-4xl
+                  xl:text-5xl
+
+                  font-bold
+                "
+              >
+
+                Approved Properties
+
+              </h1>
+
+              <p
+                className="
+                  text-green-100
+
+                  mt-2
+
+                  text-sm
+                  sm:text-base
+                  xl:text-lg
+                "
+              >
+
+                Manage live verified
+                marketplace listings
+
+              </p>
+
+            </div>
 
           </div>
+
+          {/* RIGHT */}
+          <button
+
+            onClick={
+              fetchApproved
+            }
+
+            className="
+
+              self-start
+              lg:self-auto
+
+              bg-white/15
+              hover:bg-white/20
+
+              border
+              border-white/20
+
+              backdrop-blur-md
+
+              px-5
+              py-3
+
+              rounded-2xl
+
+              flex
+              items-center
+              gap-2
+
+              transition
+            "
+          >
+
+            <RefreshCcw size={18} />
+
+            Refresh
+
+          </button>
 
         </div>
 
@@ -197,9 +665,40 @@ export default function ApprovedProperties() {
       {/* ================= STATS ============================== */}
       {/* ====================================================== */}
 
-      <div className="grid md:grid-cols-3 gap-6 mb-10">
+      <div
+        className="
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+          grid
+
+          grid-cols-1
+          sm:grid-cols-2
+          xl:grid-cols-4
+
+          gap-4
+          sm:gap-6
+
+          mb-8
+        "
+      >
+
+        {/* TOTAL */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
 
           <div className="text-green-600">
 
@@ -207,35 +706,80 @@ export default function ApprovedProperties() {
 
           </div>
 
-          <p className="text-slate-500 mt-4">
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
 
             Total Approved
 
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
 
-            {properties.length}
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {counts.approved || 0}
 
           </h2>
 
         </div>
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+        {/* NEGOTIATION */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
 
           <div className="text-yellow-500">
 
-            <BadgeCheck size={34} />
+            <TrendingUp size={34} />
 
           </div>
 
-          <p className="text-slate-500 mt-4">
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
 
             Under Negotiation
 
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+
+              font-bold
+
+              mt-2
+            "
+          >
 
             {
               properties.filter(
@@ -250,7 +794,24 @@ export default function ApprovedProperties() {
 
         </div>
 
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+        {/* SOLD */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
 
           <div className="text-red-600">
 
@@ -258,13 +819,27 @@ export default function ApprovedProperties() {
 
           </div>
 
-          <p className="text-slate-500 mt-4">
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
 
             Sold Properties
 
           </p>
 
-          <h2 className="text-4xl font-bold mt-2">
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+
+              font-bold
+
+              mt-2
+            "
+          >
 
             {
               properties.filter(
@@ -280,6 +855,59 @@ export default function ApprovedProperties() {
 
         </div>
 
+        {/* LIVE */}
+        <div
+          className="
+
+            bg-white
+
+            rounded-[24px]
+            sm:rounded-[30px]
+
+            p-5
+            sm:p-6
+
+            border
+            border-slate-200
+
+            shadow-sm
+          "
+        >
+
+          <div className="text-blue-600">
+
+            <BadgeCheck size={34} />
+
+          </div>
+
+          <p
+            className="
+              text-slate-500
+              mt-4
+            "
+          >
+
+            Live Listings
+
+          </p>
+
+          <h2
+            className="
+              text-3xl
+              sm:text-4xl
+
+              font-bold
+
+              mt-2
+            "
+          >
+
+            {properties.length}
+
+          </h2>
+
+        </div>
+
       </div>
 
       {/* ====================================================== */}
@@ -288,26 +916,101 @@ export default function ApprovedProperties() {
 
       {loading ? (
 
-        <div className="text-center text-xl font-semibold py-20">
+        <div
+          className="
 
-          Loading approved properties...
+            bg-white
+
+            rounded-[28px]
+
+            p-10
+
+            flex
+            flex-col
+            items-center
+            justify-center
+
+            gap-4
+
+            shadow-sm
+          "
+        >
+
+          <Loader2
+            size={40}
+            className="
+              animate-spin
+              text-green-600
+            "
+          />
+
+          <p
+            className="
+              text-lg
+              font-semibold
+              text-slate-700
+            "
+          >
+
+            Loading approved properties...
+
+          </p>
 
         </div>
 
       ) : properties.length ===
         0 ? (
 
-        <div className="bg-white rounded-3xl p-12 text-center shadow-sm">
+        <div
+          className="
 
-          <h2 className="text-3xl font-bold">
+            bg-white
+
+            rounded-[28px]
+            sm:rounded-[36px]
+
+            p-8
+            sm:p-14
+
+            text-center
+
+            shadow-sm
+          "
+        >
+
+          <CheckCircle2
+            size={54}
+            className="
+              mx-auto
+              text-green-500
+            "
+          />
+
+          <h2
+            className="
+              text-2xl
+              sm:text-3xl
+
+              font-bold
+
+              mt-5
+            "
+          >
 
             No Approved Properties
 
           </h2>
 
-          <p className="text-slate-500 mt-3">
+          <p
+            className="
+              text-slate-500
 
-            Approved listings will appear here.
+              mt-3
+            "
+          >
+
+            Approved listings
+            will appear here.
 
           </p>
 
@@ -315,197 +1018,923 @@ export default function ApprovedProperties() {
 
       ) : (
 
-        <div className="grid lg:grid-cols-2 gap-8">
+        <div
+          className="
+
+            grid
+
+            grid-cols-1
+            2xl:grid-cols-2
+
+            gap-5
+            sm:gap-7
+          "
+        >
 
           {properties.map(
             (
               property
-            ) => (
+            ) => {
 
-              <div
-                key={
-                  property._id
-                }
-                className="bg-white rounded-[32px] overflow-hidden shadow-sm border border-slate-200"
-              >
+              const rejectLoading =
 
-                {/* ====================================================== */}
-                {/* ================= MAIN IMAGE ========================= */}
-                {/* ====================================================== */}
+                actionLoading ===
+                `${property._id}-rejected`;
 
-                <div className="relative">
+              const deleteLoading =
 
-                  <img
-                    src={
-                      property.image ||
-                      "https://via.placeholder.com/800x500?text=Property"
-                    }
-                    alt={
-                      property.title
-                    }
-                    className="w-full h-72 object-cover"
-                  />
+                actionLoading ===
+                `${property._id}-deleted`;
 
-                  <div className="absolute top-5 left-5">
+              return (
 
-                    {getBusinessBadge(
-                      property.businessStatus,
-                      property.underNegotiation
-                    )}
+                <div
 
-                  </div>
+                  key={
+                    property._id
+                  }
 
-                </div>
+                  className="
 
-                {/* ====================================================== */}
-                {/* ================= BODY =============================== */}
-                {/* ====================================================== */}
+                    bg-white
 
-                <div className="p-6">
+                    rounded-[28px]
+                    sm:rounded-[36px]
 
-                  {/* PROPERTY ID */}
-                  <div className="flex items-center gap-2 text-slate-500 text-sm mb-3">
+                    overflow-hidden
 
-                    <Hash size={14} />
+                    border
+                    border-slate-200
 
-                    <span className="font-semibold tracking-widest">
+                    shadow-sm
 
-                      {
-                        property.propertyUniqueId
+                    hover:shadow-lg
+
+                    transition-all
+                    duration-300
+                  "
+                >
+
+                  {/* ====================================================== */}
+                  {/* ================= IMAGE ============================== */}
+                  {/* ====================================================== */}
+
+                  <div
+                    className="
+                      relative
+                    "
+                  >
+
+                    <img
+
+                      src={
+                        property.image ||
+                        FALLBACK_IMAGE
                       }
 
-                    </span>
+                      onError={(
+                        e
+                      ) => {
 
-                  </div>
+                        e.target.src =
+                          FALLBACK_IMAGE;
+                      }}
 
-                  {/* TITLE */}
-                  <h2 className="text-2xl font-bold">
+                      alt={
+                        property.title
+                      }
 
-                    {property.title}
+                      className="
 
-                  </h2>
+                        w-full
 
-                  {/* LOCATION */}
-                  <div className="flex items-center gap-2 text-slate-500 mt-3">
+                        h-[250px]
+                        sm:h-[320px]
 
-                    <MapPin size={16} />
+                        object-cover
+                      "
+                    />
 
-                    {property.location}
+                    {/* STATUS */}
+                    <div
+                      className="
+                        absolute
+                        top-4
+                        left-4
+                      "
+                    >
 
-                  </div>
+                      {getBusinessBadge(
 
-                  {/* PRICE */}
-                  <div className="flex items-center gap-2 text-green-700 mt-5">
+                        property.businessStatus,
 
-                    <IndianRupee size={20} />
-
-                    <span className="text-3xl font-bold">
-
-                      {formatPrice(
-                        property.price
+                        property.underNegotiation
                       )}
 
-                    </span>
+                    </div>
+
+                    {/* IMAGE COUNT */}
+                    <div
+                      className="
+
+                        absolute
+                        top-4
+                        right-4
+
+                        bg-black/50
+
+                        backdrop-blur-md
+
+                        text-white
+
+                        px-3
+                        py-2
+
+                        rounded-full
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-xs
+                        sm:text-sm
+
+                        font-semibold
+                      "
+                    >
+
+                      <Images size={14} />
+
+                      {
+                        property
+                          ?.images
+                          ?.length || 0
+                      }
+
+                    </div>
 
                   </div>
 
-                  {/* TYPE */}
-                  <div className="flex flex-wrap gap-3 mt-5">
-
-                    <div className="bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-semibold">
-
-                      {property.type}
-
-                    </div>
-
-                    <div className="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-full text-sm font-semibold">
-
-                      {property.subType}
-
-                    </div>
-
-                  </div>
-
                   {/* ====================================================== */}
-                  {/* ================= GALLERY ============================ */}
+                  {/* ================= BODY =============================== */}
                   {/* ====================================================== */}
 
-                  {property.images
-                    ?.length >
-                    1 && (
+                  <div
+                    className="
 
-                    <div className="grid grid-cols-3 gap-3 mt-6">
+                      p-5
+                      sm:p-7
+                    "
+                  >
 
-                      {property.images
-                        .slice(
-                          0,
-                          6
-                        )
-                        .map(
-                          (
-                            img
-                          ) => (
+                    {/* PROPERTY ID */}
+                    <div
+                      className="
 
-                            <img
-                              key={
-                                img._id
-                              }
-                              src={
-                                img.url
-                              }
-                              alt="gallery"
-                              className="w-full h-24 object-cover rounded-2xl border border-slate-200"
-                            />
-                          )
-                        )}
+                        flex
+                        items-center
+                        gap-2
 
-                    </div>
-                  )}
+                        text-slate-500
 
-                  {/* ====================================================== */}
-                  {/* ================= FOOTER ============================= */}
-                  {/* ====================================================== */}
+                        text-sm
 
-                  <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
+                        mb-3
+                      "
+                    >
 
-                    <div className="text-sm text-slate-500">
+                      <Hash size={14} />
 
-                      Uploaded by{" "}
-
-                      <span className="font-semibold">
+                      <span
+                        className="
+                          font-semibold
+                          tracking-widest
+                        "
+                      >
 
                         {
-                          property
-                            ?.createdBy
-                            ?.name
+                          property.propertyUniqueId
                         }
 
                       </span>
 
                     </div>
 
-                    <button
-                      onClick={() =>
-                        window.open(
-                          `/property/${property._id}`,
-                          "_blank"
-                        )
-                      }
-                      className="bg-slate-900 hover:bg-black text-white px-5 py-3 rounded-2xl flex items-center gap-2 transition"
+                    {/* TITLE */}
+                    <h2
+                      className="
+
+                        text-2xl
+                        sm:text-3xl
+
+                        font-bold
+
+                        line-clamp-2
+                      "
                     >
 
-                      <Eye size={18} />
+                      {
+                        property.title
+                      }
 
-                      View
+                    </h2>
 
-                    </button>
+                    {/* LOCATION */}
+                    <div
+                      className="
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-slate-500
+
+                        mt-4
+                      "
+                    >
+
+                      <MapPin size={17} />
+
+                      <span
+                        className="
+                          line-clamp-1
+                        "
+                      >
+
+                        {
+                          property.location
+                        }
+
+                      </span>
+
+                    </div>
+
+                    {/* PRICE */}
+                    <div
+                      className="
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-green-700
+
+                        mt-5
+                      "
+                    >
+
+                      <IndianRupee size={22} />
+
+                      <span
+                        className="
+
+                          text-2xl
+                          sm:text-3xl
+
+                          font-bold
+                        "
+                      >
+
+                        {formatPrice(
+                          property.price
+                        )}
+
+                      </span>
+
+                    </div>
+
+                    {/* PROPERTY INFO GRID */}
+                    <div
+                      className="
+
+                        grid
+
+                        grid-cols-2
+                        sm:grid-cols-4
+
+                        gap-3
+
+                        mt-6
+                      "
+                    >
+
+                      {/* AREA */}
+                      <div
+                        className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                      >
+
+                        <p
+                          className="
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+
+                          Area
+
+                        </p>
+
+                        <h4
+                          className="
+                            font-bold
+                            mt-1
+                          "
+                        >
+
+                          {
+                            property.area || 0
+                          }{" "}
+
+                          {
+                            property.areaUnit ||
+                            "sqft"
+                          }
+
+                        </h4>
+
+                      </div>
+
+                      {/* PRICE / UNIT */}
+                      <div
+                        className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                      >
+
+                        <p
+                          className="
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+
+                          Price/sqft
+
+                        </p>
+
+                        <h4
+                          className="
+                            font-bold
+                            mt-1
+                          "
+                        >
+
+                          ₹
+
+                          {getPricePerUnit(
+
+                            property.price,
+
+                            property.area
+                          )}
+
+                        </h4>
+
+                      </div>
+
+                      {/* TYPE */}
+                      <div
+                        className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                      >
+
+                        <p
+                          className="
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+
+                          Type
+
+                        </p>
+
+                        <h4
+                          className="
+                            font-bold
+                            mt-1
+                            capitalize
+                          "
+                        >
+
+                          {
+                            property.type ||
+                            "N/A"
+                          }
+
+                        </h4>
+
+                      </div>
+
+                      {/* SUBTYPE */}
+                      <div
+                        className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                      >
+
+                        <p
+                          className="
+                            text-xs
+                            text-slate-500
+                          "
+                        >
+
+                          Category
+
+                        </p>
+
+                        <h4
+                          className="
+                            font-bold
+                            mt-1
+                            capitalize
+                          "
+                        >
+
+                          {
+                            property.subType ||
+                            "N/A"
+                          }
+
+                        </h4>
+
+                      </div>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= GALLERY ============================ */}
+                    {/* ====================================================== */}
+
+                    {property.images
+                      ?.length > 1 && (
+
+                      <div
+                        className="
+
+                          grid
+
+                          grid-cols-2
+                          sm:grid-cols-3
+
+                          gap-3
+
+                          mt-6
+                        "
+                      >
+
+                        {property.images
+                          .slice(
+                            0,
+                            6
+                          )
+                          .map(
+                            (
+                              img
+                            ) => (
+
+                              <img
+
+                                key={
+                                  img._id
+                                }
+
+                                src={
+                                  img.url
+                                }
+
+                                onError={(
+                                  e
+                                ) => {
+
+                                  e.target.src =
+                                    FALLBACK_IMAGE;
+                                }}
+
+                                alt="gallery"
+
+                                className="
+
+                                  w-full
+
+                                  h-20
+                                  sm:h-24
+
+                                  object-cover
+
+                                  rounded-2xl
+
+                                  border
+                                  border-slate-200
+                                "
+                              />
+                            )
+                          )}
+
+                      </div>
+                    )}
+
+                    {/* ====================================================== */}
+                    {/* ================= OWNER ============================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        mt-7
+
+                        bg-slate-50
+
+                        rounded-3xl
+
+                        p-5
+
+                        border
+                        border-slate-200
+                      "
+                    >
+
+                      <div
+                        className="
+                          flex
+                          items-start
+                          justify-between
+                          gap-4
+                        "
+                      >
+
+                        <div>
+
+                          <p
+                            className="
+                              text-sm
+                              text-slate-500
+                            "
+                          >
+
+                            Approved By
+
+                          </p>
+
+                          <h3
+                            className="
+                              font-bold
+                              mt-1
+                            "
+                          >
+
+                            {
+                              property
+                                ?.createdBy
+                                ?.name ||
+                              "Unknown User"
+                            }
+
+                          </h3>
+
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2
+
+                              text-sm
+                              text-slate-500
+
+                              mt-2
+                            "
+                          >
+
+                            <User2 size={14} />
+
+                            {
+                              property
+                                ?.createdBy
+                                ?.role ||
+                              "user"
+                            }
+
+                          </div>
+
+                        </div>
+
+                        <div
+                          className="
+                            text-right
+                          "
+                        >
+
+                          <p
+                            className="
+                              text-xs
+                              text-slate-500
+                            "
+                          >
+
+                            Uploaded
+
+                          </p>
+
+                          <div
+                            className="
+                              flex
+                              items-center
+                              gap-2
+
+                              text-sm
+                              text-slate-700
+
+                              mt-2
+                            "
+                          >
+
+                            <CalendarDays
+                              size={14}
+                            />
+
+                            {formatDate(
+                              property.createdAt
+                            )}
+
+                          </div>
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= REVIEW ACTIONS ===================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        grid
+
+                        grid-cols-1
+                        sm:grid-cols-2
+
+                        gap-3
+
+                        mt-6
+                      "
+                    >
+
+                      {/* REVIEW */}
+                      <Link
+
+                        to={`/admin/property/${property._id}`}
+
+                        className="
+
+                          bg-slate-100
+                          hover:bg-slate-200
+
+                          text-slate-800
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        <Eye size={18} />
+
+                        Review Property
+
+                      </Link>
+
+                      {/* IMAGES */}
+                      <Link
+
+                        to={`/admin/image-verification?property=${property._id}`}
+
+                        className="
+
+                          bg-indigo-100
+                          hover:bg-indigo-200
+
+                          text-indigo-700
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        <Images size={18} />
+
+                        Review Images
+
+                      </Link>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= MODERATION ACTIONS ================= */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        grid
+
+                        grid-cols-1
+                        sm:grid-cols-2
+
+                        gap-3
+
+                        mt-6
+                      "
+                    >
+
+                      {/* REJECT */}
+                      <button
+
+                        disabled={
+                          rejectLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "rejected"
+                          )
+                        }
+
+                        className="
+
+                          bg-red-600
+                          hover:bg-red-700
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {rejectLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+
+                            <XCircle size={18} />
+
+                            Reject
+
+                          </>
+                        )}
+
+                      </button>
+
+                      {/* DELETE */}
+                      <button
+
+                        disabled={
+                          deleteLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "deleted"
+                          )
+                        }
+
+                        className="
+
+                          bg-slate-900
+                          hover:bg-black
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-3.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {deleteLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+
+                            <Trash2 size={18} />
+
+                            Delete
+
+                          </>
+                        )}
+
+                      </button>
+
+                    </div>
+
+                    {/* ====================================================== */}
+                    {/* ================= LIVE VERIFIED ===================== */}
+                    {/* ====================================================== */}
+
+                    <div
+                      className="
+
+                        mt-6
+
+                        flex
+                        items-center
+                        gap-2
+
+                        text-sm
+                        text-emerald-600
+
+                        font-medium
+                      "
+                    >
+
+                      <BadgeCheck size={16} />
+
+                      Live verified listing
+
+                    </div>
 
                   </div>
 
                 </div>
-
-              </div>
-            )
+              );
+            }
           )}
 
         </div>

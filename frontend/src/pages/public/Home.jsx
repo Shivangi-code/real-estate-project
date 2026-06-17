@@ -23,7 +23,7 @@ export default function Home() {
 
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
   // FETCH PROPERTIES
@@ -38,8 +38,9 @@ export default function Home() {
       const data = await res.json();
 
       setProperties(
-        Array.isArray(data)
-          ? data
+
+        Array.isArray(data?.properties)
+          ? data.properties
           : []
       );
 
@@ -259,14 +260,41 @@ export default function Home() {
                   id="search"
                   name="search"
                   type="text"
+                  value={search}
+                  onChange={(e) =>
+                    setSearch(e.target.value)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      navigate(
+                        `/properties?search=${search}`
+                      );
+                    }
+                  }}
                   placeholder="Search city, area or property..."
-                  className="flex-1 outline-none text-slate-800 bg-transparent text-base sm:text-lg w-full"
+                  className="
+                    flex-1
+                    outline-none
+                    text-slate-800
+                    bg-transparent
+                    text-base
+                    sm:text-lg
+                    w-full
+                  "
                 />
 
                 <button
-                  onClick={() =>
-                    navigate("/properties")
-                  }
+                  onClick={() => {
+
+                    if (!search.trim()) {
+                      navigate("/properties");
+                      return;
+                    }
+
+                    navigate(
+                      `/properties?search=${encodeURIComponent(search)}`
+                    );
+                  }}
                   className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg w-full sm:w-auto"
                 >
                   Search
@@ -277,9 +305,17 @@ export default function Home() {
               <div className="flex gap-4 mt-7 flex-wrap">
 
                 <button
-                  onClick={() =>
-                    navigate("/properties")
-                  }
+                  onClick={() => {
+
+                    if (!search.trim()) {
+                      navigate("/properties");
+                      return;
+                    }
+
+                    navigate(
+                      `/properties?search=${encodeURIComponent(search)}`
+                    );
+                  }}
                   className="bg-white text-slate-900 px-7 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 shadow-xl"
                 >
                   Browse Properties

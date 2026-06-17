@@ -22,7 +22,7 @@
   white-space: nowrap;
 
   overflow-x: hidden;
-padding: 20px;
+
 }
 
 /* ================= GOLDEN MOVING LIGHT ================= */
@@ -290,17 +290,17 @@ padding: 20px;
 @media (max-width: 768px) {
 
   .navbar {
-    height: 72px;
-    padding: 0 12px;
+    height: 68px;
+    padding: 0 14px;
   }
 
   .nav-logo {
-    height: 62px;
+    height: 56px;
   }
 
   .brand-name-img {
-    height: 55px;
-    margin-left: -42px;
+    height: 48px;
+    margin-left: -36px;
   }
 
   .nav-right {
@@ -317,8 +317,8 @@ padding: 20px;
   /* Show hamburger only */
 
   .menu-btn {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     display: flex;
   }
 }
@@ -344,4 +344,53 @@ padding: 20px;
   .login-btn {
     font-size: 15px;
   }
+}
+
+/* ================= SMALL MOBILE ================= */
+
+@media (max-width: 480px) {
+
+  .navbar {
+
+    height: 66px;
+
+    padding: 0 12px;
+  }
+
+  .nav-logo {
+
+    height: 52px;
+  }
+
+  .brand-name-img {
+
+    height: 44px;
+
+    margin-left: -32px;
+  }
+
+  .menu-btn {
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 14px;
+  }
+}
+
+/* ================= ULTRA SMOOTH ================= */
+
+.navbar,
+.menu-btn,
+.nav-right a,
+.login-btn {
+
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ================= BETTER TOUCH ================= */
+
+.menu-btn {
+
+  touch-action: manipulation;
 }
