@@ -10,6 +10,7 @@ import {
 } from "react-router-dom";
 
 import "../styles/signup.css";
+import PremiumPopup from "../components/PremiumPopup";
 
 export default function Signup() {
 
@@ -31,6 +32,14 @@ export default function Signup() {
 
   const [timer, setTimer] =
     useState(0);
+  
+  const [popup, setPopup] =
+  useState({
+    show: false,
+    type: "success",
+    title: "",
+    message: "",
+  });
 
   const navigate =
     useNavigate();
@@ -77,7 +86,14 @@ export default function Signup() {
           e.target.value,
       });
     };
-
+  const showPopup = (type, title, message) => {
+  setPopup({
+    show: true,
+    type,
+    title,
+    message,
+  });
+};
   // ======================================================
   // ================= SEND OTP ===========================
   // ======================================================
@@ -91,9 +107,11 @@ export default function Signup() {
           !data.mobile
         ) {
 
-          return alert(
-            "Mobile number required"
-          );
+          return showPopup(
+  "warning",
+  "Mobile Required",
+  "Please enter your mobile number."
+);
         }
 
         await API.post(
@@ -109,19 +127,20 @@ export default function Signup() {
 
         setTimer(60);
 
-        alert(
-          "OTP sent successfully ✅"
-        );
+        showPopup(
+  "success",
+  "OTP Sent",
+  "Verification code sent successfully."
+);
 
       } catch (err) {
 
-        alert(
-          err.response
-            ?.data
-            ?.message ||
-
-            "Failed to send OTP"
-        );
+        showPopup(
+  "error",
+  "OTP Failed",
+  err.response?.data?.message ||
+  "Failed to send OTP"
+);
       }
     };
 
@@ -141,9 +160,11 @@ export default function Signup() {
           !data.otp
         ) {
 
-          return alert(
-            "All required fields must be filled"
-          );
+          return showPopup(
+  "warning",
+  "Missing Information",
+  "Please fill all required fields."
+);
         }
 
         setLoading(true);
@@ -172,23 +193,24 @@ export default function Signup() {
           }
         );
 
-        alert(
-          `Signup successful as ${data.role} 🎉`
-        );
+        showPopup(
+  "success",
+  "Account Created",
+  `Signup successful as ${data.role}`
+);
 
-        navigate(
-          "/login"
-        );
+        setTimeout(() => {
+  navigate("/login");
+}, 2000);
 
       } catch (err) {
 
-        alert(
-          err.response
-            ?.data
-            ?.message ||
-
-            "Signup failed"
-        );
+  showPopup(
+    "error",
+    "Signup Failed",
+    err.response?.data?.message ||
+    "Signup failed"
+  );
 
       } finally {
 
@@ -504,8 +526,21 @@ export default function Signup() {
 
         </p>
 
-      </div>
+            </div>
 
+      <PremiumPopup
+  key={`${popup.type}-${popup.title}-${popup.message}-${popup.show}`}
+  show={popup.show}
+  type={popup.type}
+  title={popup.title}
+  message={popup.message}
+  onClose={() => {
+    setPopup((prev) => ({
+      ...prev,
+      show: false,
+    }));
+  }}
+/>
     </div>
   );
 }

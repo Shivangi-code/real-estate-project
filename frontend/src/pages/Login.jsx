@@ -15,6 +15,8 @@ import {
   useAuth,
 } from "../context/AuthContext";
 
+import PremiumPopup from "../components/PremiumPopup";
+
 export default function Login() {
 
   const [mode, setMode] =
@@ -36,6 +38,13 @@ export default function Login() {
 
   const [timer, setTimer] =
     useState(0);
+  
+  const [popup, setPopup] = useState({
+  show: false,
+  type: "success",
+  title: "",
+  message: "",
+});
 
   const navigate =
     useNavigate();
@@ -158,7 +167,18 @@ export default function Login() {
       [e.target.name]: e.target.value,
     });
   };
-
+  const showPopup = (
+  type,
+  title,
+  message
+) => {
+  setPopup({
+    show: true,
+    type,
+    title,
+    message,
+  });
+};
   // ======================================================
   // SEND OTP
   // ======================================================
@@ -187,16 +207,20 @@ export default function Login() {
 
       setTimer(60);
 
-      alert(
-        "OTP sent successfully ✅"
-      );
+      showPopup(
+  "success",
+  "OTP Sent",
+  "OTP sent successfully"
+);
 
     } catch (err) {
 
-      alert(
-        err.response?.data?.message ||
-        "Failed to send OTP"
-      );
+      showPopup(
+  "error",
+  "OTP Failed",
+  err.response?.data?.message ||
+  "Failed to send OTP"
+);
 
     } finally {
 
@@ -240,9 +264,11 @@ export default function Login() {
           !data.password
         ) {
 
-          return alert(
-            "Mobile & password required"
-          );
+    return showPopup(
+"warning",
+"Mobile Required",
+"Please enter mobile number"
+);
         }
 
         payload.mobile = data.mobile;
@@ -547,6 +573,19 @@ export default function Login() {
         </div>
 
       </div>
+
+          <PremiumPopup
+        show={popup.show}
+        type={popup.type}
+        title={popup.title}
+        message={popup.message}
+        onClose={() =>
+          setPopup((prev) => ({
+            ...prev,
+            show: false,
+          }))
+        }
+      />
 
     </div>
   );
