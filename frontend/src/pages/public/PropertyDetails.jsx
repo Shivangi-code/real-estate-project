@@ -88,18 +88,22 @@ export default function PropertyDetails() {
         data?.data ||
         data;
 
+      console.log(
+        "PROPERTY DATA",
+        propertyData
+      );
+
+      console.log(
+        "IMAGES ARRAY",
+        propertyData?.images
+      );
+
       setProperty(
         propertyData?._id
           ? propertyData
           : null
       );
-    } catch (err) {
-      console.log(
-        "PROPERTY FETCH ERROR:",
-        err
-      );
 
-      setProperty(null);
     } finally {
       setLoading(false);
     }
@@ -395,7 +399,7 @@ export default function PropertyDetails() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="w-full max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8 overflow-x-hidden">
         {/* BACK */}
 
         <button
@@ -406,21 +410,25 @@ export default function PropertyDetails() {
           Back
         </button>
 
-        <div className="grid lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
           {/* ====================================================== */}
           {/* ================= LEFT =============================== */}
           {/* ====================================================== */}
 
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0 w-full">
             {/* MAIN IMAGE */}
 
-            <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-2xl bg-black">
+            <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-2xl bg-white h-[260px] sm:h-[380px] md:h-[460px] lg:h-[500px]">
               <img
-                src={
-                  images?.[
-                    activeImage
-                  ] || DEFAULT_IMAGE
-                }
+                src={images?.[activeImage] || DEFAULT_IMAGE}
+                onLoad={(e) => {
+                  console.log(
+                    "IMAGE:",
+                    e.target.src,
+                    e.target.naturalWidth,
+                    e.target.naturalHeight
+                  );
+                }}
                 alt={
                   property?.title ||
                   "property"
@@ -428,7 +436,7 @@ export default function PropertyDetails() {
                 onError={
                   imageErrorHandler
                 }
-                className="w-full h-[260px] sm:h-[380px] md:h-[460px] lg:h-[500px] object-cover"
+                className="w-full h-full object-cover object-center"
               />
 
               <button
@@ -480,7 +488,7 @@ export default function PropertyDetails() {
             {/* THUMBNAILS */}
 
             {images.length > 1 && (
-              <div className="flex gap-3 mt-5 overflow-x-auto pb-2 scrollbar-hide">
+              <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide w-full max-w-full">
                 {images.map(
                   (
                     img,
@@ -493,9 +501,8 @@ export default function PropertyDetails() {
                           index
                         )
                       }
-                      className={`min-w-[85px] sm:min-w-[110px] h-[70px] sm:h-[85px] rounded-2xl overflow-hidden border-4 transition ${
-                        activeImage ===
-                        index
+                      className={`flex-shrink-0 w-[70px] h-[60px] sm:w-[110px] sm:h-[85px] rounded-2xl overflow-hidden border-4 transition ${
+                        activeImage === index
                           ? "border-blue-600"
                           : "border-transparent"
                       }`}
@@ -708,8 +715,9 @@ export default function PropertyDetails() {
           {/* ================= RIGHT ============================== */}
           {/* ====================================================== */}
 
-          <div>
-            <div className="bg-white rounded-[24px] sm:rounded-[32px] shadow-sm p-5 sm:p-8 lg:sticky lg:top-6">
+          <div className="min-w-0 w-full">
+            <div className="w-full max-w-full overflow-hidden bg-white rounded-[24px] sm:rounded-[32px] shadow-sm p-4 sm:p-8 lg:sticky lg:top-6">
+              
               <div className="flex items-center gap-3 mb-6">
                 <Building2 className="text-blue-700" />
 
@@ -736,91 +744,54 @@ export default function PropertyDetails() {
                 </div>
               ) : (
                 <form
-                  onSubmit={
-                    submitLead
-                  }
-                  className="space-y-5"
+                  onSubmit={submitLead}
+                  className="space-y-5 w-full"
                 >
                   {[
                     {
-                      label:
-                        "Full Name",
-                      name:
-                        "buyerName",
-                      type:
-                        "text",
+                      label: "Full Name",
+                      name: "buyerName",
+                      type: "text",
                     },
                     {
-                      label:
-                        "Email",
-                      name:
-                        "buyerEmail",
-                      type:
-                        "email",
-                      icon: (
-                        <Mail size={16} />
-                      ),
+                      label: "Email",
+                      name: "buyerEmail",
+                      type: "email",
+                      icon: <Mail size={16} />,
                     },
                     {
-                      label:
-                        "Mobile Number",
-                      name:
-                        "buyerMobile",
-                      type:
-                        "text",
-                      icon: (
-                        <Phone size={16} />
-                      ),
+                      label: "Mobile Number",
+                      name: "buyerMobile",
+                      type: "text",
+                      icon: <Phone size={16} />,
                     },
                     {
-                      label:
-                        "City",
-                      name:
-                        "buyerCity",
-                      type:
-                        "text",
+                      label: "City",
+                      name: "buyerCity",
+                      type: "text",
                     },
-                  ].map(
-                    (
-                      field,
-                      index
-                    ) => (
-                      <div
-                        key={index}
-                      >
-                        <label className="font-semibold mb-2 flex items-center gap-2">
-                          {
-                            field.icon
-                          }
-                          {
-                            field.label
-                          }
-                        </label>
+                  ].map((field, index) => (
+                    <div
+                      key={index}
+                      className="w-full min-w-0"
+                    >
+                      <label className="font-semibold mb-2 flex items-center gap-2">
+                        {field.icon}
+                        {field.label}
+                      </label>
 
-                        <input
-                          type={
-                            field.type
-                          }
-                          name={
-                            field.name
-                          }
-                          value={
-                            form[
-                              field
-                                .name
-                            ]
-                          }
-                          onChange={
-                            handleChange
-                          }
-                          required
-                          className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                    )
-                  )}
+                      <input
+                        type={field.type}
+                        name={field.name}
+                        value={form[field.name]}
+                        onChange={handleChange}
+                        required
+                        className="w-full max-w-full min-w-0 border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+                  ))}
 
-                  <div>
+                  <div className="w-full min-w-0">
                     <label className="font-semibold mb-2 block">
                       Message
                     </label>
@@ -828,23 +799,17 @@ export default function PropertyDetails() {
                     <textarea
                       rows="5"
                       name="message"
-                      value={
-                        form.message
-                      }
-                      onChange={
-                        handleChange
-                      }
+                      value={form.message}
+                      onChange={handleChange}
                       required
-                      className="w-full border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      className="w-full max-w-full min-w-0 border border-slate-300 rounded-2xl px-4 py-3.5 outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    disabled={
-                      sending
-                    }
-                    className={`w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition ${
+                    disabled={sending}
+                    className={`w-full max-w-full py-3.5 sm:py-4 rounded-2xl font-bold text-base sm:text-lg flex items-center justify-center gap-3 transition ${
                       sending
                         ? "bg-slate-400 cursor-not-allowed"
                         : "bg-blue-600 hover:bg-blue-700 text-white"
