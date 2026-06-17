@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/forgotpassword.css";
+import PremiumPopup from "../components/PremiumPopup";
 
 export default function ForgotPassword() {
 
@@ -15,6 +16,12 @@ export default function ForgotPassword() {
   const [timer, setTimer] = useState(0);
   const [otpSent, setOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [popup, setPopup] = useState({
+  show: false,
+  type: "success",
+  title: "",
+  message: "",
+});
 
   const navigate = useNavigate();
 
@@ -32,13 +39,34 @@ export default function ForgotPassword() {
   const handleChange = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
   };
+  
+  const showPopup = (type, title, message) => {
+  setPopup({
+    show: false,
+    type,
+    title,
+    message,
+  });
 
+  setTimeout(() => {
+    setPopup({
+      show: true,
+      type,
+      title,
+      message,
+    });
+  }, 50);
+};
   // SEND OTP
   const sendOtp = async () => {
     try {
       if (!data.email && !data.mobile) {
-        return alert("Enter email or mobile");
-      }
+  return showPopup(
+    "warning",
+    "Missing Info",
+    "Enter email or mobile"
+  );
+}
 
       await API.post("/user-auth/send-otp", {
         email: data.email || undefined,
@@ -48,10 +76,18 @@ export default function ForgotPassword() {
       setOtpSent(true);
       setTimer(60);
 
-      alert("OTP sent ✅");
+      showPopup(
+  "success",
+  "OTP Sent",
+  "Verification code sent successfully"
+);
 
     } catch (err) {
-      alert(err.response?.data?.message || "Failed to send OTP");
+      showPopup(
+  "error",
+  "OTP Failed",
+  err.response?.data?.message || "Failed to send OTP"
+);
     }
   };
 
@@ -59,19 +95,31 @@ export default function ForgotPassword() {
   const handleReset = async () => {
     try {
       if (!data.otp || !data.newPassword) {
-        return alert("OTP & new password required");
-      }
+  return showPopup(
+    "warning",
+    "Missing Info",
+    "OTP & new password required"
+  );
+}
 
       setLoading(true);
 
       await API.post("/user-auth/reset-password", data);
 
-      alert("Password updated 🎉");
+      showPopup(
+  "success",
+  "Password Updated",
+  "Your password has been changed successfully"
+);
 
       navigate("/login");
 
     } catch (err) {
-      alert(err.response?.data?.message || "Reset failed");
+      showPopup(
+  "error",
+  "Reset Failed",
+  err.response?.data?.message || "Something went wrong"
+);
     } finally {
       setLoading(false);
     }
@@ -160,7 +208,18 @@ export default function ForgotPassword() {
         </p>
 
       </div>
-
+      <PremiumPopup
+  show={popup.show}
+  type={popup.type}
+  title={popup.title}
+  message={popup.message}
+  onClose={() =>
+    setPopup((prev) => ({
+      ...prev,
+      show: false,
+    }))
+  }
+/>
     </div>
   );
 }

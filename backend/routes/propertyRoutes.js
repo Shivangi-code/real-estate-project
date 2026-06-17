@@ -1,6 +1,8 @@
-const express = require("express");
+const express =
+  require("express");
 
-const router = express.Router();
+const router =
+  express.Router();
 
 const controllerPath = require.resolve("../controllers/propertyController");
 
@@ -46,20 +48,27 @@ const {
 // ================= MULTER =============================
 // ======================================================
 
-const upload = require("../middleware/upload");
+const upload =
+  require(
+    "../middleware/upload"
+  );
 
 // ======================================================
 // ================= ADD PROPERTY =======================
 // ======================================================
 
 router.post(
+
   "/add",
 
   protect,
 
-  upload.array("images", 10),
+  upload.array(
+    "images",
+    10
+  ),
 
-  addProperty,
+  addProperty
 );
 
 // ======================================================
@@ -175,4 +184,5 @@ router.get(
 // ================= EXPORT =============================
 // ======================================================
 
-module.exports = router;
+module.exports =
+  router;

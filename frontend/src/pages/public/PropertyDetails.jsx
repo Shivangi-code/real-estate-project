@@ -24,8 +24,7 @@ const API_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:5000";
 
-const DEFAULT_IMAGE =
-  "/default-property.jpg";
+const DEFAULT_IMAGE = "/default-property.jpg";
 
 const initialForm = {
   buyerName: "",
@@ -37,32 +36,17 @@ const initialForm = {
 
 export default function PropertyDetails() {
   const { id } = useParams();
-
   const navigate = useNavigate();
 
-  const [property, setProperty] =
-    useState(null);
+  const [property, setProperty] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
+  const [form, setForm] = useState(initialForm);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  const [sending, setSending] =
-    useState(false);
-
-  const [fullscreen, setFullscreen] =
-    useState(false);
-
-  const [activeImage, setActiveImage] =
-    useState(0);
-
-  const [success, setSuccess] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
-
-  const [form, setForm] =
-    useState(initialForm);
+  const [fullscreen, setFullscreen] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   // ======================================================
   // ================= FETCH PROPERTY =====================
@@ -72,9 +56,7 @@ export default function PropertyDetails() {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        `${API_URL}/api/properties/${id}`
-      );
+      const res = await fetch(`${API_URL}/api/properties/${id}`);
 
       if (!res.ok) {
         setProperty(null);
@@ -83,27 +65,12 @@ export default function PropertyDetails() {
 
       const data = await res.json();
 
-      const propertyData =
-        data?.property ||
-        data?.data ||
-        data;
+      const propertyData = data?.property || data?.data || data;
 
-      console.log(
-        "PROPERTY DATA",
-        propertyData
-      );
-
-      console.log(
-        "IMAGES ARRAY",
-        propertyData?.images
-      );
-
-      setProperty(
-        propertyData?._id
-          ? propertyData
-          : null
-      );
-
+      setProperty(propertyData?._id ? propertyData : null);
+    } catch (err) {
+      console.log("PROPERTY FETCH ERROR:", err);
+      setProperty(null);
     } finally {
       setLoading(false);
     }
@@ -114,23 +81,14 @@ export default function PropertyDetails() {
   // ======================================================
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-
     fetchProperty();
 
-    const refreshProperty = () =>
-      fetchProperty();
+    const refreshProperty = () => fetchProperty();
 
-    socket.on(
-      "propertyUpdated",
-      refreshProperty
-    );
+    socket.on("propertyUpdated", refreshProperty);
 
     return () => {
-      socket.off(
-        "propertyUpdated",
-        refreshProperty
-      );
+      socket.off("propertyUpdated", refreshProperty);
     };
   }, [id]);
 
@@ -141,61 +99,38 @@ export default function PropertyDetails() {
   const images = useMemo(() => {
     if (property?.images?.length) {
       return property.images.map((img) =>
-        typeof img === "string"
-          ? img
-          : img?.url
+        typeof img === "string" ? img : img?.url
       );
     }
 
-    return property?.image
-      ? [property.image]
-      : [DEFAULT_IMAGE];
+    return property?.image ? [property.image] : [DEFAULT_IMAGE];
   }, [property]);
 
   const propertyUniqueId =
     property?.propertyUniqueId ||
-    `RE-${property?._id
-      ?.slice(-8)
-      ?.toUpperCase()}`;
+    `RE-${property?._id?.slice(-8)?.toUpperCase()}`;
 
-  const isSold =
-    property?.businessStatus ===
-    "sold";
+  const isSold = property?.businessStatus === "sold";
 
-  const underNegotiation =
-    property?.underNegotiation;
+  const underNegotiation = property?.underNegotiation;
 
-  const propertyStatus =
-    property?.businessStatus ||
-    "available";
+  const propertyStatus = property?.businessStatus || "available";
 
   const areaLabel = property?.area
-    ? `${property.area} ${
-        property.areaUnit || "sqft"
-      }`
+    ? `${property.area} ${property.areaUnit || "sqft"}`
     : "N/A";
 
   const pricePerUnit =
     property?.price && property?.area
-      ? Math.round(
-          property.price /
-            property.area
-        )
+      ? Math.round(property.price / property.area)
       : 0;
 
   const propertyHighlights = [
-    property?.type &&
-      `${property.type} Property`,
-
+    property?.type && `${property.type} Property`,
     property?.subType,
-
     property?.constructionStatus,
-
-    property?.area &&
-      `Spacious ${areaLabel}`,
-
-    property?.location &&
-      "Prime Location",
+    property?.area && `Spacious ${areaLabel}`,
+    property?.location && "Prime Location",
   ].filter(Boolean);
 
   // ======================================================
@@ -206,43 +141,28 @@ export default function PropertyDetails() {
     if (!price) return "N/A";
 
     if (price >= 10000000) {
-      return `₹ ${(
-        price / 10000000
-      ).toFixed(1)} Cr`;
+      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
     }
 
     if (price >= 100000) {
-      return `₹ ${(
-        price / 100000
-      ).toFixed(1)} L`;
+      return `₹ ${(price / 100000).toFixed(1)} L`;
     }
 
-    return `₹ ${price.toLocaleString(
-      "en-IN"
-    )}`;
+    return `₹ ${price.toLocaleString("en-IN")}`;
   };
 
   const handleChange = (e) => {
     setForm((prev) => ({
       ...prev,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     }));
   };
 
   const nextImage = () =>
-    setActiveImage(
-      (prev) =>
-        (prev + 1) %
-        images.length
-    );
+    setActiveImage((prev) => (prev + 1) % images.length);
 
   const prevImage = () =>
-    setActiveImage((prev) =>
-      prev === 0
-        ? images.length - 1
-        : prev - 1
-    );
+    setActiveImage((prev) => (prev === 0 ? images.length - 1 : prev - 1));
 
   const imageErrorHandler = (e) => {
     e.target.onerror = null;
@@ -257,9 +177,8 @@ export default function PropertyDetails() {
     e.preventDefault();
 
     if (isSold) {
-      return setError(
-        "This property has already been sold."
-      );
+      setError("This property has already been sold.");
+      return;
     }
 
     try {
@@ -267,42 +186,26 @@ export default function PropertyDetails() {
       setError("");
       setSuccess("");
 
-      const res = await fetch(
-        `${API_URL}/api/leads/create`,
-        {
-          method: "POST",
+      const res = await fetch(`${API_URL}/api/leads/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          propertyId: property?._id,
+          propertyTitle: property?.title,
+          ...form,
+        }),
+      });
 
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            propertyId:
-              property?._id,
-
-            propertyTitle:
-              property?.title,
-
-            ...form,
-          }),
-        }
-      );
-
-      const data =
-        await res.json();
+      const data = await res.json();
 
       if (!res.ok) {
-        return setError(
-          data?.message ||
-            "Something went wrong"
-        );
+        setError(data?.message || "Something went wrong");
+        return;
       }
 
-      setSuccess(
-        "Inquiry submitted successfully 🚀"
-      );
-
+      setSuccess("Inquiry submitted successfully 🚀");
       setForm(initialForm);
     } catch {
       setError("Server error");
@@ -330,14 +233,10 @@ export default function PropertyDetails() {
   if (!property) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-slate-100 px-6 text-center">
-        <h1 className="text-4xl font-bold mb-4">
-          Property Not Found
-        </h1>
+        <h1 className="text-4xl font-bold mb-4">Property Not Found</h1>
 
         <button
-          onClick={() =>
-            navigate("/properties")
-          }
+          onClick={() => navigate("/properties")}
           className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl"
         >
           Back to Properties
@@ -355,9 +254,7 @@ export default function PropertyDetails() {
       {fullscreen && (
         <div className="fixed inset-0 bg-black z-[9999] flex items-center justify-center">
           <button
-            onClick={() =>
-              setFullscreen(false)
-            }
+            onClick={() => setFullscreen(false)}
             className="absolute top-5 right-5 bg-white/20 hover:bg-white/30 text-white p-3 rounded-full z-20"
           >
             <X size={28} />
@@ -382,18 +279,9 @@ export default function PropertyDetails() {
           )}
 
           <img
-            src={
-              images?.[
-                activeImage
-              ] || DEFAULT_IMAGE
-            }
-            alt={
-              property?.title ||
-              "property"
-            }
-            onError={
-              imageErrorHandler
-            }
+            src={images?.[activeImage] || DEFAULT_IMAGE}
+            alt={property?.title || "property"}
+            onError={imageErrorHandler}
             className="max-h-[90vh] max-w-[95vw] object-contain rounded-2xl"
           />
         </div>
@@ -421,28 +309,13 @@ export default function PropertyDetails() {
             <div className="relative rounded-[24px] sm:rounded-[32px] overflow-hidden shadow-2xl bg-white h-[260px] sm:h-[380px] md:h-[460px] lg:h-[500px]">
               <img
                 src={images?.[activeImage] || DEFAULT_IMAGE}
-                onLoad={(e) => {
-                  console.log(
-                    "IMAGE:",
-                    e.target.src,
-                    e.target.naturalWidth,
-                    e.target.naturalHeight
-                  );
-                }}
-                alt={
-                  property?.title ||
-                  "property"
-                }
-                onError={
-                  imageErrorHandler
-                }
+                alt={property?.title || "property"}
+                onError={imageErrorHandler}
                 className="w-full h-full object-cover object-center"
               />
 
               <button
-                onClick={() =>
-                  setFullscreen(true)
-                }
+                onClick={() => setFullscreen(true)}
                 className="absolute top-5 right-5 bg-black/40 hover:bg-black/60 text-white p-3 rounded-full"
               >
                 <Expand size={22} />
@@ -454,29 +327,24 @@ export default function PropertyDetails() {
                 </div>
               )}
 
-              {!isSold &&
-                underNegotiation && (
-                  <div className="absolute bottom-5 left-5 bg-yellow-400 text-slate-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
-                    <BadgeCheck size={16} />
-                    Under Negotiation
-                  </div>
-                )}
+              {!isSold && underNegotiation && (
+                <div className="absolute bottom-5 left-5 bg-yellow-400 text-slate-900 px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2">
+                  <BadgeCheck size={16} />
+                  Under Negotiation
+                </div>
+              )}
 
               {images.length > 1 && (
                 <>
                   <button
-                    onClick={
-                      prevImage
-                    }
+                    onClick={prevImage}
                     className="absolute left-5 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full"
                   >
                     <ChevronLeft size={26} />
                   </button>
 
                   <button
-                    onClick={
-                      nextImage
-                    }
+                    onClick={nextImage}
                     className="absolute right-5 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/40 text-white p-3 rounded-full"
                   >
                     <ChevronRight size={26} />
@@ -489,38 +357,24 @@ export default function PropertyDetails() {
 
             {images.length > 1 && (
               <div className="flex gap-2 mt-4 overflow-x-auto pb-2 scrollbar-hide w-full max-w-full">
-                {images.map(
-                  (
-                    img,
-                    index
-                  ) => (
-                    <button
-                      key={index}
-                      onClick={() =>
-                        setActiveImage(
-                          index
-                        )
-                      }
-                      className={`flex-shrink-0 w-[70px] h-[60px] sm:w-[110px] sm:h-[85px] rounded-2xl overflow-hidden border-4 transition ${
-                        activeImage === index
-                          ? "border-blue-600"
-                          : "border-transparent"
-                      }`}
-                    >
-                      <img
-                        src={
-                          img ||
-                          DEFAULT_IMAGE
-                        }
-                        alt="thumb"
-                        onError={
-                          imageErrorHandler
-                        }
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  )
-                )}
+                {images.map((img, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setActiveImage(index)}
+                    className={`flex-shrink-0 w-[70px] h-[60px] sm:w-[110px] sm:h-[85px] rounded-2xl overflow-hidden border-4 transition ${
+                      activeImage === index
+                        ? "border-blue-600"
+                        : "border-transparent"
+                    }`}
+                  >
+                    <img
+                      src={img || DEFAULT_IMAGE}
+                      alt="thumb"
+                      onError={imageErrorHandler}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                ))}
               </div>
             )}
 
@@ -529,7 +383,6 @@ export default function PropertyDetails() {
             <div className="bg-white rounded-[24px] sm:rounded-[32px] shadow-sm p-5 sm:p-8 mt-5 sm:mt-6">
               <div className="flex items-center gap-2 text-sm text-slate-500 mb-4">
                 <Hash size={15} />
-
                 <span className="font-semibold tracking-widest">
                   {propertyUniqueId}
                 </span>
@@ -546,11 +399,8 @@ export default function PropertyDetails() {
 
               <div className="flex items-center gap-3 mt-6 text-blue-700">
                 <IndianRupee size={28} />
-
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">
-                  {formatPrice(
-                    property?.price
-                  )}
+                  {formatPrice(property?.price)}
                 </span>
               </div>
 
@@ -559,36 +409,25 @@ export default function PropertyDetails() {
               <div className="flex flex-wrap gap-3 mt-6">
                 {[
                   {
-                    value:
-                      property?.type,
-                    className:
-                      "bg-blue-100 text-blue-700",
+                    value: property?.type,
+                    className: "bg-blue-100 text-blue-700",
                   },
                   {
-                    value:
-                      property?.subType,
-                    className:
-                      "bg-indigo-100 text-indigo-700",
+                    value: property?.subType,
+                    className: "bg-indigo-100 text-indigo-700",
                   },
                   {
-                    value:
-                      property?.constructionStatus,
-                    className:
-                      "bg-green-100 text-green-700",
+                    value: property?.constructionStatus,
+                    className: "bg-green-100 text-green-700",
                   },
                 ].map(
-                  (
-                    item,
-                    index
-                  ) =>
+                  (item, index) =>
                     item?.value && (
                       <div
                         key={index}
                         className={`${item.className} px-4 py-2 rounded-full font-semibold`}
                       >
-                        {
-                          item.value
-                        }
+                        {item.value}
                       </div>
                     )
                 )}
@@ -608,66 +447,44 @@ export default function PropertyDetails() {
                     value: areaLabel,
                   },
                   {
-                    label: `Price/${
-                      property?.areaUnit ||
-                      "sqft"
-                    }`,
+                    label: `Price/${property?.areaUnit || "sqft"}`,
                     value:
                       pricePerUnit > 0
-                        ? `₹ ${pricePerUnit.toLocaleString(
-                            "en-IN"
-                          )}`
+                        ? `₹ ${pricePerUnit.toLocaleString("en-IN")}`
                         : "N/A",
                   },
                   {
-                    label:
-                      "Property Status",
-                    value:
-                      propertyStatus,
+                    label: "Property Status",
+                    value: propertyStatus,
                     className:
-                      propertyStatus ===
-                      "sold"
+                      propertyStatus === "sold"
                         ? "text-red-600"
-                        : propertyStatus ===
-                          "available"
+                        : propertyStatus === "available"
                         ? "text-green-600"
                         : "text-yellow-600",
                   },
                   {
-                    label:
-                      "Construction",
-                    value:
-                      property?.constructionStatus ||
-                      "N/A",
+                    label: "Construction",
+                    value: property?.constructionStatus || "N/A",
                   },
-                ].map(
-                  (
-                    item,
-                    index
-                  ) => (
-                    <div
-                      key={index}
-                      className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5"
-                    >
-                      <span className="text-sm text-slate-500 font-medium">
-                        {
-                          item.label
-                        }
-                      </span>
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5"
+                  >
+                    <span className="text-sm text-slate-500 font-medium">
+                      {item.label}
+                    </span>
 
-                      <h3
-                        className={`text-lg sm:text-xl font-bold mt-2 capitalize ${
-                          item?.className ||
-                          "text-slate-900"
-                        }`}
-                      >
-                        {
-                          item.value
-                        }
-                      </h3>
-                    </div>
-                  )
-                )}
+                    <h3
+                      className={`text-lg sm:text-xl font-bold mt-2 capitalize ${
+                        item?.className || "text-slate-900"
+                      }`}
+                    >
+                      {item.value}
+                    </h3>
+                  </div>
+                ))}
               </div>
 
               {/* HIGHLIGHTS */}
@@ -675,24 +492,18 @@ export default function PropertyDetails() {
               {!!propertyHighlights.length && (
                 <div className="mt-8">
                   <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">
-                    Property
-                    Highlights
+                    Property Highlights
                   </h2>
 
                   <div className="flex flex-wrap gap-3">
-                    {propertyHighlights.map(
-                      (
-                        item,
-                        index
-                      ) => (
-                        <div
-                          key={index}
-                          className="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm sm:text-base font-semibold"
-                        >
-                          {item}
-                        </div>
-                      )
-                    )}
+                    {propertyHighlights.map((item, index) => (
+                      <div
+                        key={index}
+                        className="bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm sm:text-base font-semibold"
+                      >
+                        {item}
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
@@ -700,9 +511,7 @@ export default function PropertyDetails() {
               {/* DESCRIPTION */}
 
               <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">
-                  Description
-                </h2>
+                <h2 className="text-2xl font-bold mb-4">Description</h2>
 
                 <p className="text-slate-600 leading-7 sm:leading-8 text-base sm:text-lg">
                   {property?.description}
@@ -717,7 +526,6 @@ export default function PropertyDetails() {
 
           <div className="min-w-0 w-full">
             <div className="w-full max-w-full overflow-hidden bg-white rounded-[24px] sm:rounded-[32px] shadow-sm p-4 sm:p-8 lg:sticky lg:top-6">
-              
               <div className="flex items-center gap-3 mb-6">
                 <Building2 className="text-blue-700" />
 
@@ -743,10 +551,7 @@ export default function PropertyDetails() {
                   This property has already been sold.
                 </div>
               ) : (
-                <form
-                  onSubmit={submitLead}
-                  className="space-y-5 w-full"
-                >
+                <form onSubmit={submitLead} className="space-y-5 w-full">
                   {[
                     {
                       label: "Full Name",
@@ -771,10 +576,7 @@ export default function PropertyDetails() {
                       type: "text",
                     },
                   ].map((field, index) => (
-                    <div
-                      key={index}
-                      className="w-full min-w-0"
-                    >
+                    <div key={index} className="w-full min-w-0">
                       <label className="font-semibold mb-2 flex items-center gap-2">
                         {field.icon}
                         {field.label}
@@ -816,10 +618,7 @@ export default function PropertyDetails() {
                     }`}
                   >
                     <Send size={20} />
-
-                    {sending
-                      ? "Submitting..."
-                      : "Submit Inquiry"}
+                    {sending ? "Submitting..." : "Submit Inquiry"}
                   </button>
                 </form>
               )}
