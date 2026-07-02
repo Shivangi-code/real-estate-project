@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/property";
+const API = `${import.meta.env.VITE_API_URL}/property`;
 
 export const addProperty = async (formData) => {
   const token = localStorage.getItem("token");

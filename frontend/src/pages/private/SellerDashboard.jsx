@@ -64,6 +64,8 @@ import {
 
 } from "lucide-react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 // ======================================================
 // ================= COMPONENT ==========================
 // ======================================================
@@ -153,12 +155,7 @@ export default function SellerDashboard() {
   // ================= API URL ============================
   // ======================================================
 
-  const API_URL =
-
-    import.meta.env
-      .VITE_API_URL ||
-
-    "http://localhost:5000";
+  const API_BASE = API_URL;
 
   // ======================================================
   // ================= FETCH PROPERTIES ===================
@@ -188,7 +185,7 @@ export default function SellerDashboard() {
         const response =
           await fetch(
 
-            `${API_URL}/api/properties/my-properties`,
+            `${import.meta.env.VITE_API_URL}/api/properties/my-properties`,
 
             {
 

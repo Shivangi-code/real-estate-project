@@ -20,9 +20,7 @@ import {
 
 import socket from "../../socket";
 
-const API_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:5000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const DEFAULT_IMAGE = "/default-property.jpg";
 
@@ -56,7 +54,7 @@ export default function PropertyDetails() {
     try {
       setLoading(true);
 
-      const res = await fetch(`${API_URL}/api/properties/${id}`);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/${id}`);
 
       if (!res.ok) {
         setProperty(null);
@@ -186,7 +184,7 @@ export default function PropertyDetails() {
       setError("");
       setSuccess("");
 
-      const res = await fetch(`${API_URL}/api/leads/create`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leads/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

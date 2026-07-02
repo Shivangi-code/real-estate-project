@@ -1,59 +1,34 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import {
-  Link,
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import toast from "react-hot-toast";
 
 import {
-
   CheckCircle2,
-
   Clock3,
-
   MapPin,
-
   IndianRupee,
-
   Trash2,
-
   Hash,
-
   BadgeAlert,
-
   Images,
-
   Loader2,
-
   RefreshCcw,
-
   User2,
-
   CalendarDays,
-
   XCircle,
-
   ShieldAlert,
-
   Eye,
-
   BadgeCheck,
-
   Building2,
-
 } from "lucide-react";
 
 // ======================================================
 // ================= API BASE ===========================
 // ======================================================
 
-const API_BASE =
-  "http://localhost:5000/api/admin";
+const API_BASE = `${import.meta.env.VITE_API_URL}/api/admin`;
 
 // ======================================================
 // ================= FALLBACK IMAGE =====================
@@ -67,254 +42,146 @@ const FALLBACK_IMAGE =
 // ======================================================
 
 export default function RejectedProperties() {
-
   // ======================================================
   // ================= STATES =============================
   // ======================================================
 
-  const [properties, setProperties] =
-    useState([]);
+  const [properties, setProperties] = useState([]);
 
-  const [counts, setCounts] =
-    useState({
+  const [counts, setCounts] = useState({
+    total: 0,
 
-      total: 0,
+    pending: 0,
 
-      pending: 0,
+    approved: 0,
 
-      approved: 0,
+    rejected: 0,
 
-      rejected: 0,
+    deleted: 0,
+  });
 
-      deleted: 0,
+  const [loading, setLoading] = useState(true);
 
-    });
-
-  const [loading, setLoading] =
-    useState(true);
-
-  const [
-
-    actionLoading,
-
-    setActionLoading,
-
-  ] = useState("");
+  const [actionLoading, setActionLoading] = useState("");
 
   // ======================================================
   // ================= TOKEN ==============================
   // ======================================================
 
-  const token =
-    useMemo(
-      () =>
-        localStorage.getItem(
-          "token"
-        ),
-      []
-    );
+  const token = useMemo(() => localStorage.getItem("token"), []);
 
   // ======================================================
   // ================= FETCH REJECTED =====================
   // ======================================================
 
-  const fetchRejected =
-    async () => {
+  const fetchRejected = async () => {
+    try {
+      setLoading(true);
 
-      try {
+      const res = await fetch(
+        `${API_BASE}/properties/rejected`,
 
-        setLoading(true);
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
 
-        const res =
-          await fetch(
+      const data = await res.json();
 
-            `${API_BASE}/properties/rejected`,
-
-            {
-
-              headers: {
-
-                Authorization:
-                  `Bearer ${token}`,
-
-              },
-
-            }
-          );
-
-        const data =
-          await res.json();
-
-        if (!res.ok) {
-
-          throw new Error(
-
-            data.message ||
-            "Failed to fetch rejected properties"
-          );
-        }
-
-        // ======================================================
-        // ================= SET DATA ============================
-        // ======================================================
-
-        setProperties(
-
-          data.properties || []
-        );
-
-        setCounts(
-
-          data.counts || {}
-        );
-
-      } catch (error) {
-
-        console.log(
-          error
-        );
-
-        toast.error(
-
-          "Failed to fetch rejected properties"
-        );
-
-      } finally {
-
-        setLoading(false);
+      if (!res.ok) {
+        throw new Error(data.message || "Failed to fetch rejected properties");
       }
-    };
+
+      // ======================================================
+      // ================= SET DATA ============================
+      // ======================================================
+
+      setProperties(data.properties || []);
+
+      setCounts(data.counts || {});
+    } catch (error) {
+      console.log(error);
+
+      toast.error("Failed to fetch rejected properties");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ======================================================
   // ================= UPDATE STATUS ======================
   // ======================================================
 
-  const updateStatus =
-    async (
-      propertyId,
-      status
-    ) => {
+  const updateStatus = async (propertyId, status) => {
+    try {
+      setActionLoading(`${propertyId}-${status}`);
 
-      try {
+      let moderationReason = "";
 
-        setActionLoading(
-          `${propertyId}-${status}`
-        );
-
-        let moderationReason =
-          "";
-
-        if (
-          status ===
-          "rejected"
-        ) {
-
-          moderationReason =
-
-            window.prompt(
-              "Enter rejection reason"
-            ) || "";
-        }
-
-        const res =
-          await fetch(
-
-            `${API_BASE}/property/${propertyId}/status`,
-
-            {
-
-              method:
-                "PATCH",
-
-              headers: {
-
-                "Content-Type":
-                  "application/json",
-
-                Authorization:
-                  `Bearer ${token}`,
-
-              },
-
-              body: JSON.stringify({
-
-                status,
-
-                moderationReason,
-
-              }),
-
-            }
-          );
-
-        const data =
-          await res.json();
-
-        if (!res.ok) {
-
-          throw new Error(
-
-            data.message ||
-            "Status update failed"
-          );
-        }
-
-        toast.success(
-          data.message
-        );
-
-        fetchRejected();
-
-      } catch (error) {
-
-        console.log(
-          error
-        );
-
-        toast.error(
-
-          error.message ||
-          "Server Error"
-        );
-
-      } finally {
-
-        setActionLoading("");
+      if (status === "rejected") {
+        moderationReason = window.prompt("Enter rejection reason") || "";
       }
-    };
+
+      const res = await fetch(
+        `${API_BASE}/property/${propertyId}/status`,
+
+        {
+          method: "PATCH",
+
+          headers: {
+            "Content-Type": "application/json",
+
+            Authorization: `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            status,
+
+            moderationReason,
+          }),
+        },
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || "Status update failed");
+      }
+
+      toast.success(data.message);
+
+      fetchRejected();
+    } catch (error) {
+      console.log(error);
+
+      toast.error(error.message || "Server Error");
+    } finally {
+      setActionLoading("");
+    }
+  };
 
   // ======================================================
   // ================= LOAD ===============================
   // ======================================================
 
   useEffect(() => {
-
     fetchRejected();
-
   }, []);
 
   // ======================================================
   // ================= FORMAT PRICE =======================
   // ======================================================
 
-  const formatPrice = (
-    price
-  ) => {
+  const formatPrice = (price) => {
+    if (!price) return "N/A";
 
-    if (!price)
-      return "N/A";
-
-    if (
-      price >= 10000000
-    ) {
-
+    if (price >= 10000000) {
       return `₹ ${(price / 10000000).toFixed(1)} Cr`;
     }
 
-    if (
-      price >= 100000
-    ) {
-
+    if (price >= 100000) {
       return `₹ ${(price / 100000).toFixed(1)} L`;
     }
 
@@ -325,62 +192,39 @@ export default function RejectedProperties() {
   // ================= DATE FORMAT ========================
   // ======================================================
 
-  const formatDate = (
-    date
-  ) => {
+  const formatDate = (date) => {
+    if (!date) return "N/A";
 
-    if (!date)
-      return "N/A";
+    return new Date(date).toLocaleString("en-IN", {
+      day: "2-digit",
 
-    return new Date(
-      date
-    ).toLocaleString(
-      "en-IN",
-      {
+      month: "short",
 
-        day: "2-digit",
+      year: "numeric",
 
-        month: "short",
+      hour: "2-digit",
 
-        year: "numeric",
-
-        hour: "2-digit",
-
-        minute: "2-digit",
-
-      }
-    );
+      minute: "2-digit",
+    });
   };
 
   // ======================================================
   // ================= PRICE PER UNIT =====================
   // ======================================================
 
-  const getPricePerUnit =
-    (
-      price,
-      area
-    ) => {
+  const getPricePerUnit = (price, area) => {
+    if (!price || !area) {
+      return 0;
+    }
 
-      if (
-        !price ||
-        !area
-      ) {
-
-        return 0;
-      }
-
-      return Math.round(
-        price / area
-      );
-    };
+    return Math.round(price / area);
+  };
 
   // ======================================================
   // ================= BUTTON LOADER ======================
   // ======================================================
 
   const ButtonLoader = () => (
-
     <Loader2
       size={18}
       className="
@@ -394,7 +238,6 @@ export default function RejectedProperties() {
   // ======================================================
 
   return (
-
     <div
       className="
 
@@ -409,7 +252,6 @@ export default function RejectedProperties() {
         overflow-x-hidden
       "
     >
-
       {/* ====================================================== */}
       {/* ================= HEADER ============================= */}
       {/* ====================================================== */}
@@ -438,7 +280,6 @@ export default function RejectedProperties() {
           sm:mb-8
         "
       >
-
         <div
           className="
 
@@ -452,7 +293,6 @@ export default function RejectedProperties() {
             gap-6
           "
         >
-
           {/* LEFT */}
           <div
             className="
@@ -462,7 +302,6 @@ export default function RejectedProperties() {
               gap-4
             "
           >
-
             <div
               className="
                 bg-white/15
@@ -473,7 +312,6 @@ export default function RejectedProperties() {
                 rounded-3xl
               "
             >
-
               <XCircle
                 className="
                   w-9
@@ -482,11 +320,9 @@ export default function RejectedProperties() {
                   sm:h-11
                 "
               />
-
             </div>
 
             <div>
-
               <h1
                 className="
                   text-3xl
@@ -496,9 +332,7 @@ export default function RejectedProperties() {
                   font-bold
                 "
               >
-
                 Rejected Properties
-
               </h1>
 
               <p
@@ -512,23 +346,14 @@ export default function RejectedProperties() {
                   xl:text-lg
                 "
               >
-
-                Manage rejected
-                moderation inventory
-
+                Manage rejected moderation inventory
               </p>
-
             </div>
-
           </div>
 
           {/* RIGHT */}
           <button
-
-            onClick={
-              fetchRejected
-            }
-
+            onClick={fetchRejected}
             className="
 
               self-start
@@ -554,15 +379,10 @@ export default function RejectedProperties() {
               transition
             "
           >
-
             <RefreshCcw size={18} />
-
             Refresh
-
           </button>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
@@ -584,7 +404,6 @@ export default function RejectedProperties() {
           mb-8
         "
       >
-
         {/* REJECTED */}
         <div
           className="
@@ -603,11 +422,8 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <div className="text-red-600">
-
             <ShieldAlert size={34} />
-
           </div>
 
           <p
@@ -616,9 +432,7 @@ export default function RejectedProperties() {
               mt-4
             "
           >
-
             Rejected Listings
-
           </p>
 
           <h2
@@ -631,11 +445,8 @@ export default function RejectedProperties() {
               mt-2
             "
           >
-
             {counts.rejected || 0}
-
           </h2>
-
         </div>
 
         {/* PENDING */}
@@ -656,11 +467,8 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <div className="text-yellow-500">
-
             <Clock3 size={34} />
-
           </div>
 
           <p
@@ -669,9 +477,7 @@ export default function RejectedProperties() {
               mt-4
             "
           >
-
             Pending Recovery
-
           </p>
 
           <h2
@@ -684,11 +490,8 @@ export default function RejectedProperties() {
               mt-2
             "
           >
-
             {counts.pending || 0}
-
           </h2>
-
         </div>
 
         {/* APPROVED */}
@@ -709,11 +512,8 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <div className="text-green-600">
-
             <CheckCircle2 size={34} />
-
           </div>
 
           <p
@@ -722,9 +522,7 @@ export default function RejectedProperties() {
               mt-4
             "
           >
-
             Recoverable Listings
-
           </p>
 
           <h2
@@ -737,11 +535,8 @@ export default function RejectedProperties() {
               mt-2
             "
           >
-
             {counts.approved || 0}
-
           </h2>
-
         </div>
 
         {/* TOTAL */}
@@ -762,11 +557,8 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <div className="text-blue-600">
-
             <Building2 size={34} />
-
           </div>
 
           <p
@@ -775,9 +567,7 @@ export default function RejectedProperties() {
               mt-4
             "
           >
-
             Total Inventory
-
           </p>
 
           <h2
@@ -790,13 +580,9 @@ export default function RejectedProperties() {
               mt-2
             "
           >
-
             {counts.total || 0}
-
           </h2>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
@@ -804,7 +590,6 @@ export default function RejectedProperties() {
       {/* ====================================================== */}
 
       {loading ? (
-
         <div
           className="
 
@@ -824,7 +609,6 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <Loader2
             size={40}
             className="
@@ -840,16 +624,10 @@ export default function RejectedProperties() {
               text-slate-700
             "
           >
-
             Loading rejected properties...
-
           </p>
-
         </div>
-
-      ) : properties.length ===
-        0 ? (
-
+      ) : properties.length === 0 ? (
         <div
           className="
 
@@ -866,7 +644,6 @@ export default function RejectedProperties() {
             shadow-sm
           "
         >
-
           <XCircle
             size={54}
             className="
@@ -885,9 +662,7 @@ export default function RejectedProperties() {
               mt-5
             "
           >
-
             No Rejected Properties
-
           </h2>
 
           <p
@@ -897,17 +672,10 @@ export default function RejectedProperties() {
               mt-3
             "
           >
-
-            Rejected moderation
-            inventory will appear
-            here.
-
+            Rejected moderation inventory will appear here.
           </p>
-
         </div>
-
       ) : (
-
         <div
           className="
 
@@ -920,36 +688,17 @@ export default function RejectedProperties() {
             sm:gap-7
           "
         >
+          {properties.map((property) => {
+            const approveLoading = actionLoading === `${property._id}-approved`;
 
-          {properties.map(
-            (
-              property
-            ) => {
+            const pendingLoading = actionLoading === `${property._id}-pending`;
 
-              const approveLoading =
+            const deleteLoading = actionLoading === `${property._id}-deleted`;
 
-                actionLoading ===
-                `${property._id}-approved`;
-
-              const pendingLoading =
-
-                actionLoading ===
-                `${property._id}-pending`;
-
-              const deleteLoading =
-
-                actionLoading ===
-                `${property._id}-deleted`;
-
-              return (
-
-                <div
-
-                  key={
-                    property._id
-                  }
-
-                  className="
+            return (
+              <div
+                key={property._id}
+                className="
 
                     bg-white
 
@@ -968,38 +717,23 @@ export default function RejectedProperties() {
                     transition-all
                     duration-300
                   "
-                >
+              >
+                {/* ====================================================== */}
+                {/* ================= IMAGE ============================== */}
+                {/* ====================================================== */}
 
-                  {/* ====================================================== */}
-                  {/* ================= IMAGE ============================== */}
-                  {/* ====================================================== */}
-
-                  <div
-                    className="
+                <div
+                  className="
                       relative
                     "
-                  >
-
-                    <img
-
-                      src={
-                        property.image ||
-                        FALLBACK_IMAGE
-                      }
-
-                      onError={(
-                        e
-                      ) => {
-
-                        e.target.src =
-                          FALLBACK_IMAGE;
-                      }}
-
-                      alt={
-                        property.title
-                      }
-
-                      className="
+                >
+                  <img
+                    src={property.image || FALLBACK_IMAGE}
+                    onError={(e) => {
+                      e.target.src = FALLBACK_IMAGE;
+                    }}
+                    alt={property.title}
+                    className="
 
                         w-full
 
@@ -1008,11 +742,11 @@ export default function RejectedProperties() {
 
                         object-cover
                       "
-                    />
+                  />
 
-                    {/* STATUS */}
-                    <div
-                      className="
+                  {/* STATUS */}
+                  <div
+                    className="
 
                         absolute
                         top-4
@@ -1034,15 +768,13 @@ export default function RejectedProperties() {
 
                         shadow-lg
                       "
-                    >
+                  >
+                    REJECTED
+                  </div>
 
-                      REJECTED
-
-                    </div>
-
-                    {/* IMAGE COUNT */}
-                    <div
-                      className="
+                  {/* IMAGE COUNT */}
+                  <div
+                    className="
 
                         absolute
                         top-4
@@ -1068,35 +800,27 @@ export default function RejectedProperties() {
 
                         font-semibold
                       "
-                    >
+                  >
+                    <Images size={14} />
 
-                      <Images size={14} />
-
-                      {
-                        property
-                          ?.images
-                          ?.length || 0
-                      }
-
-                    </div>
-
+                    {property?.images?.length || 0}
                   </div>
+                </div>
 
-                  {/* ====================================================== */}
-                  {/* ================= BODY =============================== */}
-                  {/* ====================================================== */}
+                {/* ====================================================== */}
+                {/* ================= BODY =============================== */}
+                {/* ====================================================== */}
 
-                  <div
-                    className="
+                <div
+                  className="
 
                       p-5
                       sm:p-7
                     "
-                  >
-
-                    {/* PROPERTY ID */}
-                    <div
-                      className="
+                >
+                  {/* PROPERTY ID */}
+                  <div
+                    className="
 
                         flex
                         items-center
@@ -1108,28 +832,22 @@ export default function RejectedProperties() {
 
                         mb-3
                       "
-                    >
+                  >
+                    <Hash size={14} />
 
-                      <Hash size={14} />
-
-                      <span
-                        className="
+                    <span
+                      className="
                           font-semibold
                           tracking-widest
                         "
-                      >
+                    >
+                      {property.propertyUniqueId}
+                    </span>
+                  </div>
 
-                        {
-                          property.propertyUniqueId
-                        }
-
-                      </span>
-
-                    </div>
-
-                    {/* TITLE */}
-                    <h2
-                      className="
+                  {/* TITLE */}
+                  <h2
+                    className="
 
                         text-2xl
                         sm:text-3xl
@@ -1138,17 +856,13 @@ export default function RejectedProperties() {
 
                         line-clamp-2
                       "
-                    >
+                  >
+                    {property.title}
+                  </h2>
 
-                      {
-                        property.title
-                      }
-
-                    </h2>
-
-                    {/* LOCATION */}
-                    <div
-                      className="
+                  {/* LOCATION */}
+                  <div
+                    className="
 
                         flex
                         items-center
@@ -1158,27 +872,21 @@ export default function RejectedProperties() {
 
                         mt-4
                       "
-                    >
+                  >
+                    <MapPin size={17} />
 
-                      <MapPin size={17} />
-
-                      <span
-                        className="
+                    <span
+                      className="
                           line-clamp-1
                         "
-                      >
+                    >
+                      {property.location}
+                    </span>
+                  </div>
 
-                        {
-                          property.location
-                        }
-
-                      </span>
-
-                    </div>
-
-                    {/* PRICE */}
-                    <div
-                      className="
+                  {/* PRICE */}
+                  <div
+                    className="
 
                         flex
                         items-center
@@ -1188,31 +896,25 @@ export default function RejectedProperties() {
 
                         mt-5
                       "
-                    >
+                  >
+                    <IndianRupee size={22} />
 
-                      <IndianRupee size={22} />
-
-                      <span
-                        className="
+                    <span
+                      className="
 
                           text-2xl
                           sm:text-3xl
 
                           font-bold
                         "
-                      >
+                    >
+                      {formatPrice(property.price)}
+                    </span>
+                  </div>
 
-                        {formatPrice(
-                          property.price
-                        )}
-
-                      </span>
-
-                    </div>
-
-                    {/* PROPERTY INFO GRID */}
-                    <div
-                      className="
+                  {/* PROPERTY INFO GRID */}
+                  <div
+                    className="
 
                         grid
 
@@ -1223,178 +925,137 @@ export default function RejectedProperties() {
 
                         mt-6
                       "
-                    >
-
-                      {/* AREA */}
-                      <div
-                        className="
-                          bg-slate-50
-                          rounded-2xl
-                          p-3
-                          border
-                          border-slate-200
-                        "
-                      >
-
-                        <p
-                          className="
-                            text-xs
-                            text-slate-500
-                          "
-                        >
-
-                          Area
-
-                        </p>
-
-                        <h4
-                          className="
-                            font-bold
-                            mt-1
-                          "
-                        >
-
-                          {
-                            property.area || 0
-                          }{" "}
-
-                          {
-                            property.areaUnit ||
-                            "sqft"
-                          }
-
-                        </h4>
-
-                      </div>
-
-                      {/* PRICE/SQFT */}
-                      <div
-                        className="
-                          bg-slate-50
-                          rounded-2xl
-                          p-3
-                          border
-                          border-slate-200
-                        "
-                      >
-
-                        <p
-                          className="
-                            text-xs
-                            text-slate-500
-                          "
-                        >
-
-                          Price/sqft
-
-                        </p>
-
-                        <h4
-                          className="
-                            font-bold
-                            mt-1
-                          "
-                        >
-
-                          ₹
-
-                          {getPricePerUnit(
-
-                            property.price,
-
-                            property.area
-                          )}
-
-                        </h4>
-
-                      </div>
-
-                      {/* TYPE */}
-                      <div
-                        className="
-                          bg-slate-50
-                          rounded-2xl
-                          p-3
-                          border
-                          border-slate-200
-                        "
-                      >
-
-                        <p
-                          className="
-                            text-xs
-                            text-slate-500
-                          "
-                        >
-
-                          Type
-
-                        </p>
-
-                        <h4
-                          className="
-                            font-bold
-                            mt-1
-                            capitalize
-                          "
-                        >
-
-                          {
-                            property.type ||
-                            "N/A"
-                          }
-
-                        </h4>
-
-                      </div>
-
-                      {/* CATEGORY */}
-                      <div
-                        className="
-                          bg-slate-50
-                          rounded-2xl
-                          p-3
-                          border
-                          border-slate-200
-                        "
-                      >
-
-                        <p
-                          className="
-                            text-xs
-                            text-slate-500
-                          "
-                        >
-
-                          Category
-
-                        </p>
-
-                        <h4
-                          className="
-                            font-bold
-                            mt-1
-                            capitalize
-                          "
-                        >
-
-                          {
-                            property.subType ||
-                            "N/A"
-                          }
-
-                        </h4>
-
-                      </div>
-
-                    </div>
-
-                    {/* ====================================================== */}
-                    {/* ================= REJECTION REASON =================== */}
-                    {/* ====================================================== */}
-
+                  >
+                    {/* AREA */}
                     <div
                       className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                    >
+                      <p
+                        className="
+                            text-xs
+                            text-slate-500
+                          "
+                      >
+                        Area
+                      </p>
+
+                      <h4
+                        className="
+                            font-bold
+                            mt-1
+                          "
+                      >
+                        {property.area || 0} {property.areaUnit || "sqft"}
+                      </h4>
+                    </div>
+
+                    {/* PRICE/SQFT */}
+                    <div
+                      className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                    >
+                      <p
+                        className="
+                            text-xs
+                            text-slate-500
+                          "
+                      >
+                        Price/sqft
+                      </p>
+
+                      <h4
+                        className="
+                            font-bold
+                            mt-1
+                          "
+                      >
+                        ₹
+                        {getPricePerUnit(
+                          property.price,
+
+                          property.area,
+                        )}
+                      </h4>
+                    </div>
+
+                    {/* TYPE */}
+                    <div
+                      className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                    >
+                      <p
+                        className="
+                            text-xs
+                            text-slate-500
+                          "
+                      >
+                        Type
+                      </p>
+
+                      <h4
+                        className="
+                            font-bold
+                            mt-1
+                            capitalize
+                          "
+                      >
+                        {property.type || "N/A"}
+                      </h4>
+                    </div>
+
+                    {/* CATEGORY */}
+                    <div
+                      className="
+                          bg-slate-50
+                          rounded-2xl
+                          p-3
+                          border
+                          border-slate-200
+                        "
+                    >
+                      <p
+                        className="
+                            text-xs
+                            text-slate-500
+                          "
+                      >
+                        Category
+                      </p>
+
+                      <h4
+                        className="
+                            font-bold
+                            mt-1
+                            capitalize
+                          "
+                      >
+                        {property.subType || "N/A"}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* ====================================================== */}
+                  {/* ================= REJECTION REASON =================== */}
+                  {/* ====================================================== */}
+
+                  <div
+                    className="
 
                         mt-6
 
@@ -1407,64 +1068,51 @@ export default function RejectedProperties() {
 
                         p-5
                       "
-                    >
-
-                      <div
-                        className="
+                  >
+                    <div
+                      className="
                           flex
                           items-center
                           gap-2
                           mb-3
                         "
-                      >
-
-                        <BadgeAlert
-                          size={18}
-                          className="
+                    >
+                      <BadgeAlert
+                        size={18}
+                        className="
                             text-red-600
                           "
-                        />
+                      />
 
-                        <h3
-                          className="
+                      <h3
+                        className="
                             font-bold
                             text-red-700
                           "
-                        >
+                      >
+                        Rejection Reason
+                      </h3>
+                    </div>
 
-                          Rejection Reason
-
-                        </h3>
-
-                      </div>
-
-                      <p
-                        className="
+                    <p
+                      className="
                           text-sm
                           text-red-700
                           leading-relaxed
                         "
-                      >
+                    >
+                      {property.moderationReason ||
+                        "No rejection reason provided by moderator."}
+                    </p>
+                  </div>
 
-                        {
-                          property.moderationReason ||
+                  {/* ====================================================== */}
+                  {/* ================= GALLERY ============================ */}
+                  {/* ====================================================== */}
 
-                          "No rejection reason provided by moderator."
-                        }
-
-                      </p>
-
-                    </div>
-
-                    {/* ====================================================== */}
-                    {/* ================= GALLERY ============================ */}
-                    {/* ====================================================== */}
-
-                    {property.images
-                      ?.length > 1 && (
-
-                      <div
-                        className="
+                  {property.images?.length > 1 && (
+                    <div
+                      className="
 
                           grid
 
@@ -1475,39 +1123,16 @@ export default function RejectedProperties() {
 
                           mt-6
                         "
-                      >
-
-                        {property.images
-                          .slice(
-                            0,
-                            6
-                          )
-                          .map(
-                            (
-                              img
-                            ) => (
-
-                              <img
-
-                                key={
-                                  img._id
-                                }
-
-                                src={
-                                  img.url
-                                }
-
-                                onError={(
-                                  e
-                                ) => {
-
-                                  e.target.src =
-                                    FALLBACK_IMAGE;
-                                }}
-
-                                alt="gallery"
-
-                                className="
+                    >
+                      {property.images.slice(0, 6).map((img) => (
+                        <img
+                          key={img._id}
+                          src={img.url}
+                          onError={(e) => {
+                            e.target.src = FALLBACK_IMAGE;
+                          }}
+                          alt="gallery"
+                          className="
 
                                   w-full
 
@@ -1521,19 +1146,17 @@ export default function RejectedProperties() {
                                   border
                                   border-slate-200
                                 "
-                              />
-                            )
-                          )}
+                        />
+                      ))}
+                    </div>
+                  )}
 
-                      </div>
-                    )}
+                  {/* ====================================================== */}
+                  {/* ================= OWNER ============================== */}
+                  {/* ====================================================== */}
 
-                    {/* ====================================================== */}
-                    {/* ================= OWNER ============================== */}
-                    {/* ====================================================== */}
-
-                    <div
-                      className="
+                  <div
+                    className="
 
                         mt-7
 
@@ -1546,48 +1169,36 @@ export default function RejectedProperties() {
                         border
                         border-slate-200
                       "
-                    >
-
-                      <div
-                        className="
+                  >
+                    <div
+                      className="
                           flex
                           items-start
                           justify-between
                           gap-4
                         "
-                      >
-
-                        <div>
-
-                          <p
-                            className="
+                    >
+                      <div>
+                        <p
+                          className="
                               text-sm
                               text-slate-500
                             "
-                          >
+                        >
+                          Submitted By
+                        </p>
 
-                            Submitted By
-
-                          </p>
-
-                          <h3
-                            className="
+                        <h3
+                          className="
                               font-bold
                               mt-1
                             "
-                          >
+                        >
+                          {property?.createdBy?.name || "Unknown User"}
+                        </h3>
 
-                            {
-                              property
-                                ?.createdBy
-                                ?.name ||
-                              "Unknown User"
-                            }
-
-                          </h3>
-
-                          <div
-                            className="
+                        <div
+                          className="
                               flex
                               items-center
                               gap-2
@@ -1597,40 +1208,29 @@ export default function RejectedProperties() {
 
                               mt-2
                             "
-                          >
+                        >
+                          <User2 size={14} />
 
-                            <User2 size={14} />
-
-                            {
-                              property
-                                ?.createdBy
-                                ?.role ||
-                              "user"
-                            }
-
-                          </div>
-
+                          {property?.createdBy?.role || "user"}
                         </div>
+                      </div>
 
-                        <div
-                          className="
+                      <div
+                        className="
                             text-right
                           "
-                        >
-
-                          <p
-                            className="
+                      >
+                        <p
+                          className="
                               text-xs
                               text-slate-500
                             "
-                          >
+                        >
+                          Rejected On
+                        </p>
 
-                            Rejected On
-
-                          </p>
-
-                          <div
-                            className="
+                        <div
+                          className="
                               flex
                               items-center
                               gap-2
@@ -1640,33 +1240,23 @@ export default function RejectedProperties() {
 
                               mt-2
                             "
-                          >
+                        >
+                          <CalendarDays size={14} />
 
-                            <CalendarDays
-                              size={14}
-                            />
-
-                            {formatDate(
-
-                              property.rejectedAt ||
-
-                              property.updatedAt
-                            )}
-
-                          </div>
-
+                          {formatDate(
+                            property.rejectedAt || property.updatedAt,
+                          )}
                         </div>
-
                       </div>
-
                     </div>
+                  </div>
 
-                    {/* ====================================================== */}
-                    {/* ================= REVIEW ACTIONS ===================== */}
-                    {/* ====================================================== */}
+                  {/* ====================================================== */}
+                  {/* ================= REVIEW ACTIONS ===================== */}
+                  {/* ====================================================== */}
 
-                    <div
-                      className="
+                  <div
+                    className="
 
                         grid
 
@@ -1677,14 +1267,11 @@ export default function RejectedProperties() {
 
                         mt-6
                       "
-                    >
-
-                      {/* REVIEW */}
-                      <Link
-
-                        to={`/admin/property/${property._id}`}
-
-                        className="
+                  >
+                    {/* REVIEW */}
+                    <Link
+                      to={`/admin/property/${property._id}`}
+                      className="
 
                           bg-slate-100
                           hover:bg-slate-200
@@ -1704,20 +1291,15 @@ export default function RejectedProperties() {
 
                           transition
                         "
-                      >
+                    >
+                      <Eye size={18} />
+                      Review Property
+                    </Link>
 
-                        <Eye size={18} />
-
-                        Review Property
-
-                      </Link>
-
-                      {/* IMAGES */}
-                      <Link
-
-                        to={`/admin/image-verification?property=${property._id}`}
-
-                        className="
+                    {/* IMAGES */}
+                    <Link
+                      to={`/admin/image-verification?property=${property._id}`}
+                      className="
 
                           bg-indigo-100
                           hover:bg-indigo-200
@@ -1737,22 +1319,18 @@ export default function RejectedProperties() {
 
                           transition
                         "
-                      >
+                    >
+                      <Images size={18} />
+                      Review Images
+                    </Link>
+                  </div>
 
-                        <Images size={18} />
+                  {/* ====================================================== */}
+                  {/* ================= ACTIONS =========================== */}
+                  {/* ====================================================== */}
 
-                        Review Images
-
-                      </Link>
-
-                    </div>
-
-                    {/* ====================================================== */}
-                    {/* ================= ACTIONS =========================== */}
-                    {/* ====================================================== */}
-
-                    <div
-                      className="
+                  <div
+                    className="
 
                         grid
 
@@ -1763,25 +1341,18 @@ export default function RejectedProperties() {
 
                         mt-6
                       "
-                    >
+                  >
+                    {/* APPROVE */}
+                    <button
+                      disabled={approveLoading}
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
 
-                      {/* APPROVE */}
-                      <button
-
-                        disabled={
-                          approveLoading
-                        }
-
-                        onClick={() =>
-                          updateStatus(
-
-                            property._id,
-
-                            "approved"
-                          )
-                        }
-
-                        className="
+                          "approved",
+                        )
+                      }
+                      className="
 
                           bg-green-600
                           hover:bg-green-700
@@ -1803,42 +1374,28 @@ export default function RejectedProperties() {
 
                           transition
                         "
-                      >
+                    >
+                      {approveLoading ? (
+                        <ButtonLoader />
+                      ) : (
+                        <>
+                          <CheckCircle2 size={18} />
+                          Approve
+                        </>
+                      )}
+                    </button>
 
-                        {approveLoading ? (
+                    {/* PENDING */}
+                    <button
+                      disabled={pendingLoading}
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
 
-                          <ButtonLoader />
-
-                        ) : (
-
-                          <>
-
-                            <CheckCircle2 size={18} />
-
-                            Approve
-
-                          </>
-                        )}
-
-                      </button>
-
-                      {/* PENDING */}
-                      <button
-
-                        disabled={
-                          pendingLoading
-                        }
-
-                        onClick={() =>
-                          updateStatus(
-
-                            property._id,
-
-                            "pending"
-                          )
-                        }
-
-                        className="
+                          "pending",
+                        )
+                      }
+                      className="
 
                           bg-yellow-500
                           hover:bg-yellow-600
@@ -1860,42 +1417,28 @@ export default function RejectedProperties() {
 
                           transition
                         "
-                      >
+                    >
+                      {pendingLoading ? (
+                        <ButtonLoader />
+                      ) : (
+                        <>
+                          <Clock3 size={18} />
+                          Move Pending
+                        </>
+                      )}
+                    </button>
 
-                        {pendingLoading ? (
+                    {/* DELETE */}
+                    <button
+                      disabled={deleteLoading}
+                      onClick={() =>
+                        updateStatus(
+                          property._id,
 
-                          <ButtonLoader />
-
-                        ) : (
-
-                          <>
-
-                            <Clock3 size={18} />
-
-                            Move Pending
-
-                          </>
-                        )}
-
-                      </button>
-
-                      {/* DELETE */}
-                      <button
-
-                        disabled={
-                          deleteLoading
-                        }
-
-                        onClick={() =>
-                          updateStatus(
-
-                            property._id,
-
-                            "deleted"
-                          )
-                        }
-
-                        className="
+                          "deleted",
+                        )
+                      }
+                      className="
 
                           bg-slate-900
                           hover:bg-black
@@ -1917,33 +1460,24 @@ export default function RejectedProperties() {
 
                           transition
                         "
-                      >
+                    >
+                      {deleteLoading ? (
+                        <ButtonLoader />
+                      ) : (
+                        <>
+                          <Trash2 size={18} />
+                          Delete
+                        </>
+                      )}
+                    </button>
+                  </div>
 
-                        {deleteLoading ? (
+                  {/* ====================================================== */}
+                  {/* ================= MODERATION ALERT ================== */}
+                  {/* ====================================================== */}
 
-                          <ButtonLoader />
-
-                        ) : (
-
-                          <>
-
-                            <Trash2 size={18} />
-
-                            Delete
-
-                          </>
-                        )}
-
-                      </button>
-
-                    </div>
-
-                    {/* ====================================================== */}
-                    {/* ================= MODERATION ALERT ================== */}
-                    {/* ====================================================== */}
-
-                    <div
-                      className="
+                  <div
+                    className="
 
                         mt-6
 
@@ -1956,24 +1490,16 @@ export default function RejectedProperties() {
 
                         font-medium
                       "
-                    >
-
-                      <ShieldAlert size={16} />
-
-                      Moderation attention required
-
-                    </div>
-
+                  >
+                    <ShieldAlert size={16} />
+                    Moderation attention required
                   </div>
-
                 </div>
-              );
-            }
-          )}
-
+              </div>
+            );
+          })}
         </div>
       )}
-
     </div>
   );
 }

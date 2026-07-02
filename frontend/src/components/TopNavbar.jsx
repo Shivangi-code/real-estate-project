@@ -36,15 +36,7 @@ import socket from "../socket";
 
 import "../styles/topnavbar.css";
 
-// ======================================================
-// ================= API URL ============================
-// ======================================================
-
-const API_URL =
-
-  import.meta.env.VITE_API_URL ||
-
-  "http://localhost:5000";
+  
 
 // ======================================================
 // ================= SAFE USER ==========================
@@ -216,7 +208,7 @@ function TopNavbar() {
         const response =
           await axios.get(
 
-            `${API_URL}/api/user-auth/notifications`,
+            `${import.meta.env.VITE_API_URL}/api/user-auth/notifications`,
 
             {
 
@@ -346,7 +338,7 @@ function TopNavbar() {
 
         await axios.patch(
 
-          `${API_URL}/api/user-auth/notifications/read-all`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications/read-all`,
 
           {},
 
@@ -415,7 +407,7 @@ function TopNavbar() {
 
         await axios.delete(
 
-          `${API_URL}/api/user-auth/notifications/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications/${id}`,
 
           {
 
@@ -485,7 +477,7 @@ function TopNavbar() {
 
         await axios.delete(
 
-          `${API_URL}/api/user-auth/notifications`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications`,
 
           {
 

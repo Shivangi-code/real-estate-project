@@ -1,10 +1,6 @@
-import {
-  useState,
-} from "react";
+import { useState } from "react";
 
-import {
-  motion,
-} from "framer-motion";
+import { motion } from "framer-motion";
 
 import {
   Mail,
@@ -18,120 +14,86 @@ import {
 
 import "../styles/Contact.css";
 
+
 function Contact() {
+  const [form, setForm] = useState({
+    buyerName: "",
+    buyerEmail: "",
+    buyerMobile: "",
+    buyerCity: "",
+    message: "",
+  });
 
-  const [form, setForm] =
-    useState({
-      buyerName: "",
-      buyerEmail: "",
-      buyerMobile: "",
-      buyerCity: "",
-      message: "",
-    });
+  const [loading, setLoading] = useState(false);
 
-  const [loading, setLoading] =
-    useState(false);
+  const [success, setSuccess] = useState("");
 
-  const [success, setSuccess] =
-    useState("");
-
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   // ================= HANDLE CHANGE =================
-  const handleChange = (
-    e
-  ) => {
-
+  const handleChange = (e) => {
     setForm({
       ...form,
-      [e.target.name]:
-        e.target.value,
+      [e.target.name]: e.target.value,
     });
   };
 
   // ================= HANDLE SUBMIT =================
-  const handleSubmit =
-    async (e) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      e.preventDefault();
+    setLoading(true);
 
-      setLoading(true);
+    setSuccess("");
 
-      setSuccess("");
+    setError("");
 
-      setError("");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leads/contact-us`, {
+        method: "POST",
 
-      try {
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-        const res = await fetch(
-          "http://localhost:5000/api/leads/contact-us",
-          {
-            method: "POST",
+        body: JSON.stringify(form),
+      });
 
-            headers: {
-              "Content-Type":
-                "application/json",
-            },
+      const data = await res.json();
 
-            body: JSON.stringify(
-              form
-            ),
-          }
-        );
+      if (res.ok) {
+        setSuccess("Message submitted successfully 🚀");
 
-        const data =
-          await res.json();
-
-        if (res.ok) {
-
-          setSuccess(
-            "Message submitted successfully 🚀"
-          );
-
-          setForm({
-            buyerName: "",
-            buyerEmail: "",
-            buyerMobile: "",
-            buyerCity: "",
-            message: "",
-          });
-
-        } else {
-
-          setError(
-            data.message ||
-              "Failed to send message"
-          );
-        }
-
-      } catch (err) {
-
-        console.log(err);
-
-        setError(
-          "Server error. Please try again."
-        );
-
-      } finally {
-
-        setLoading(false);
-
-        setTimeout(() => {
-
-          setSuccess("");
-
-          setError("");
-
-        }, 4000);
+        setForm({
+          buyerName: "",
+          buyerEmail: "",
+          buyerMobile: "",
+          buyerCity: "",
+          message: "",
+        });
+      } else {
+        setError(data.message || "Failed to send message");
       }
-    };
+    } catch (err) {
+      console.log(err);
+
+      setError("Server error. Please try again.");
+    } finally {
+      setLoading(false);
+
+      setTimeout(() => {
+        setSuccess("");
+
+        setError("");
+      }, 4000);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50">
-
       {/* HERO */}
-      <section className="
+      <section
+        className="
           bg-gradient-to-r
           from-slate-900
           to-slate-700
@@ -144,10 +106,9 @@ function Contact() {
 
           px-4
           sm:px-6
-        ">
-
+        "
+      >
         <div className="max-w-6xl mx-auto text-center">
-
           <motion.div
             initial={{
               opacity: 0,
@@ -161,14 +122,12 @@ function Contact() {
               duration: 0.6,
             }}
           >
-
             <p className="uppercase tracking-[6px] text-slate-300 text-sm mb-5">
-
               CRM Connected Support
-
             </p>
 
-            <h1 className="
+            <h1
+              className="
                 text-3xl
                 sm:text-5xl
                 md:text-6xl
@@ -176,13 +135,13 @@ function Contact() {
                 font-bold
 
                 leading-tight
-              ">
-
+              "
+            >
               Contact Our Team
-
             </h1>
 
-            <p className="
+            <p
+              className="
                 mt-5
 
                 text-slate-300
@@ -194,19 +153,18 @@ function Contact() {
                 mx-auto
 
                 leading-7
-              ">
-
-              Connect with our verified real estate support team
-              for inquiries, partnerships and property assistance.
-
+              "
+            >
+              Connect with our verified real estate support team for inquiries,
+              partnerships and property assistance.
             </p>
-
           </motion.div>
         </div>
       </section>
 
       {/* CONTENT */}
-      <section className="
+      <section
+        className="
             max-w-7xl
             mx-auto
 
@@ -216,9 +174,10 @@ function Contact() {
             py-10
             sm:py-14
             md:py-16
-          ">
-
-        <div className="
+          "
+      >
+        <div
+          className="
   grid
 
   grid-cols-1
@@ -227,8 +186,8 @@ function Contact() {
   gap-6
   sm:gap-8
   lg:gap-10
-">
-
+"
+        >
           {/* LEFT INFO */}
           <motion.div
             initial={{
@@ -247,9 +206,9 @@ function Contact() {
             }}
             className="space-y-6"
           >
-
             {/* CARD */}
-            <div className="
+            <div
+              className="
                 bg-white
 
                 rounded-[24px]
@@ -259,114 +218,98 @@ function Contact() {
                 sm:p-8
 
                 shadow-sm
-              ">
-
+              "
+            >
               <div className="flex items-center gap-3 mb-5">
-
                 <Building2 className="text-slate-700" />
 
-                <h2 className="
+                <h2
+                  className="
                     text-2xl
                     sm:text-3xl
 
                     font-bold
-                  ">
+                  "
+                >
                   Contact Information
                 </h2>
-
               </div>
 
               <div className="space-y-6">
-
                 <div className="flex items-start gap-4">
-
                   <div className="bg-slate-100 p-3 rounded-2xl">
-
                     <Mail className="text-slate-700" />
-
                   </div>
 
                   <div>
+                    <p className="text-slate-500 text-sm">Email Support</p>
 
-                    <p className="text-slate-500 text-sm">
-                      Email Support
-                    </p>
-
-                    <h3 className="
+                    <h3
+                      className="
                         font-semibold
 
                         text-base
                         sm:text-lg
 
                         break-words
-                      ">
+                      "
+                    >
                       housifyrealty.info@gmail.com
                     </h3>
-
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-
                   <div className="bg-slate-100 p-3 rounded-2xl">
-
                     <Phone className="text-slate-700" />
-
                   </div>
 
                   <div>
+                    <p className="text-slate-500 text-sm">Phone</p>
 
-                    <p className="text-slate-500 text-sm">
-                      Phone
-                    </p>
-
-                    <h3 className="
+                    <h3
+                      className="
                         font-semibold
 
                         text-base
                         sm:text-lg
 
                         break-words
-                      ">
+                      "
+                    >
                       +91-7415930089
                     </h3>
-
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-
                   <div className="bg-slate-100 p-3 rounded-2xl">
-
                     <MapPin className="text-slate-700" />
-
                   </div>
 
                   <div>
+                    <p className="text-slate-500 text-sm">Office Address</p>
 
-                    <p className="text-slate-500 text-sm">
-                      Office Address
-                    </p>
-
-                    <h3 className="
+                    <h3
+                      className="
                         font-semibold
 
                         text-base
                         sm:text-lg
 
                         break-words
-                      ">
+                      "
+                    >
                       India
                     </h3>
-
                   </div>
                 </div>
-
               </div>
             </div>
 
             {/* FEATURES */}
-            <div className="
+            <div
+              className="
                 grid
 
                 grid-cols-1
@@ -374,9 +317,10 @@ function Contact() {
 
                 gap-4
                 sm:gap-5
-              ">
-
-              <div className="
+              "
+            >
+              <div
+                className="
                   bg-white
 
                   rounded-[24px]
@@ -386,23 +330,19 @@ function Contact() {
                   sm:p-6
 
                   shadow-sm
-                ">
-
+                "
+              >
                 <ShieldCheck className="text-green-600 mb-4" />
 
-                <h3 className="font-bold text-xl">
-                  Verified Support
-                </h3>
+                <h3 className="font-bold text-xl">Verified Support</h3>
 
                 <p className="text-slate-500 mt-2 text-sm leading-6">
-
                   Trusted real estate inquiry management.
-
                 </p>
-
               </div>
 
-              <div className="
+              <div
+                className="
                   bg-white
 
                   rounded-[24px]
@@ -412,22 +352,16 @@ function Contact() {
                   sm:p-6
 
                   shadow-sm
-                ">
-
+                "
+              >
                 <MessageSquare className="text-blue-600 mb-4" />
 
-                <h3 className="font-bold text-xl">
-                  CRM Integrated
-                </h3>
+                <h3 className="font-bold text-xl">CRM Integrated</h3>
 
                 <p className="text-slate-500 mt-2 text-sm leading-6">
-
                   Realtime lead tracking and response workflow.
-
                 </p>
-
               </div>
-
             </div>
           </motion.div>
 
@@ -448,8 +382,8 @@ function Contact() {
               once: true,
             }}
           >
-
-            <div className="
+            <div
+              className="
                 bg-white
 
                 rounded-[24px]
@@ -459,17 +393,15 @@ function Contact() {
                 sm:p-8
 
                 shadow-sm
-              ">
-
+              "
+            >
               <div className="mb-6">
-
                 <p className="uppercase tracking-widest text-sm text-slate-500">
-
                   Contact Lead Form
-
                 </p>
 
-                <h2 className="
+                <h2
+                  className="
                     text-2xl
                     sm:text-3xl
                     md:text-4xl
@@ -477,54 +409,39 @@ function Contact() {
                     font-bold
 
                     mt-2
-                  ">
-
+                  "
+                >
                   Send Us A Message
-
                 </h2>
-
               </div>
 
               {/* SUCCESS */}
               {success && (
-
                 <div className="bg-green-100 text-green-700 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl mb-5">
-
                   {success}
-
                 </div>
               )}
 
               {/* ERROR */}
               {error && (
-
                 <div className="bg-red-100 text-red-700 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl mb-5">
-
                   {error}
-
                 </div>
               )}
 
               {/* FORM */}
               <form
-                onSubmit={
-                  handleSubmit
-                }
+                onSubmit={handleSubmit}
                 className="
                   space-y-4
                   sm:space-y-5
                 "
               >
-
                 <input
                   type="text"
                   name="buyerName"
-                  value={
-                    form.buyerName
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.buyerName}
+                  onChange={handleChange}
                   placeholder="Full Name"
                   required
                   className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
@@ -533,12 +450,8 @@ function Contact() {
                 <input
                   type="email"
                   name="buyerEmail"
-                  value={
-                    form.buyerEmail
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.buyerEmail}
+                  onChange={handleChange}
                   placeholder="Email Address"
                   required
                   className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
@@ -547,12 +460,8 @@ function Contact() {
                 <input
                   type="text"
                   name="buyerMobile"
-                  value={
-                    form.buyerMobile
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.buyerMobile}
+                  onChange={handleChange}
                   placeholder="Mobile Number"
                   required
                   className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
@@ -561,12 +470,8 @@ function Contact() {
                 <input
                   type="text"
                   name="buyerCity"
-                  value={
-                    form.buyerCity
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.buyerCity}
+                  onChange={handleChange}
                   placeholder="Your City"
                   className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900"
                 />
@@ -574,12 +479,8 @@ function Contact() {
                 <textarea
                   name="message"
                   rows="5"
-                  value={
-                    form.message
-                  }
-                  onChange={
-                    handleChange
-                  }
+                  value={form.message}
+                  onChange={handleChange}
                   placeholder="Write your message..."
                   required
                   className="w-full border border-slate-200 rounded-2xl px-4 sm:px-5 py-3.5 sm:py-4 outline-none focus:border-slate-900 resize-none"
@@ -587,9 +488,7 @@ function Contact() {
 
                 <button
                   type="submit"
-                  disabled={
-                    loading
-                  }
+                  disabled={loading}
                   className="
                       w-full
 
@@ -616,19 +515,13 @@ function Contact() {
                       transition
                     "
                 >
-
                   <Send size={18} />
 
-                  {loading
-                    ? "Submitting..."
-                    : "Send Message"}
-
+                  {loading ? "Submitting..." : "Send Message"}
                 </button>
-
               </form>
             </div>
           </motion.div>
-
         </div>
       </section>
     </div>

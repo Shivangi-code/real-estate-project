@@ -62,6 +62,7 @@ import {
 
 import socket from "../../socket";
 
+
 // ======================================================
 // ================= COMPONENT ==========================
 // ======================================================
@@ -126,13 +127,6 @@ export default function AdminOverview() {
   // ================= API URL ============================
   // ======================================================
 
-  const API_URL =
-
-    import.meta.env
-      .VITE_API_URL ||
-
-    "http://localhost:5000";
-
   // ======================================================
   // ================= TOKEN ==============================
   // ======================================================
@@ -170,7 +164,7 @@ export default function AdminOverview() {
         const response =
           await fetch(
 
-            `${API_URL}/api/admin/stats`,
+            `${import.meta.env.VITE_API_URL}/api/admin/stats`,
 
             {
 

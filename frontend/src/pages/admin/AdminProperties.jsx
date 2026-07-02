@@ -1,59 +1,27 @@
-import {
+import { useEffect, useMemo, useState } from "react";
 
-  useEffect,
-
-  useMemo,
-
-  useState,
-
-} from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
-
-  useNavigate,
-
-} from "react-router-dom";
-
-import {
-
   Building2,
-
   Search,
-
   Filter,
-
   Trash2,
-
   Eye,
-
   Pencil,
-
   RotateCcw,
-
   Loader2,
-
   CheckCircle2,
-
   XCircle,
-
   Clock3,
-
   IndianRupee,
-
   MapPin,
-
   PlusCircle,
-
   ShieldCheck,
-
   RefreshCcw,
-
   LayoutGrid,
-
   List,
-
   ArrowUpRight,
-
 } from "lucide-react";
 
 import toast from "react-hot-toast";
@@ -65,124 +33,74 @@ import socket from "../../socket";
 // ======================================================
 
 export default function AdminProperties() {
-
   // ======================================================
   // ================= ROUTER =============================
   // ======================================================
 
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   // ======================================================
   // ================= STATES =============================
   // ======================================================
 
-  const [properties, setProperties] =
-    useState([]);
+  const [properties, setProperties] = useState([]);
 
-  const [filteredProperties, setFilteredProperties] =
-    useState([]);
+  const [filteredProperties, setFilteredProperties] = useState([]);
 
-  const [loading, setLoading] =
-    useState(true);
+  const [loading, setLoading] = useState(true);
 
-  const [refreshing, setRefreshing] =
-    useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const [search, setSearch] =
-    useState("");
+  const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
-  const [viewMode, setViewMode] =
-    useState("grid");
+  const [viewMode, setViewMode] = useState("grid");
   const [actionLoading, setActionLoading] = useState(null);
   // ======================================================
   // ================= USER ===============================
   // ======================================================
 
-  const user =
-    JSON.parse(
-      localStorage.getItem("user")
-    );
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // ======================================================
   // ================= FETCH ==============================
   // ======================================================
 
-  const fetchProperties =
-    async () => {
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
 
-      try {
+      const token = localStorage.getItem("token");
 
-        setLoading(true);
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/properties/my-properties`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+      const data = await res.json();
 
-        const res =
-          await fetch(
-            "http://localhost:5000/api/properties/my-properties",
-            {
-              headers: {
+      const propertiesData = data?.properties || data?.data || data || [];
 
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
+      setProperties(Array.isArray(propertiesData) ? propertiesData : []);
+    } catch (error) {
+      console.log("ADMIN PROPERTY FETCH ERROR:", error);
 
-        const data =
-          await res.json();
+      toast.error("Failed to load properties");
+    } finally {
+      setLoading(false);
 
-        const propertiesData =
-
-          data?.properties ||
-
-          data?.data ||
-
-          data ||
-
-          [];
-
-        setProperties(
-          Array.isArray(
-            propertiesData
-          )
-            ? propertiesData
-            : []
-        );
-
-      } catch (error) {
-
-        console.log(
-          "ADMIN PROPERTY FETCH ERROR:",
-          error
-        );
-
-        toast.error(
-          "Failed to load properties"
-        );
-
-      } finally {
-
-        setLoading(false);
-
-        setRefreshing(false);
-      }
-    };
+      setRefreshing(false);
+    }
+  };
 
   // ======================================================
   // ================= INITIAL LOAD =======================
   // ======================================================
 
   useEffect(() => {
-
     fetchProperties();
-
   }, []);
 
   // ======================================================
@@ -190,60 +108,27 @@ export default function AdminProperties() {
   // ======================================================
 
   useEffect(() => {
+    socket.on("propertyUpdated", fetchProperties);
 
-    socket.on(
-      "propertyUpdated",
-      fetchProperties
-    );
+    socket.on("propertyDeleted", fetchProperties);
 
-    socket.on(
-      "propertyDeleted",
-      fetchProperties
-    );
+    socket.on("propertyApproved", fetchProperties);
 
-    socket.on(
-      "propertyApproved",
-      fetchProperties
-    );
+    socket.on("propertyRejected", fetchProperties);
 
-    socket.on(
-      "propertyRejected",
-      fetchProperties
-    );
-
-    socket.on(
-      "propertyRestored",
-      fetchProperties
-    );
+    socket.on("propertyRestored", fetchProperties);
 
     return () => {
+      socket.off("propertyUpdated", fetchProperties);
 
-      socket.off(
-        "propertyUpdated",
-        fetchProperties
-      );
+      socket.off("propertyDeleted", fetchProperties);
 
-      socket.off(
-        "propertyDeleted",
-        fetchProperties
-      );
+      socket.off("propertyApproved", fetchProperties);
 
-      socket.off(
-        "propertyApproved",
-        fetchProperties
-      );
+      socket.off("propertyRejected", fetchProperties);
 
-      socket.off(
-        "propertyRejected",
-        fetchProperties
-      );
-
-      socket.off(
-        "propertyRestored",
-        fetchProperties
-      );
+      socket.off("propertyRestored", fetchProperties);
     };
-
   }, []);
 
   // ======================================================
@@ -251,324 +136,183 @@ export default function AdminProperties() {
   // ======================================================
 
   useEffect(() => {
-
-    let updated =
-      [...properties];
+    let updated = [...properties];
 
     // ================= SEARCH =================
 
     if (search.trim()) {
+      const lower = search.toLowerCase();
 
-      const lower =
-        search.toLowerCase();
-
-      updated =
-        updated.filter(
-          (property) =>
-
-            property?.title
-              ?.toLowerCase()
-              ?.includes(lower)
-
-            ||
-
-            property?.location
-              ?.toLowerCase()
-              ?.includes(lower)
-
-            ||
-
-            property?.propertyUniqueId
-              ?.toLowerCase()
-              ?.includes(lower)
-        );
+      updated = updated.filter(
+        (property) =>
+          property?.title?.toLowerCase()?.includes(lower) ||
+          property?.location?.toLowerCase()?.includes(lower) ||
+          property?.propertyUniqueId?.toLowerCase()?.includes(lower),
+      );
     }
 
     // ================= STATUS =================
 
-    if (
-      statusFilter !==
-      "all"
-    ) {
-
-      updated =
-        updated.filter(
-          (property) =>
-
-            property?.status ===
-            statusFilter
-        );
+    if (statusFilter !== "all") {
+      updated = updated.filter((property) => property?.status === statusFilter);
     }
 
-    setFilteredProperties(
-      updated
-    );
-
-  }, [
-
-    properties,
-
-    search,
-
-    statusFilter,
-
-  ]);
+    setFilteredProperties(updated);
+  }, [properties, search, statusFilter]);
 
   // ======================================================
   // ================= COUNTERS ===========================
   // ======================================================
 
-  const analytics =
-    useMemo(() => {
+  const analytics = useMemo(() => {
+    return {
+      total: properties.length,
 
-      return {
+      approved: properties.filter((p) => p.status === "approved").length,
 
-        total:
-          properties.length,
+      pending: properties.filter((p) => p.status === "pending").length,
 
-        approved:
-          properties.filter(
-            (p) =>
-              p.status ===
-              "approved"
-          ).length,
-
-        pending:
-          properties.filter(
-            (p) =>
-              p.status ===
-              "pending"
-          ).length,
-
-        rejected:
-          properties.filter(
-            (p) =>
-              p.status ===
-              "rejected"
-          ).length,
-      };
-
-    }, [properties]);
+      rejected: properties.filter((p) => p.status === "rejected").length,
+    };
+  }, [properties]);
 
   // ======================================================
   // ================= FORMAT PRICE =======================
   // ======================================================
 
-  const formatPrice =
-    (price) => {
+  const formatPrice = (price) => {
+    if (!price) return "N/A";
 
-      if (!price)
-        return "N/A";
+    if (price >= 10000000) {
+      return `₹ ${(price / 10000000).toFixed(1)} Cr`;
+    }
 
-      if (
-        price >= 10000000
-      ) {
+    if (price >= 100000) {
+      return `₹ ${(price / 100000).toFixed(1)} L`;
+    }
 
-        return `₹ ${(price / 10000000).toFixed(1)} Cr`;
-      }
-
-      if (
-        price >= 100000
-      ) {
-
-        return `₹ ${(price / 100000).toFixed(1)} L`;
-      }
-
-      return `₹ ${price}`;
-    };
+    return `₹ ${price}`;
+  };
 
   // ======================================================
   // ================= STATUS COLOR =======================
   // ======================================================
 
-  const getStatusStyles =
-    (status) => {
-
-      switch (status) {
-
-        case "approved":
-
-          return `
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case "approved":
+        return `
             bg-green-100
             text-green-700
           `;
 
-        case "rejected":
-
-          return `
+      case "rejected":
+        return `
             bg-red-100
             text-red-700
           `;
 
-        case "deleted":
-
-          return `
+      case "deleted":
+        return `
             bg-red-200
             text-red-800
           `;
 
-        default:
-
-          return `
+      default:
+        return `
             bg-yellow-100
             text-yellow-700
           `;
-      }
-    };
-
-    // ======================================================
-// ================= DELETE PROPERTY ====================
-// ======================================================
-
-const handleDelete =
-  async (propertyId) => {
-
-    try {
-
-      const confirmed =
-        window.confirm(
-          "Are you sure you want to delete this property?"
-        );
-
-      if (!confirmed) return;
-
-      setActionLoading(
-        propertyId
-      );
-
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      const res =
-        await fetch(
-
-          `http://localhost:5000/api/properties/delete/${propertyId}`,
-
-          {
-            method: "DELETE",
-
-            headers: {
-
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      const data =
-        await res.json();
-
-      if (!res.ok) {
-
-        throw new Error(
-          data?.message ||
-          "Delete failed"
-        );
-      }
-
-      toast.success(
-        "Property deleted successfully"
-      );
-
-      fetchProperties();
-
-    } catch (error) {
-
-      console.log(
-        "DELETE PROPERTY ERROR:",
-        error
-      );
-
-      toast.error(
-        error.message ||
-        "Failed to delete property"
-      );
-
-    } finally {
-
-      setActionLoading(
-        null
-      );
     }
   };
 
-// ======================================================
-// ================= RESTORE PROPERTY ===================
-// ======================================================
+  // ======================================================
+  // ================= DELETE PROPERTY ====================
+  // ======================================================
 
-const handleRestore =
-  async (propertyId) => {
-
+  const handleDelete = async (propertyId) => {
     try {
-
-      const confirmed =
-        window.confirm(
-          "Restore this property?"
-        );
+      const confirmed = window.confirm(
+        "Are you sure you want to delete this property?",
+      );
 
       if (!confirmed) return;
 
-      setActionLoading(
-        propertyId
+      setActionLoading(propertyId);
+
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/properties/delete/${propertyId}`,
+
+        {
+          method: "DELETE",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
 
-      const token =
-        localStorage.getItem(
-          "token"
-        );
-
-      const res =
-        await fetch(
-
-          `http://localhost:5000/api/properties/restore/${propertyId}`,
-
-          {
-            method: "PATCH",
-
-            headers: {
-
-              Authorization:
-                `Bearer ${token}`,
-            },
-          }
-        );
-
-      const data =
-        await res.json();
+      const data = await res.json();
 
       if (!res.ok) {
-
-        throw new Error(
-          data?.message ||
-          "Restore failed"
-        );
+        throw new Error(data?.message || "Delete failed");
       }
 
-      toast.success(
-        "Property restored successfully"
-      );
+      toast.success("Property deleted successfully");
 
       fetchProperties();
-
     } catch (error) {
+      console.log("DELETE PROPERTY ERROR:", error);
 
-      console.log(
-        "RESTORE PROPERTY ERROR:",
-        error
-      );
-
-      toast.error(
-        error.message ||
-        "Failed to restore property"
-      );
-
+      toast.error(error.message || "Failed to delete property");
     } finally {
+      setActionLoading(null);
+    }
+  };
 
-      setActionLoading(
-        null
+  // ======================================================
+  // ================= RESTORE PROPERTY ===================
+  // ======================================================
+
+  const handleRestore = async (propertyId) => {
+    try {
+      const confirmed = window.confirm("Restore this property?");
+
+      if (!confirmed) return;
+
+      setActionLoading(propertyId);
+
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/properties/restore/${propertyId}`,
+
+        {
+          method: "PATCH",
+
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
       );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Restore failed");
+      }
+
+      toast.success("Property restored successfully");
+
+      fetchProperties();
+    } catch (error) {
+      console.log("RESTORE PROPERTY ERROR:", error);
+
+      toast.error(error.message || "Failed to restore property");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -577,10 +321,9 @@ const handleRestore =
   // ======================================================
 
   if (loading) {
-
     return (
-
-      <div className="
+      <div
+        className="
         min-h-screen
 
         flex
@@ -588,13 +331,15 @@ const handleRestore =
         justify-center
 
         bg-slate-100
-      ">
-
-        <div className="
+      "
+      >
+        <div
+          className="
           text-center
-        ">
-
-          <div className="
+        "
+        >
+          <div
+            className="
             w-16
             h-16
 
@@ -608,20 +353,19 @@ const handleRestore =
 
             mx-auto
             mb-5
-          " />
+          "
+          />
 
-          <h2 className="
+          <h2
+            className="
             text-2xl
             font-bold
             text-slate-800
-          ">
-
+          "
+          >
             Loading Properties...
-
           </h2>
-
         </div>
-
       </div>
     );
   }
@@ -631,8 +375,8 @@ const handleRestore =
   // ======================================================
 
   return (
-
-    <div className="
+    <div
+      className="
       min-h-screen
 
       bg-slate-100
@@ -640,13 +384,14 @@ const handleRestore =
       p-4
       sm:p-6
       lg:p-8
-    ">
-
+    "
+    >
       {/* ====================================================== */}
       {/* ================= HERO =============================== */}
       {/* ====================================================== */}
 
-      <div className="
+      <div
+        className="
         relative
 
         overflow-hidden
@@ -665,16 +410,18 @@ const handleRestore =
         shadow-2xl
 
         mb-8
-      ">
-
-        <div className="
+      "
+      >
+        <div
+          className="
           absolute
           inset-0
 
           opacity-10
-        ">
-
-          <div className="
+        "
+        >
+          <div
+            className="
             absolute
             -top-16
             -right-16
@@ -686,11 +433,12 @@ const handleRestore =
 
             bg-blue-500
             blur-3xl
-          " />
-
+          "
+          />
         </div>
 
-        <div className="
+        <div
+          className="
           relative
           z-10
 
@@ -702,13 +450,13 @@ const handleRestore =
           xl:justify-between
 
           gap-8
-        ">
-
+        "
+        >
           {/* LEFT */}
 
           <div>
-
-            <div className="
+            <div
+              className="
               inline-flex
               items-center
               gap-2
@@ -729,15 +477,14 @@ const handleRestore =
               font-semibold
 
               mb-5
-            ">
-
+            "
+            >
               <ShieldCheck size={16} />
-
               Admin Inventory Control
-
             </div>
 
-            <h1 className="
+            <h1
+              className="
               text-3xl
               sm:text-4xl
               lg:text-5xl
@@ -747,13 +494,13 @@ const handleRestore =
               text-white
 
               leading-tight
-            ">
-
+            "
+            >
               Admin Properties
-
             </h1>
 
-            <p className="
+            <p
+              className="
               text-slate-300
 
               mt-4
@@ -762,33 +509,25 @@ const handleRestore =
               sm:text-lg
 
               max-w-2xl
-            ">
-
-              Monitor, manage and track all
-              properties added by admin with
+            "
+            >
+              Monitor, manage and track all properties added by admin with
               realtime moderation visibility.
-
             </p>
-
           </div>
 
           {/* RIGHT */}
 
-          <div className="
+          <div
+            className="
             flex
             flex-wrap
 
             gap-4
-          ">
-
+          "
+          >
             <button
-
-              onClick={() =>
-                navigate(
-                  "/add-property"
-                )
-              }
-
+              onClick={() => navigate("/add-property")}
               className="
                 bg-white
 
@@ -816,30 +555,17 @@ const handleRestore =
                 gap-3
               "
             >
-
-              <PlusCircle
-                size={20}
-              />
-
+              <PlusCircle size={20} />
               Add Property
-
-              <ArrowUpRight
-                size={18}
-              />
-
+              <ArrowUpRight size={18} />
             </button>
 
             <button
-
               onClick={() => {
-
-                setRefreshing(
-                  true
-                );
+                setRefreshing(true);
 
                 fetchProperties();
               }}
-
               className="
                 bg-blue-500/20
 
@@ -870,31 +596,22 @@ const handleRestore =
                 gap-3
               "
             >
-
               <RefreshCcw
                 size={20}
-                className={
-                  refreshing
-                    ? "animate-spin"
-                    : ""
-                }
+                className={refreshing ? "animate-spin" : ""}
               />
-
               Refresh
-
             </button>
-
           </div>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
       {/* ================= ANALYTICS ========================== */}
       {/* ====================================================== */}
 
-      <div className="
+      <div
+        className="
         grid
 
         grid-cols-1
@@ -904,8 +621,8 @@ const handleRestore =
         gap-5
 
         mb-8
-      ">
-
+      "
+      >
         {[
           {
             label: "Total",
@@ -934,18 +651,12 @@ const handleRestore =
             icon: XCircle,
             color: "bg-red-600",
           },
-
         ].map((item, index) => {
-
-          const Icon =
-            item.icon;
+          const Icon = item.icon;
 
           return (
-
             <div
-
               key={index}
-
               className="
                 bg-white
 
@@ -959,40 +670,39 @@ const handleRestore =
                 border-slate-200
               "
             >
-
-              <div className="
+              <div
+                className="
                 flex
                 items-center
                 justify-between
-              ">
-
+              "
+              >
                 <div>
-
-                  <p className="
+                  <p
+                    className="
                     text-slate-500
                     text-sm
                     font-medium
-                  ">
-
+                  "
+                  >
                     {item.label}
-
                   </p>
 
-                  <h2 className="
+                  <h2
+                    className="
                     text-4xl
                     font-black
                     text-slate-900
 
                     mt-2
-                  ">
-
+                  "
+                  >
                     {item.value}
-
                   </h2>
-
                 </div>
 
-                <div className={`
+                <div
+                  className={`
                   ${item.color}
 
                   w-14
@@ -1005,25 +715,22 @@ const handleRestore =
                   justify-center
 
                   text-white
-                `}>
-
+                `}
+                >
                   <Icon size={26} />
-
                 </div>
-
               </div>
-
             </div>
           );
         })}
-
       </div>
 
       {/* ====================================================== */}
       {/* ================= CONTROLS =========================== */}
       {/* ====================================================== */}
 
-      <div className="
+      <div
+        className="
         bg-white
 
         rounded-[28px]
@@ -1037,9 +744,10 @@ const handleRestore =
         border-slate-200
 
         mb-8
-      ">
-
-        <div className="
+      "
+      >
+        <div
+          className="
           flex
           flex-col
           xl:flex-row
@@ -1048,16 +756,17 @@ const handleRestore =
           xl:justify-between
 
           gap-5
-        ">
-
+        "
+        >
           {/* SEARCH */}
 
-          <div className="
+          <div
+            className="
             relative
 
             flex-1
-          ">
-
+          "
+          >
             <Search
               size={20}
               className="
@@ -1071,22 +780,13 @@ const handleRestore =
             />
 
             <input
-
               type="text"
-
               placeholder="
                 Search by title,
                 location or property ID...
               "
-
               value={search}
-
-              onChange={(e) =>
-                setSearch(
-                  e.target.value
-                )
-              }
-
+              onChange={(e) => setSearch(e.target.value)}
               className="
                 w-full
 
@@ -1108,24 +808,25 @@ const handleRestore =
                 focus:ring-blue-500
               "
             />
-
           </div>
 
           {/* RIGHT */}
 
-          <div className="
+          <div
+            className="
             flex
             flex-wrap
 
             gap-4
-          ">
-
+          "
+          >
             {/* FILTER */}
 
-            <div className="
+            <div
+              className="
               relative
-            ">
-
+            "
+            >
               <Filter
                 size={18}
                 className="
@@ -1139,15 +840,8 @@ const handleRestore =
               />
 
               <select
-
                 value={statusFilter}
-
-                onChange={(e) =>
-                  setStatusFilter(
-                    e.target.value
-                  )
-                }
-
+                onChange={(e) => setStatusFilter(e.target.value)}
                 className="
                   appearance-none
 
@@ -1169,43 +863,22 @@ const handleRestore =
                   focus:ring-blue-500
                 "
               >
+                <option value="all">All Status</option>
 
-                <option value="all">
-                  All Status
-                </option>
+                <option value="approved">Approved</option>
 
-                <option value="approved">
-                  Approved
-                </option>
+                <option value="pending">Pending</option>
 
-                <option value="pending">
-                  Pending
-                </option>
+                <option value="rejected">Rejected</option>
 
-                <option value="rejected">
-                  Rejected
-                </option>
-
-                <option value="deleted">
-                  Deleted
-                </option>
-
+                <option value="deleted">Deleted</option>
               </select>
-
             </div>
 
             {/* VIEW MODE */}
 
             <button
-
-              onClick={() =>
-                setViewMode(
-                  viewMode === "grid"
-                    ? "list"
-                    : "grid"
-                )
-              }
-
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
               className="
                 bg-slate-100
 
@@ -1225,20 +898,14 @@ const handleRestore =
                 justify-center
               "
             >
-
-              {viewMode === "grid"
-
-                ? <List size={20} />
-
-                : <LayoutGrid size={20} />
-              }
-
+              {viewMode === "grid" ? (
+                <List size={20} />
+              ) : (
+                <LayoutGrid size={20} />
+              )}
             </button>
-
           </div>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
@@ -1246,8 +913,8 @@ const handleRestore =
       {/* ====================================================== */}
 
       {filteredProperties.length === 0 && (
-
-        <div className="
+        <div
+          className="
           bg-white
 
           rounded-[32px]
@@ -1261,9 +928,10 @@ const handleRestore =
           sm:p-16
 
           text-center
-        ">
-
-          <div className="
+        "
+        >
+          <div
+            className="
             w-24
             h-24
 
@@ -1278,28 +946,28 @@ const handleRestore =
             mx-auto
 
             mb-6
-          ">
-
+          "
+          >
             <Building2
               size={42}
               className="
                 text-blue-700
               "
             />
-
           </div>
 
-          <h2 className="
+          <h2
+            className="
             text-3xl
             font-black
             text-slate-900
-          ">
-
+          "
+          >
             No Properties Found
-
           </h2>
 
-          <p className="
+          <p
+            className="
             text-slate-500
 
             mt-4
@@ -1307,22 +975,13 @@ const handleRestore =
             max-w-xl
 
             mx-auto
-          ">
-
-            No admin properties match the
-            current filters or inventory
-            is empty.
-
+          "
+          >
+            No admin properties match the current filters or inventory is empty.
           </p>
 
           <button
-
-            onClick={() =>
-              navigate(
-                "/add-property"
-              )
-            }
-
+            onClick={() => navigate("/add-property")}
             className="
               mt-8
 
@@ -1345,15 +1004,9 @@ const handleRestore =
               gap-3
             "
           >
-
-            <PlusCircle
-              size={20}
-            />
-
+            <PlusCircle size={20} />
             Add New Property
-
           </button>
-
         </div>
       )}
 
@@ -1362,11 +1015,10 @@ const handleRestore =
       {/* ====================================================== */}
 
       {filteredProperties.length > 0 && (
-
-        <div className={`
+        <div
+          className={`
           ${
             viewMode === "grid"
-
               ? `
                 grid
 
@@ -1374,7 +1026,6 @@ const handleRestore =
                 md:grid-cols-2
                 2xl:grid-cols-3
               `
-
               : `
                 flex
                 flex-col
@@ -1382,26 +1033,18 @@ const handleRestore =
           }
 
           gap-6
-        `}>
+        `}
+        >
+          {filteredProperties.map((property) => {
+            const image =
+              property?.images?.[0]?.url ||
+              property?.image ||
+              "/default-property.jpg";
 
-          {filteredProperties.map(
-            (property) => {
-
-              const image =
-
-                property?.images?.[0]?.url ||
-
-                property?.image ||
-
-                "/default-property.jpg";
-
-              return (
-
-                <div
-
-                  key={property._id}
-
-                  className={`
+            return (
+              <div
+                key={property._id}
+                className={`
                     bg-white
 
                     rounded-[30px]
@@ -1417,56 +1060,45 @@ const handleRestore =
                     border
 
                     ${
-                      property?.status ===
-                      "deleted"
-
+                      property?.status === "deleted"
                         ? `
                           border-red-300
                           opacity-80
                         `
-
                         : `
                           border-slate-200
                         `
                     }
                   `}
-                >
+              >
+                {/* IMAGE */}
 
-                  {/* IMAGE */}
-
-                  <div className="
+                <div
+                  className="
                     relative
-                  ">
-
-                    <img
-
-                      src={image}
-
-                      alt={
-                        property?.title
-                      }
-
-                      className="
+                  "
+                >
+                  <img
+                    src={image}
+                    alt={property?.title}
+                    className="
                         w-full
 
                         h-[240px]
 
                         object-cover
                       "
+                    onError={(e) => {
+                      e.target.onerror = null;
 
-                      onError={(e) => {
+                      e.target.src = "/default-property.jpg";
+                    }}
+                  />
 
-                        e.target.onerror =
-                          null;
+                  {/* STATUS */}
 
-                        e.target.src =
-                          "/default-property.jpg";
-                      }}
-                    />
-
-                    {/* STATUS */}
-
-                    <div className={`
+                  <div
+                    className={`
                       absolute
                       top-5
                       left-5
@@ -1481,29 +1113,24 @@ const handleRestore =
 
                       capitalize
 
-                      ${getStatusStyles(
-                        property?.status
-                      )}
-                    `}>
-
-                      {
-                        property?.status ||
-                        "pending"
-                      }
-
-                    </div>
-
+                      ${getStatusStyles(property?.status)}
+                    `}
+                  >
+                    {property?.status || "pending"}
                   </div>
+                </div>
 
-                  {/* CONTENT */}
+                {/* CONTENT */}
 
-                  <div className="
+                <div
+                  className="
                     p-6
-                  ">
+                  "
+                >
+                  {/* TITLE */}
 
-                    {/* TITLE */}
-
-                    <h2 className="
+                  <h2
+                    className="
                       text-2xl
 
                       font-black
@@ -1511,17 +1138,15 @@ const handleRestore =
                       text-slate-900
 
                       line-clamp-1
-                    ">
+                    "
+                  >
+                    {property?.title}
+                  </h2>
 
-                      {
-                        property?.title
-                      }
+                  {/* LOCATION */}
 
-                    </h2>
-
-                    {/* LOCATION */}
-
-                    <div className="
+                  <div
+                    className="
                       flex
                       items-center
                       gap-2
@@ -1529,28 +1154,23 @@ const handleRestore =
                       text-slate-500
 
                       mt-3
-                    ">
+                    "
+                  >
+                    <MapPin size={17} />
 
-                      <MapPin
-                        size={17}
-                      />
-
-                      <span className="
+                    <span
+                      className="
                         line-clamp-1
-                      ">
+                      "
+                    >
+                      {property?.location || "N/A"}
+                    </span>
+                  </div>
 
-                        {
-                          property?.location ||
-                          "N/A"
-                        }
+                  {/* PRICE */}
 
-                      </span>
-
-                    </div>
-
-                    {/* PRICE */}
-
-                    <div className="
+                  <div
+                    className="
                       flex
                       items-center
                       gap-2
@@ -1558,40 +1178,36 @@ const handleRestore =
                       mt-5
 
                       text-blue-700
-                    ">
+                    "
+                  >
+                    <IndianRupee size={22} />
 
-                      <IndianRupee
-                        size={22}
-                      />
-
-                      <span className="
+                    <span
+                      className="
                         text-2xl
 
                         font-black
-                      ">
+                      "
+                    >
+                      {formatPrice(property?.price)}
+                    </span>
+                  </div>
 
-                        {formatPrice(
-                          property?.price
-                        )}
+                  {/* INFO */}
 
-                      </span>
-
-                    </div>
-
-                    {/* INFO */}
-
-                    <div className="
+                  <div
+                    className="
                       flex
                       flex-wrap
 
                       gap-3
 
                       mt-5
-                    ">
-
-                      {property?.type && (
-
-                        <div className="
+                    "
+                  >
+                    {property?.type && (
+                      <div
+                        className="
                           bg-blue-100
 
                           text-blue-700
@@ -1603,18 +1219,15 @@ const handleRestore =
 
                           text-sm
                           font-semibold
-                        ">
+                        "
+                      >
+                        {property.type}
+                      </div>
+                    )}
 
-                          {
-                            property.type
-                          }
-
-                        </div>
-                      )}
-
-                      {property?.subType && (
-
-                        <div className="
+                    {property?.subType && (
+                      <div
+                        className="
                           bg-indigo-100
 
                           text-indigo-700
@@ -1626,39 +1239,30 @@ const handleRestore =
 
                           text-sm
                           font-semibold
-                        ">
+                        "
+                      >
+                        {property.subType}
+                      </div>
+                    )}
+                  </div>
 
-                          {
-                            property.subType
-                          }
+                  {/* ACTIONS */}
 
-                        </div>
-                      )}
-
-                    </div>
-
-                    {/* ACTIONS */}
-
-                    <div className="
+                  <div
+                    className="
                       mt-7
 
                       flex
                       flex-wrap
 
                       gap-3
-                    ">
+                    "
+                  >
+                    {/* VIEW */}
 
-                      {/* VIEW */}
-
-                      <button
-
-                        onClick={() =>
-                          navigate(
-                            `/properties/${property._id}`
-                          )
-                        }
-
-                        className="
+                    <button
+                      onClick={() => navigate(`/properties/${property._id}`)}
+                      className="
                           flex-1
 
                           min-w-[140px]
@@ -1681,28 +1285,19 @@ const handleRestore =
                           justify-center
                           gap-2
                         "
-                      >
+                    >
+                      <Eye size={18} />
+                      View
+                    </button>
 
-                        <Eye size={18} />
+                    {/* EDIT */}
 
-                        View
-
-                      </button>
-
-                      {/* EDIT */}
-
-                      {property?.status !==
-                        "deleted" && (
-
-                        <button
-
-                          onClick={() =>
-                            navigate(
-                              `/edit-property/${property._id}`
-                            )
-                          }
-
-                          className="
+                    {property?.status !== "deleted" && (
+                      <button
+                        onClick={() =>
+                          navigate(`/edit-property/${property._id}`)
+                        }
+                        className="
                             bg-indigo-100
                             hover:bg-indigo-200
 
@@ -1718,32 +1313,18 @@ const handleRestore =
                             items-center
                             justify-center
                           "
-                        >
+                      >
+                        <Pencil size={18} />
+                      </button>
+                    )}
 
-                          <Pencil size={18} />
+                    {/* DELETE */}
 
-                        </button>
-                      )}
-
-                      {/* DELETE */}
-
-                      {property?.status !==
-                        "deleted" && (
-
-                        <button
-
-                          onClick={() =>
-                            handleDelete(
-                              property._id
-                            )
-                          }
-
-                          disabled={
-                            actionLoading ===
-                            property._id
-                          }
-
-                          className="
+                    {property?.status !== "deleted" && (
+                      <button
+                        onClick={() => handleDelete(property._id)}
+                        disabled={actionLoading === property._id}
+                        className="
                             bg-red-100
                             hover:bg-red-200
 
@@ -1761,50 +1342,27 @@ const handleRestore =
                             items-center
                             justify-center
                           "
-                        >
-
-                          {
-                            actionLoading ===
-                            property._id
-
-                              ? (
-                                <Loader2
-                                  size={18}
-                                  className="
+                      >
+                        {actionLoading === property._id ? (
+                          <Loader2
+                            size={18}
+                            className="
                                     animate-spin
                                   "
-                                />
-                              )
+                          />
+                        ) : (
+                          <Trash2 size={18} />
+                        )}
+                      </button>
+                    )}
 
-                              : (
-                                <Trash2
-                                  size={18}
-                                />
-                              )
-                          }
+                    {/* RESTORE */}
 
-                        </button>
-                      )}
-
-                      {/* RESTORE */}
-
-                      {property?.status ===
-                        "deleted" && (
-
-                        <button
-
-                          onClick={() =>
-                            handleRestore(
-                              property._id
-                            )
-                          }
-
-                          disabled={
-                            actionLoading ===
-                            property._id
-                          }
-
-                          className="
+                    {property?.status === "deleted" && (
+                      <button
+                        onClick={() => handleRestore(property._id)}
+                        disabled={actionLoading === property._id}
+                        className="
                             bg-green-100
                             hover:bg-green-200
 
@@ -1822,43 +1380,26 @@ const handleRestore =
                             items-center
                             justify-center
                           "
-                        >
-
-                          {
-                            actionLoading ===
-                            property._id
-
-                              ? (
-                                <Loader2
-                                  size={18}
-                                  className="
+                      >
+                        {actionLoading === property._id ? (
+                          <Loader2
+                            size={18}
+                            className="
                                     animate-spin
                                   "
-                                />
-                              )
-
-                              : (
-                                <RotateCcw
-                                  size={18}
-                                />
-                              )
-                          }
-
-                        </button>
-                      )}
-
-                    </div>
-
+                          />
+                        ) : (
+                          <RotateCcw size={18} />
+                        )}
+                      </button>
+                    )}
                   </div>
-
                 </div>
-              );
-            }
-          )}
-
+              </div>
+            );
+          })}
         </div>
       )}
-
     </div>
   );
 }
