@@ -57,6 +57,7 @@ const sanitizeUser = (user) => {
 
 router.post("/send-otp", async (req, res) => {
   try {
+    console.log("✅ SEND OTP ROUTE HIT");
     const { mobile } = req.body;
 
     if (!mobile) {
@@ -67,6 +68,9 @@ router.post("/send-otp", async (req, res) => {
     }
 
     const existingUser = await User.findOne({ mobile });
+
+    console.log("Mobile:", mobile);
+console.log("Existing User:", existingUser);
 
     if (!existingUser) {
       return res.status(404).json({
@@ -312,12 +316,14 @@ router.post("/login", async (req, res) => {
 router.post("/register-send-otp", async (req, res) => {
   try {
     const { mobile } = req.body;
+    console.log("Mobile received:", mobile);
 
     if (!mobile) {
       return res.status(400).json({ success: false, message: "Mobile required" });
     }
 
     const existingUser = await User.findOne({ mobile });
+    console.log("User found:", existingUser);
 
     if (existingUser) {
       return res.status(400).json({ success: false, message: "User already exists" });
