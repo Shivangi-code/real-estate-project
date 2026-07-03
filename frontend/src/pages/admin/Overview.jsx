@@ -510,7 +510,7 @@ export default function AdminOverview() {
             size={44}
             className="
               animate-spin
-              text-slate-700
+              text-slate-300
               mx-auto
             "
           />
@@ -540,16 +540,18 @@ export default function AdminOverview() {
 
   return (
 
-    <div
-      className="
-        min-h-screen
-        bg-slate-100
-        p-4
-        sm:p-6
-        md:p-8
-        overflow-x-hidden
-      "
-    >
+<div
+  className="
+    min-h-screen
+
+    bg-transparent
+
+    p-5
+    lg:p-8
+
+    overflow-x-hidden
+  "
+>
 
       {/* ====================================================== */}
       {/* ================= LIVE ACTIVITY ====================== */}
@@ -699,26 +701,27 @@ export default function AdminOverview() {
           y: 0,
         }}
 
-        className="
-          flex
-          flex-col
-          xl:flex-row
-          xl:items-center
-          xl:justify-between
-          gap-6
-          mb-8
-          sm:mb-10
-        "
-      >
+        
+  className="
+flex
+justify-between
+items-center
+flex-wrap
+
+gap-4
+
+mb-6
+"
+>
 
         <div>
 
           <p
             className="
               uppercase
-              tracking-[5px]
+              tracking-[7px]
               text-sm
-              text-slate-500
+              text-amber-300
               font-semibold
             "
           >
@@ -743,7 +746,7 @@ export default function AdminOverview() {
                 sm:text-4xl
                 md:text-5xl
                 font-extrabold
-                text-slate-900
+                text-white
               "
             >
 
@@ -757,7 +760,7 @@ export default function AdminOverview() {
                 size={24}
                 className="
                   animate-spin
-                  text-slate-700
+                  text-slate-300
                 "
               />
             )}
@@ -765,13 +768,14 @@ export default function AdminOverview() {
           </div>
 
           <p
-            className="
-              text-slate-500
-              mt-3
-              max-w-2xl
-              leading-7
-            "
-          >
+  className="
+    text-slate-500
+tracking-wide
+    mt-2
+    max-w-xl
+    leading-6
+  "
+>
 
             Monitor realtime moderation,
             platform activity, analytics,
@@ -788,8 +792,9 @@ export default function AdminOverview() {
 
         <div
           className="
-            bg-green-100
-            text-green-700
+            bg-green-500/10
+            border border-green-500/20
+            text-green-300
             px-5
             py-4
             rounded-2xl
@@ -860,33 +865,37 @@ export default function AdminOverview() {
                 )
               }
 
-              className={`
-                bg-gradient-to-br
-                ${item.color}
-                text-white
-                rounded-[24px]
-                sm:rounded-3xl
-                p-5
-                sm:p-6
-                shadow-lg
-                cursor-pointer
-                overflow-hidden
-                relative
-              `}
+              className="
+group
+
+relative
+overflow-hidden
+
+rounded-[26px]
+
+border
+border-white/10
+
+bg-[#0B1523]/95
+
+backdrop-blur-xl
+
+p-6
+
+cursor-pointer
+
+transition-all
+duration-500
+
+hover:-translate-y-2
+
+hover:border-amber-400/40
+
+hover:shadow-[0_20px_60px_rgba(251,191,36,.18)]
+"
             >
 
-              <div
-                className="
-                  absolute
-                  -top-10
-                  -right-10
-                  w-32
-                  h-32
-                  rounded-full
-                  bg-white/10
-                  blur-3xl
-                "
-              />
+              
 
               <div
                 className="
@@ -906,25 +915,38 @@ export default function AdminOverview() {
                   <div>
 
                     <p
-                      className="
-                        text-sm
-                        text-white/80
-                      "
-                    >
+className="
+text-xs
+
+uppercase
+
+tracking-[2px]
+
+text-slate-500
+tracking-wide
+
+font-semibold
+"
+>
 
                       {item.title}
 
                     </p>
 
                     <h2
-                      className="
-                        text-3xl
-                        sm:text-4xl
-                        font-extrabold
-                        mt-3
-                      "
-                    >
+className="
+mt-4
 
+text-4xl
+lg:text-5xl
+
+font-bold
+
+tracking-tight
+
+text-white
+"
+>
                       {item.value}
 
                     </h2>
@@ -932,38 +954,70 @@ export default function AdminOverview() {
                   </div>
 
                   <div
-                    className="
-                      bg-white/20
-                      p-3
-                      rounded-2xl
-                    "
-                  >
+  className="
+  w-14
+  h-14
 
-                    {item.icon}
+  rounded-full
 
-                  </div>
+  flex
+  items-center
+  justify-center
+
+  bg-gradient-to-br
+  from-amber-400/20
+  to-transparent
+
+  border
+  border-amber-400/25
+
+  text-amber-300
+
+  shadow-[0_0_30px_rgba(251,191,36,.18)]
+
+  transition-all
+  duration-500
+
+  group-hover:scale-110
+  group-hover:rotate-6
+  "
+>
+  {item.icon}
+</div>
 
                 </div>
 
                 <div
-                  className="
-                    mt-6
-                    text-sm
-                    text-white/80
-                    flex
-                    items-center
-                    justify-between
-                    gap-2
-                  "
-                >
+className="
+mt-8
+
+pt-5
+
+border-t
+border-white/8
+
+flex
+items-center
+justify-between
+"
+>
 
                   <div
-                    className="
-                      flex
-                      items-center
-                      gap-2
-                    "
-                  >
+className="
+flex
+items-center
+gap-2
+
+text-xs
+
+uppercase
+
+tracking-[2px]
+
+text-slate-500
+tracking-wide
+"
+>
 
                     <TrendingUp
                       size={16}
@@ -974,14 +1028,24 @@ export default function AdminOverview() {
                   </div>
 
                   <ArrowUpRight
-                    size={16}
-                  />
+size={18}
+className="
+text-amber-300
+
+transition-transform
+duration-300
+
+group-hover:translate-x-1
+group-hover:-translate-y-1
+"
+/>
 
                 </div>
 
               </div>
 
             </motion.div>
+            
           )
         )}
 
@@ -998,8 +1062,8 @@ export default function AdminOverview() {
           xl:grid-cols-3
           gap-4
           sm:gap-6
-          mt-8
-          sm:mt-10
+          mt-6
+          sm:mt-6
         "
       >
 
@@ -1028,15 +1092,62 @@ export default function AdminOverview() {
           }}
 
           className="
-            xl:col-span-2
-            bg-white
-            rounded-[24px]
-            sm:rounded-3xl
-            shadow-sm
-            p-5
-            sm:p-8
-          "
+xl:col-span-2
+
+group
+relative
+overflow-hidden
+
+rounded-[30px]
+
+border
+border-amber-400/20
+
+bg-gradient-to-br
+from-[#09111d]
+via-[#0d1625]
+to-[#0b1320]
+
+backdrop-blur-2xl
+
+shadow-[0_25px_80px_rgba(0,0,0,.55)]
+
+p-8
+"
         >
+         <div
+  className="
+  absolute
+  -top-20
+  right-0
+
+  w-72
+  h-72
+
+  rounded-full
+
+  bg-amber-400/10
+
+  blur-[100px]
+  "
+/>
+
+<div
+  className="
+  absolute
+  bottom-0
+  left-0
+
+  w-64
+  h-64
+
+  rounded-full
+
+  bg-blue-500/10
+
+  blur-[90px]
+  "
+/> 
 
           <div
             className="
@@ -1048,13 +1159,28 @@ export default function AdminOverview() {
           >
 
             <div
-              className="
-                bg-blue-100
-                text-blue-600
-                p-3
-                rounded-2xl
-              "
-            >
+  className="
+  w-16
+  h-16
+
+  rounded-2xl
+
+  flex
+  items-center
+  justify-center
+
+  bg-gradient-to-br
+  from-amber-400/20
+  to-transparent
+
+  border
+  border-amber-400/30
+
+  text-amber-300
+
+  shadow-[0_0_30px_rgba(251,191,36,.18)]
+  "
+>
 
               <ShieldCheck
                 size={22}
@@ -1065,12 +1191,13 @@ export default function AdminOverview() {
             <div>
 
               <h2
-                className="
-                  text-xl
-                  sm:text-2xl
-                  font-bold
-                "
-              >
+className="
+text-2xl
+font-bold
+
+text-white
+"
+>
 
                 Verification Health
 
@@ -1079,6 +1206,7 @@ export default function AdminOverview() {
               <p
                 className="
                   text-slate-500
+tracking-wide
                   text-sm
                 "
               >
@@ -1119,7 +1247,7 @@ export default function AdminOverview() {
 
               <span
                 className="
-                  text-green-600
+                  text-green-400
                   font-bold
                 "
               >
@@ -1133,38 +1261,65 @@ export default function AdminOverview() {
             </div>
 
             <div
-              className="
-                h-3
-                bg-slate-200
-                rounded-full
-                overflow-hidden
-              "
-            >
+  className="
+  mt-3
 
-              <motion.div
+  h-3
 
-                initial={{
-                  width: 0,
-                }}
+  rounded-full
 
-                animate={{
-                  width: `${getPercent(
-                    stats.approved
-                  )}%`,
-                }}
+  bg-white/5
 
-                transition={{
-                  duration: 0.8,
-                }}
+  overflow-hidden
 
-                className="
-                  h-full
-                  bg-green-500
-                  rounded-full
-                "
-              />
+  border
+  border-white/10
+  "
+>
 
-            </div>
+  <motion.div
+    initial={{ width:0 }}
+    animate={{
+      width:`${getPercent(stats.approved)}%`
+    }}
+    transition={{
+      duration:1,
+      ease:"easeOut"
+    }}
+    className="
+      relative
+
+      h-full
+
+      rounded-full
+
+      bg-gradient-to-r
+      from-emerald-400
+      via-green-500
+      to-emerald-600
+
+      shadow-[0_0_20px_rgba(16,185,129,.5)]
+    "
+  >
+
+    <div
+      className="
+      absolute
+      inset-0
+
+      bg-gradient-to-r
+
+      from-white/30
+      via-transparent
+      to-white/20
+
+      animate-pulse
+      "
+    />
+
+  </motion.div>
+
+</div>
 
           </div>
 
@@ -1196,7 +1351,7 @@ export default function AdminOverview() {
 
               <span
                 className="
-                  text-yellow-600
+                  text-yellow-400
                   font-bold
                 "
               >
@@ -1209,39 +1364,50 @@ export default function AdminOverview() {
 
             </div>
 
-            <div
-              className="
-                h-3
-                bg-slate-200
-                rounded-full
-                overflow-hidden
-              "
-            >
+            <div className="relative h-3 rounded-full bg-white/5 overflow-hidden">
 
-              <motion.div
+  <motion.div
+    initial={{ width: 0 }}
+    animate={{
+      width: `${getPercent(stats.pending)}%`,
+    }}
+    transition={{ duration: 1 }}
+    className="
+      h-full
+      rounded-full
+      bg-gradient-to-r
+      from-yellow-400
+      via-amber-300
+      to-yellow-500
+      relative
+      overflow-hidden
+    "
+  >
 
-                initial={{
-                  width: 0,
-                }}
+    <motion.div
+      animate={{
+        x: ["-100%", "220%"],
+      }}
+      transition={{
+        repeat: Infinity,
+        duration: 2,
+        ease: "linear",
+      }}
+      className="
+        absolute
+        top-0
+        left-0
+        h-full
+        w-16
+        bg-white/30
+        blur-sm
+        rotate-12
+      "
+    />
 
-                animate={{
-                  width: `${getPercent(
-                    stats.pending
-                  )}%`,
-                }}
+  </motion.div>
 
-                transition={{
-                  duration: 0.8,
-                }}
-
-                className="
-                  h-full
-                  bg-yellow-500
-                  rounded-full
-                "
-              />
-
-            </div>
+</div>
 
           </div>
 
@@ -1273,7 +1439,7 @@ export default function AdminOverview() {
 
               <span
                 className="
-                  text-red-600
+                  text-red-400
                   font-bold
                 "
               >
@@ -1286,118 +1452,107 @@ export default function AdminOverview() {
 
             </div>
 
-            <div
-              className="
-                h-3
-                bg-slate-200
-                rounded-full
-                overflow-hidden
-              "
-            >
+            <div className="mt-3 h-3 rounded-full bg-white/5 overflow-hidden border border-white/10">
 
-              <motion.div
+  <motion.div
+    initial={{ width: 0 }}
+    animate={{
+      width: `${getPercent(stats.rejected)}%`,
+    }}
+    transition={{
+      duration: 1,
+      ease: "easeOut",
+    }}
+    className="
+      relative
+      h-full
+      rounded-full
+      bg-gradient-to-r
+      from-red-500
+      via-rose-400
+      to-red-600
+      shadow-[0_0_20px_rgba(239,68,68,.45)]
+    "
+  >
+    <div
+      className="
+        absolute
+        inset-0
+        bg-gradient-to-r
+        from-white/30
+        via-transparent
+        to-white/20
+        animate-pulse
+      "
+    />
+  </motion.div>
 
-                initial={{
-                  width: 0,
-                }}
-
-                animate={{
-                  width: `${getPercent(
-                    stats.rejected
-                  )}%`,
-                }}
-
-                transition={{
-                  duration: 0.8,
-                }}
-
-                className="
-                  h-full
-                  bg-red-500
-                  rounded-full
-                "
-              />
-
-            </div>
+</div>
 
           </div>
 
           {/* ====================================================== */}
-          {/* ================= DELETED =========================== */}
-          {/* ====================================================== */}
+{/* ================= DELETED =========================== */}
+{/* ====================================================== */}
 
-          <div>
+<div className="mb-2">
 
-            <div
-              className="
-                flex
-                items-center
-                justify-between
-                gap-3
-                mb-2
-              "
-            >
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      gap-3
+      mb-2
+    "
+  >
+    <span className="font-medium">
+      Deleted
+    </span>
 
-              <span
-                className="
-                  font-medium
-                "
-              >
+    <span className="text-slate-300 font-bold">
+      {getPercent(stats.deleted)}%
+    </span>
+  </div>
 
-                Deleted
+  <div className="mt-3 h-3 rounded-full bg-white/5 overflow-hidden border border-white/10">
 
-              </span>
+    <motion.div
+      initial={{ width: 0 }}
+      animate={{
+        width: `${getPercent(stats.deleted)}%`,
+      }}
+      transition={{
+        duration: 1,
+        ease: "easeOut",
+      }}
+      className="
+        relative
+        h-full
+        rounded-full
+        bg-gradient-to-r
+        from-slate-500
+        via-slate-300
+        to-slate-600
+        shadow-[0_0_20px_rgba(148,163,184,.35)]
+      "
+    >
+      <div
+        className="
+          absolute
+          inset-0
+          bg-gradient-to-r
+          from-white/30
+          via-transparent
+          to-white/20
+          animate-pulse
+        "
+      />
+    </motion.div>
 
-              <span
-                className="
-                  text-slate-700
-                  font-bold
-                "
-              >
+  </div>
 
-                {getPercent(
-                  stats.deleted
-                )}%
-
-              </span>
-
-            </div>
-
-            <div
-              className="
-                h-3
-                bg-slate-200
-                rounded-full
-                overflow-hidden
-              "
-            >
-
-              <motion.div
-
-                initial={{
-                  width: 0,
-                }}
-
-                animate={{
-                  width: `${getPercent(
-                    stats.deleted
-                  )}%`,
-                }}
-
-                transition={{
-                  duration: 0.8,
-                }}
-
-                className="
-                  h-full
-                  bg-slate-700
-                  rounded-full
-                "
-              />
-
-            </div>
-
-          </div>
+</div>
 
         </motion.div>
 
@@ -1426,18 +1581,32 @@ export default function AdminOverview() {
           }}
 
           className="
-            bg-gradient-to-br
-            from-slate-900
-            to-slate-700
-            rounded-[24px]
-            sm:rounded-3xl
-            text-white
-            p-5
-            sm:p-8
-            shadow-lg
-            relative
-            overflow-hidden
-          "
+group
+
+relative
+overflow-hidden
+
+rounded-[30px]
+
+bg-gradient-to-br
+from-[#09111d]
+via-[#10192b]
+to-[#0b1320]
+
+border
+border-amber-400/20
+
+text-white
+
+p-7
+
+shadow-[0_25px_80px_rgba(0,0,0,.55)]
+
+transition-all
+duration-500
+
+hover:border-amber-400/40
+"
         >
 
           <div
@@ -1452,6 +1621,63 @@ export default function AdminOverview() {
               blur-3xl
             "
           />
+{/* Animated Border */}
+<div
+  className="
+  absolute
+  inset-0
+
+  rounded-[26px]
+
+  opacity-0
+
+  group-hover:opacity-100
+
+  transition-opacity
+  duration-500
+
+  pointer-events-none
+  "
+>
+  <div
+    className="
+    absolute
+    inset-0
+
+    rounded-[26px]
+
+    border
+
+    border-amber-400/40
+
+    shadow-[0_0_40px_rgba(251,191,36,.18)]
+    "
+  />
+</div>
+<div
+  className="
+absolute
+
+-top-24
+-right-20
+
+w-52
+h-52
+
+rounded-full
+
+bg-amber-400/10
+
+blur-[90px]
+
+opacity-0
+
+group-hover:opacity-100
+
+transition-all
+duration-700
+"
+/>
 
           <div
             className="
@@ -1461,14 +1687,33 @@ export default function AdminOverview() {
           >
 
             <div
-              className="
-                bg-white/10
-                w-fit
-                p-4
-                rounded-2xl
-                mb-6
-              "
-            >
+  className="
+  w-16
+  h-16
+
+  rounded-2xl
+
+  flex
+  items-center
+  justify-center
+
+  bg-gradient-to-br
+  from-amber-400/20
+  to-transparent
+
+  border
+  border-amber-400/30
+
+  text-amber-300
+
+  shadow-[0_0_35px_rgba(251,191,36,.2)]
+
+  group-hover:scale-110
+
+  transition-all
+  duration-500
+  "
+>
 
               <Building2
                 size={28}
@@ -1478,16 +1723,45 @@ export default function AdminOverview() {
 
             <h2
               className="
-                text-2xl
-                sm:text-3xl
-                font-bold
-                leading-tight
+              text-3xl
+              font-bold
+              text-white
+              leading-tight
               "
             >
 
               Smart Moderation System
 
             </h2>
+            <div
+  className="
+  mt-4
+
+  inline-flex
+  items-center
+  gap-2
+
+  px-3
+  py-1.5
+
+  rounded-full
+
+  bg-green-500/10
+
+  border
+  border-green-500/20
+
+  text-green-400
+
+  text-xs
+
+  uppercase
+
+  tracking-[2px]
+  "
+>
+    ● AI Active
+</div>
 
             <p
               className="
@@ -1565,6 +1839,7 @@ export default function AdminOverview() {
                 Live Analytics
 
               </div>
+              
 
             </div>
 

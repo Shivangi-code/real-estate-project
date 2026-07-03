@@ -46,6 +46,10 @@ export default function PropertyDetails() {
   const [fullscreen, setFullscreen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   // ======================================================
   // ================= FETCH PROPERTY =====================
   // ======================================================

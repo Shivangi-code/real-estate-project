@@ -90,25 +90,29 @@ function Contact() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* HERO */}
-      <section
-        className="
-          bg-gradient-to-r
-          from-slate-900
-          to-slate-700
+  <div className="min-h-screen bg-slate-50">
+    {/* HERO */}
+    <section
+      className="
+        bg-gradient-to-r
+        from-slate-900
+        to-slate-700
 
-          text-white
+        text-white
 
-          py-14
-          sm:py-16
-          md:py-20
+        pt-32
+        sm:pt-36
+        md:pt-40
 
-          px-4
-          sm:px-6
-        "
-      >
-        <div className="max-w-6xl mx-auto text-center">
+        pb-14
+        sm:pb-16
+        md:pb-20
+
+        px-4
+        sm:px-6
+      "
+    >
+      <div className="max-w-6xl mx-auto text-center">
           <motion.div
             initial={{
               opacity: 0,

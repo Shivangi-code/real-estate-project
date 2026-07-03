@@ -6,6 +6,9 @@
   align-items: center;
   justify-content: center;
 
+  position: relative; /* IMPORTANT */
+  overflow: hidden;
+
   background:
     linear-gradient(
       rgba(15, 23, 42, 0.55),
@@ -18,10 +21,9 @@
 
   animation: zoomBg 20s infinite alternate;
 
-  overflow: hidden;
-
   font-family: 'Inter', sans-serif;
 }
+
 
 /* ================= SMOOTH ZOOM EFFECT ================= */
 
