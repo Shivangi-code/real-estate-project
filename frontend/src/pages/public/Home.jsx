@@ -18,12 +18,18 @@ import {
 
 import PropertyCard from "../../components/PropertyCard";
 import socket from "../../socket";
+import heroBg from "../../assets/hero-bg.png";
 
 export default function Home() {
 
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+const [listingCount, setListingCount] = useState(0);
+const [userCount, setUserCount] = useState(0);
+const [verifyCount, setVerifyCount] = useState(0);
+const [brokerCount, setBrokerCount] = useState(0);
   const navigate = useNavigate();
 
   // FETCH PROPERTIES
@@ -77,16 +83,7 @@ export default function Home() {
       {/* BACKGROUND ANIMATION */}
       <style>
         {`
-          @keyframes zoomBg {
-
-            from {
-              background-size: 100%;
-            }
-
-            to {
-              background-size: 110%;
-            }
-          }
+          
 
           @keyframes headingReveal {
 
@@ -176,7 +173,50 @@ export default function Home() {
               opacity: 1;
               animation: none;
             }
+              @keyframes gradientMove {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes floatGlow {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-25px);
+  }
+}
           }
+@keyframes goldBorder {
+
+  0% {
+    border-color: rgba(212,175,55,.15);
+  }
+
+  50% {
+    border-color: rgba(245,217,122,.9);
+    box-shadow: 0 0 25px rgba(212,175,55,.25);
+  }
+
+  100% {
+    border-color: rgba(212,175,55,.15);
+  }
+}
+
+.stat-card{
+  animation: goldBorder 3s ease-in-out infinite;
+}
         `}
       </style>
 
@@ -184,59 +224,53 @@ export default function Home() {
 
         {/* HERO SECTION */}
         <section
-          className="
-            text-white
-            px-4 sm:px-6 md:px-12
-            pt-4 pb-4 sm:py-16
-            relative
-            overflow-hidden
-            bg-slate-900
-          "
-          style={{
-            backgroundImage: `
-              linear-gradient(
-              rgba(15, 23, 42, 0.62),
-              rgba(15, 23, 42, 0.52)
-            ),
-              url("${
-                window.innerWidth < 768
-                  ? "https://images.pexels.com/photos/27564710/pexels-photo-27564710.jpeg"
-                  : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1974&auto=format&fit=crop"
-              }")
-            `,
-            backgroundSize: window.innerWidth < 768
-              ? "cover"
-              : "cover",
-            backgroundPosition: window.innerWidth < 768
-              ? "center center"
-              : "center center",
-            backgroundRepeat: "no-repeat",
-            animation: "zoomBg 10s infinite alternate",
-          }}
-        >
-
-          <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center h-full">
+  className="
+    relative
+    min-h-screen
+    flex
+    items-center
+    overflow-hidden
+    text-white
+    px-4
+    sm:px-6
+    md:px-12
+  "
+  style={{
+    backgroundImage: `url(${heroBg})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+  }}
+>
+  <div
+  className="absolute inset-0"
+  style={{
+    background:
+      "linear-gradient(rgba(8,20,35,0.72), rgba(8,20,35,0.60))",
+  }}
+/>
+          
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 items-center">
 
             {/* LEFT CONTENT */}
-            <div className="mt-0 lg:-mt-8">
+            <div className="mt-4 lg:mt-0 max-w-[620px]">
 
-              <p className="uppercase tracking-[5px] text-blue-200 text-sm mb-4 font-semibold animate-pulse">
+              <p className="uppercase tracking-[4px] text-blue-200 text-[11px] sm:text-sm mb-3 sm:mb-4 font-semibold animate-pulse">
                 VERIFIED REAL ESTATE PLATFORM
               </p>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight overflow-hidden">
+              <h1 className="text-2xl sm:text-3xl md:text-[42px] lg:text-[52px] font-black leading-[1.1] tracking-[-1px]">
+                <span className="block animate-heading-one opacity-0 mb-1">
+  Discover Your Future
+</span>
 
-                <span className="block animate-heading-one opacity-0">
-                  Find Your Dream
-                </span>
-
-                <span className="block text-blue-300 animate-heading-two opacity-0">
-                  Property With Confidence
-                </span>
+<span className="block text-[#D4AF37] animate-heading-two opacity-0">
+  Find The Perfect Property
+</span>
 
               </h1>
 
-              <div className="mt-5 text-slate-200 text-base sm:text-lg leading-7 sm:leading-8 max-w-2xl">
+              <div className="mt-4 text-slate-200 text-sm sm:text-lg leading-6 sm:leading-8 max-w-2xl">
 
                 <p className="typing-line-one">
                   Verified flats, plots, villas and commercial spaces
@@ -247,41 +281,45 @@ export default function Home() {
                 </p>
 
               </div>
+              
 
               {/* SEARCH BAR */}
-              <div className="mt-8 bg-white/95 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shadow-2xl backdrop-blur-xl">
+              <div className="mt-8 bg-white/10 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shadow-2xl w-full max-w-xl">
 
-                <Search
-                  className="text-slate-500 ml-2"
-                  size={22}
-                />
+                <div className="flex items-center gap-2">
 
-                <input
-                  id="search"
-                  name="search"
-                  type="text"
-                  value={search}
-                  onChange={(e) =>
-                    setSearch(e.target.value)
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      navigate(
-                        `/properties?search=${search}`
-                      );
-                    }
-                  }}
-                  placeholder="Search city, area or property..."
-                  className="
-                    flex-1
-                    outline-none
-                    text-slate-800
-                    bg-transparent
-                    text-base
-                    sm:text-lg
-                    w-full
-                  "
-                />
+  <Search
+  className="text-[#D4AF37] ml-3"
+  size={18}
+/>
+
+  <input
+    id="search"
+    name="search"
+    type="text"
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        navigate(`/properties?search=${search}`);
+      }
+    }}
+    placeholder="Search city, area or property..."
+    className="
+      flex-1
+      outline-none
+      text-white
+      placeholder:text-slate-300
+      bg-transparent
+      text-[14px]
+      sm:text-lg
+      w-full
+      px-1
+      py-0.5
+    "
+  />
+
+</div>
 
                 <button
                   onClick={() => {
@@ -295,167 +333,101 @@ export default function Home() {
                       `/properties?search=${encodeURIComponent(search)}`
                     );
                   }}
-                  className="bg-blue-600 hover:bg-blue-700 transition-all duration-300 text-white px-6 py-3 rounded-xl font-semibold shadow-lg w-full sm:w-auto"
+                  className="bg-gradient-to-r from-[#D4AF37] to-[#F5D97A] text-[#0B2345] px-7 py-3 rounded-xl font-semibold transition-all duration-300 hover:scale-105 hover:shadow-[0_12px_30px_rgba(212,175,55,.45)] active:scale-95"
                 >
                   Search
                 </button>
               </div>
 
               {/* CTA BUTTONS */}
-              <div className="flex gap-4 mt-7 flex-wrap">
+              <div className="flex mt-5 sm:mt-7 justify-center sm:justify-start">
 
                 <button
-                  onClick={() => {
-
-                    if (!search.trim()) {
-                      navigate("/properties");
-                      return;
-                    }
-
-                    navigate(
-                      `/properties?search=${encodeURIComponent(search)}`
-                    );
-                  }}
-                  className="bg-white text-slate-900 px-7 py-3 rounded-xl font-semibold hover:scale-105 transition-all duration-300 shadow-xl"
-                >
-                  Browse Properties
-                </button>
+  onClick={() => {
+    navigate("/properties");
+  }}
+  className="bg-white text-slate-900 px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl font-semibold hover:scale-105 transition-all duration-300 shadow-xl text-sm w-fit"
+>
+  Browse Properties
+</button>
 
               </div>
             </div>
 
-            {/* RIGHT STATS */}
-            {/* RIGHT STATS - DESKTOP ONLY */}
-            <div className="hidden lg:block bg-white/10 rounded-[32px] p-6 backdrop-blur-xl border border-white/20 shadow-2xl">
+           {/* RIGHT STATS */}
+<div className="hidden lg:flex items-center justify-center">
 
-              <div className="grid grid-cols-2 gap-4">
+  <div className="grid grid-cols-2 gap-8">
 
-                {/* VERIFIED LISTINGS */}
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+    {/* CARD 1 */}
+    <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
 
-                  <Building2
-                    className="mb-3 text-blue-600"
-                    size={30}
-                  />
+      <div className="w-16 h-16 rounded-xl border border-[#D4AF37]/60 flex items-center justify-center">
+        <Building2 size={28} className="text-[#D4AF37]" />
+      </div>
 
-                  <h3 className="font-extrabold text-3xl">
-                    {properties.length}+
-                  </h3>
+      <div className="w-px h-12 bg-[#D4AF37]/30" />
 
-                  <p className="mt-1 text-slate-500 text-base">
-                    Verified Listings
-                  </p>
-                </div>
+      <div>
+        <h2 className="text-3xl font-bold text-white">10+</h2>
+        <p className="text-sm text-white/80">Verified Listings</p>
+      </div>
 
-                {/* HAPPY USERS */}
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+    </div>
 
-                  <Users
-                    className="mb-3 text-purple-600"
-                    size={30}
-                  />
+    {/* CARD 2 */}
+    <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
 
-                  <h3 className="font-extrabold text-3xl">
-                    1K+
-                  </h3>
+      <div className="w-16 h-16 rounded-xl border border-[#D4AF37]/60 flex items-center justify-center">
+        <Users size={28} className="text-[#D4AF37]" />
+      </div>
 
-                  <p className="mt-1 text-slate-500 text-base">
-                    Happy Users
-                  </p>
-                </div>
+      <div className="w-px h-12 bg-[#D4AF37]/30" />
 
-                {/* MODERATED */}
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+      <div>
+        <h2 className="text-3xl font-bold text-white">1K+</h2>
+        <p className="text-sm text-white/80">Happy Users</p>
+      </div>
 
-                  <ShieldCheck
-                    className="mb-3 text-green-600"
-                    size={30}
-                  />
+    </div>
 
-                  <h3 className="font-bold text-3xl">
-                    100%
-                  </h3>
+    {/* CARD 3 */}
+    <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
 
-                  <p className="text-slate-500 mt-1 text-base leading-6">
-                    Moderated Listings
-                  </p>
-                </div>
+      <div className="w-16 h-16 rounded-xl border border-[#D4AF37]/60 flex items-center justify-center">
+        <ShieldCheck size={28} className="text-[#D4AF37]" />
+      </div>
 
-                {/* DIRECT DEALS */}
-                <div className="bg-white rounded-3xl p-5 text-slate-900 shadow-xl hover:scale-105 transition-all duration-300">
+      <div className="w-px h-12 bg-[#D4AF37]/30" />
 
-                  <BadgeCheck
-                    className="mb-3 text-orange-500"
-                    size={30}
-                  />
+      <div>
+        <h2 className="text-3xl font-bold text-white">100%</h2>
+        <p className="text-sm text-white/80">Verified</p>
+      </div>
 
-                  <h3 className="font-bold text-3xl">
-                    Direct Deals
-                  </h3>
+    </div>
 
-                  <p className="text-slate-500 mt-1 text-base leading-6">
-                    No brokerage for buyers
-                  </p>
-                </div>
+    {/* CARD 4 */}
+    <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
 
-              </div>
-            </div>
+      <div className="w-16 h-16 rounded-xl border border-[#D4AF37]/60 flex items-center justify-center">
+        <BadgeCheck size={28} className="text-[#D4AF37]" />
+      </div>
 
-          </div>
-        </section>
+      <div className="w-px h-12 bg-[#D4AF37]/30" />
 
-        {/* MOBILE STATS */}
-        <section className="lg:hidden bg-slate-100 px-4 py-8">
+      <div>
+        <h2 className="text-3xl font-bold text-white">0%</h2>
+        <p className="text-sm text-white/80">Brokerage</p>
+      </div>
 
-          <div className="bg-white rounded-[32px] p-5 shadow-xl">
+    </div>
 
-            <div className="grid grid-cols-2 gap-4">
+  </div>
+</div>
+</div>
+</section>
 
-              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
-                <Building2 className="mb-3 text-blue-600" size={28} />
-                <h3 className="font-extrabold text-3xl">
-                  {properties.length}+
-                </h3>
-                <p className="mt-1 text-slate-500">
-                  Verified Listings
-                </p>
-              </div>
-
-              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
-                <Users className="mb-3 text-purple-600" size={28} />
-                <h3 className="font-extrabold text-3xl">
-                  1K+
-                </h3>
-                <p className="mt-1 text-slate-500">
-                  Happy Users
-                </p>
-              </div>
-
-              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
-                <ShieldCheck className="mb-3 text-green-600" size={28} />
-                <h3 className="font-bold text-3xl">
-                  100%
-                </h3>
-                <p className="text-slate-500 mt-1">
-                  Moderated Listings
-                </p>
-              </div>
-
-              <div className="bg-slate-50 rounded-3xl p-5 text-slate-900 shadow-md">
-                <BadgeCheck className="mb-3 text-orange-500" size={28} />
-                <h3 className="font-bold text-3xl">
-                  Direct Deals
-                </h3>
-                <p className="text-slate-500 mt-1">
-                  No brokerage for buyers
-                </p>
-              </div>
-
-            </div>
-
-          </div>
-
-        </section>      
         {/* FEATURED SECTION */}
         <section className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-14 sm:py-20">
 

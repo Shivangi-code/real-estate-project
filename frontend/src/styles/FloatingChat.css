@@ -74,3 +74,28 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+@media (max-width: 768px) {
+  .floating-chat {
+    width: 52px;
+    height: 52px;
+    right: 14px;
+    bottom: 16px;
+  }
+
+  .content {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .label {
+    font-size: 8px;
+    margin-top: 1px;
+  }
+
+  .content svg {
+    width: 16px;
+    height: 16px;
+  }
+}

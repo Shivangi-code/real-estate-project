@@ -299,3 +299,53 @@
     background-position: 0% 50%;
   }
 }
+/* ================= MOBILE CHAT POPUP ================= */
+
+@media (max-width: 768px) {
+  .chat-popup {
+  width: 255px;
+  height: 330px;
+  right: 10px;
+  bottom: 74px;
+  border-radius: 14px;
+}
+
+  .chat-header {
+    padding: 10px 12px;
+  }
+
+  .chat-header span {
+    font-size: 11px;
+    letter-spacing: 1px;
+  }
+
+  .chat-header button {
+    width: 24px;
+    height: 24px;
+  }
+
+  .chat-body {
+    padding: 10px;
+  }
+
+  .msg {
+    max-width: 88%;
+    padding: 9px 11px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+
+  .options {
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .options button {
+  padding: 6px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+}
+.options button span {
+  font-size: 10px;
+}
+}

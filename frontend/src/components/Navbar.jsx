@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 import logo from "../assets/logo.png";
-import brandName from "../assets/brand-text.png";
+
 
 import "../styles/navbar.css";
 
@@ -227,33 +227,15 @@ function Navbar() {
         <div className="nav-left">
 
           <div
-
-            className="logo-wrapper"
-
-            onClick={() =>
-              navigate("/")
-            }
-          >
-
-            <img
-
-              src={logo}
-
-              className="nav-logo"
-
-              alt="logo"
-            />
-
-            <img
-
-              src={brandName}
-
-              className="brand-name-img"
-
-              alt="brand"
-            />
-
-          </div>
+  className="logo-wrapper"
+  onClick={() => navigate("/")}
+>
+  <img
+    src={logo}
+    className="nav-logo"
+    alt="Housify Realty"
+  />
+</div>
 
         </div>
 
