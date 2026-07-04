@@ -183,7 +183,7 @@ const subTypeOptions = {
 
         const res =
           await fetch(
-            `http://localhost:5000/api/properties/approved?${params.toString()}`
+            `${import.meta.env.VITE_API_URL}/api/properties/approved?${params.toString()}`
           );
 
         const data =

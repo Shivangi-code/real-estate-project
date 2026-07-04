@@ -3,7 +3,8 @@ import { io } from "socket.io-client";
 // ======================================================
 // ================= SOCKET URL =========================
 // ======================================================
-
+console.log("VITE_API_URL =", import.meta.env.VITE_API_URL);
+console.log("MODE =", import.meta.env.MODE);
 const SOCKET_URL =
 
   import.meta.env.VITE_API_URL ||

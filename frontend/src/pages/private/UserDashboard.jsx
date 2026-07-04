@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+
 function UserDashboard() {
   const [properties, setProperties] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -19,7 +20,7 @@ function UserDashboard() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5000/api/property/my-properties",
+        `${import.meta.env.VITE_API_URL}/api/property/my-properties`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

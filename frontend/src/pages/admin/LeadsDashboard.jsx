@@ -1,7 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from "react";
 
 import {
   Users,
@@ -18,157 +15,90 @@ import {
 
 import socket from "../../socket";
 
+
 export default function LeadsDashboard() {
+  const [leads, setLeads] = useState([]);
 
-  const [leads, setLeads] =
-    useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const [loading, setLoading] =
-    useState(true);
-
-  const [filter, setFilter] =
-    useState("all");
+  const [filter, setFilter] = useState("all");
 
   // ================= FETCH =================
 
-  const fetchLeads =
-    async () => {
+  const fetchLeads = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-      try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/leads/all`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+      const data = await res.json();
 
-        const res =
-          await fetch(
-            "http://localhost:5000/api/leads/all",
-            {
-              headers: {
-                Authorization:
-                  `Bearer ${token}`,
-              },
-            }
-          );
-
-        const data =
-          await res.json();
-
-        setLeads(
-          Array.isArray(data)
-            ? data
-            : []
-        );
-
-      } catch {
-
-        setLeads([]);
-
-      } finally {
-
-        setLoading(false);
-      }
-    };
+      setLeads(Array.isArray(data) ? data : []);
+    } catch {
+      setLeads([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ================= REALTIME =================
 
   useEffect(() => {
-
     fetchLeads();
 
-    socket.on(
-      "leadUpdated",
-      () => {
-
-        fetchLeads();
-      }
-    );
+    socket.on("leadUpdated", () => {
+      fetchLeads();
+    });
 
     return () => {
-
-      socket.off(
-        "leadUpdated"
-      );
+      socket.off("leadUpdated");
     };
-
   }, []);
 
   // ================= UPDATE STATUS =================
 
-  const updateStatus =
-    async (
-      id,
-      status
-    ) => {
+  const updateStatus = async (id, status) => {
+    try {
+      const token = localStorage.getItem("token");
 
-      try {
+      await fetch(`${import.meta.env.VITE_API_URL}/api/leads/${id}/status`, {
+        method: "PUT",
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+        headers: {
+          "Content-Type": "application/json",
 
-        await fetch(
-          `http://localhost:5000/api/leads/${id}/status`,
-          {
-            method: "PUT",
+          Authorization: `Bearer ${token}`,
+        },
 
-            headers: {
-              "Content-Type":
-                "application/json",
-
-              Authorization:
-                `Bearer ${token}`,
-            },
-
-            body: JSON.stringify({
-              status,
-            }),
-          }
-        );
-
-      } catch (err) {
-
-        console.log(err);
-      }
-    };
+        body: JSON.stringify({
+          status,
+        }),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   // ================= BADGE =================
 
-  const badge = (
-    status
-  ) => {
-
-    if (
-      status ===
-      "new"
-    ) {
-
+  const badge = (status) => {
+    if (status === "new") {
       return "bg-yellow-100 text-yellow-700";
     }
 
-    if (
-      status ===
-      "in-progress"
-    ) {
-
+    if (status === "in-progress") {
       return "bg-blue-100 text-blue-700";
     }
 
-    if (
-      status ===
-      "contacted"
-    ) {
-
+    if (status === "contacted") {
       return "bg-purple-100 text-purple-700";
     }
 
-    if (
-      status ===
-      "closed"
-    ) {
-
+    if (status === "closed") {
       return "bg-green-100 text-green-700";
     }
 
@@ -178,32 +108,15 @@ export default function LeadsDashboard() {
   // ================= FILTERED =================
 
   const filteredLeads =
-    filter === "all"
-      ? leads
-      : leads.filter(
-          (lead) =>
-            lead.leadType ===
-            filter
-        );
+    filter === "all" ? leads : leads.filter((lead) => lead.leadType === filter);
 
   // ================= COUNTS =================
 
-  const inquiryLeads =
-    leads.filter(
-      (x) =>
-        x.leadType ===
-        "property-inquiry"
-    );
+  const inquiryLeads = leads.filter((x) => x.leadType === "property-inquiry");
 
-  const contactLeads =
-    leads.filter(
-      (x) =>
-        x.leadType ===
-        "contact-us"
-    );
+  const contactLeads = leads.filter((x) => x.leadType === "contact-us");
 
   return (
-
     <div
       className="
         min-h-screen
@@ -216,7 +129,6 @@ export default function LeadsDashboard() {
         sm:space-y-8
       "
     >
-
       {/* ====================================================== */}
       {/* ================= HEADER ============================= */}
       {/* ====================================================== */}
@@ -231,7 +143,6 @@ export default function LeadsDashboard() {
           shadow-sm
         "
       >
-
         <div
           className="
             flex
@@ -242,9 +153,7 @@ export default function LeadsDashboard() {
             gap-5
           "
         >
-
           <div>
-
             <p
               className="
                 uppercase
@@ -254,9 +163,7 @@ export default function LeadsDashboard() {
                 text-slate-500
               "
             >
-
               CRM Dashboard
-
             </p>
 
             <h1
@@ -267,9 +174,7 @@ export default function LeadsDashboard() {
                 mt-2
               "
             >
-
               Leads Management
-
             </h1>
 
             <p
@@ -280,12 +185,8 @@ export default function LeadsDashboard() {
                 sm:text-base
               "
             >
-
-              Manage inquiry leads,
-              contact leads and realtime CRM workflow.
-
+              Manage inquiry leads, contact leads and realtime CRM workflow.
             </p>
-
           </div>
 
           {/* LIVE */}
@@ -305,15 +206,10 @@ export default function LeadsDashboard() {
               w-fit
             "
           >
-
             <div className="w-3 h-3 rounded-full bg-green-600 animate-pulse" />
-
             Live CRM Active
-
           </div>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
@@ -330,7 +226,6 @@ export default function LeadsDashboard() {
           sm:gap-6
         "
       >
-
         {/* TOTAL */}
 
         <div
@@ -343,14 +238,9 @@ export default function LeadsDashboard() {
             shadow-sm
           "
         >
-
           <Users className="text-slate-700 mb-4" />
 
-          <p className="text-slate-500">
-
-            Total Leads
-
-          </p>
+          <p className="text-slate-500">Total Leads</p>
 
           <h2
             className="
@@ -360,11 +250,8 @@ export default function LeadsDashboard() {
               mt-2
             "
           >
-
             {leads.length}
-
           </h2>
-
         </div>
 
         {/* INQUIRY */}
@@ -379,14 +266,9 @@ export default function LeadsDashboard() {
             shadow-sm
           "
         >
-
           <Building2 className="text-blue-600 mb-4" />
 
-          <p className="text-slate-500">
-
-            Inquiry Leads
-
-          </p>
+          <p className="text-slate-500">Inquiry Leads</p>
 
           <h2
             className="
@@ -397,11 +279,8 @@ export default function LeadsDashboard() {
               text-blue-600
             "
           >
-
             {inquiryLeads.length}
-
           </h2>
-
         </div>
 
         {/* CONTACT */}
@@ -416,14 +295,9 @@ export default function LeadsDashboard() {
             shadow-sm
           "
         >
-
           <MessageSquare className="text-purple-600 mb-4" />
 
-          <p className="text-slate-500">
-
-            Contact Leads
-
-          </p>
+          <p className="text-slate-500">Contact Leads</p>
 
           <h2
             className="
@@ -434,11 +308,8 @@ export default function LeadsDashboard() {
               text-purple-600
             "
           >
-
             {contactLeads.length}
-
           </h2>
-
         </div>
 
         {/* IN PROGRESS */}
@@ -453,14 +324,9 @@ export default function LeadsDashboard() {
             shadow-sm
           "
         >
-
           <Clock3 className="text-yellow-600 mb-4" />
 
-          <p className="text-slate-500">
-
-            In Progress
-
-          </p>
+          <p className="text-slate-500">In Progress</p>
 
           <h2
             className="
@@ -471,17 +337,8 @@ export default function LeadsDashboard() {
               text-yellow-600
             "
           >
-
-            {
-              leads.filter(
-                (x) =>
-                  x.status ===
-                  "in-progress"
-              ).length
-            }
-
+            {leads.filter((x) => x.status === "in-progress").length}
           </h2>
-
         </div>
 
         {/* CLOSED */}
@@ -496,14 +353,9 @@ export default function LeadsDashboard() {
             shadow-sm
           "
         >
-
           <CheckCircle className="text-green-600 mb-4" />
 
-          <p className="text-slate-500">
-
-            Closed Leads
-
-          </p>
+          <p className="text-slate-500">Closed Leads</p>
 
           <h2
             className="
@@ -514,19 +366,9 @@ export default function LeadsDashboard() {
               text-green-600
             "
           >
-
-            {
-              leads.filter(
-                (x) =>
-                  x.status ===
-                  "closed"
-              ).length
-            }
-
+            {leads.filter((x) => x.status === "closed").length}
           </h2>
-
         </div>
-
       </div>
 
       {/* ====================================================== */}
@@ -540,11 +382,8 @@ export default function LeadsDashboard() {
           gap-3
         "
       >
-
         <button
-          onClick={() =>
-            setFilter("all")
-          }
+          onClick={() => setFilter("all")}
           className={`
             px-4
             sm:px-5
@@ -554,24 +393,14 @@ export default function LeadsDashboard() {
             transition
             text-sm
             sm:text-base
-            ${
-              filter === "all"
-                ? "bg-slate-900 text-white"
-                : "bg-white"
-            }
+            ${filter === "all" ? "bg-slate-900 text-white" : "bg-white"}
           `}
         >
-
           All Leads
-
         </button>
 
         <button
-          onClick={() =>
-            setFilter(
-              "property-inquiry"
-            )
-          }
+          onClick={() => setFilter("property-inquiry")}
           className={`
             px-4
             sm:px-5
@@ -582,24 +411,17 @@ export default function LeadsDashboard() {
             text-sm
             sm:text-base
             ${
-              filter ===
-              "property-inquiry"
+              filter === "property-inquiry"
                 ? "bg-blue-600 text-white"
                 : "bg-white"
             }
           `}
         >
-
           Inquiry Leads
-
         </button>
 
         <button
-          onClick={() =>
-            setFilter(
-              "contact-us"
-            )
-          }
+          onClick={() => setFilter("contact-us")}
           className={`
             px-4
             sm:px-5
@@ -609,19 +431,11 @@ export default function LeadsDashboard() {
             transition
             text-sm
             sm:text-base
-            ${
-              filter ===
-              "contact-us"
-                ? "bg-purple-600 text-white"
-                : "bg-white"
-            }
+            ${filter === "contact-us" ? "bg-purple-600 text-white" : "bg-white"}
           `}
         >
-
           Contact Leads
-
         </button>
-
       </div>
 
       {/* ====================================================== */}
@@ -637,7 +451,6 @@ export default function LeadsDashboard() {
           overflow-hidden
         "
       >
-
         {/* TOP */}
 
         <div
@@ -653,9 +466,7 @@ export default function LeadsDashboard() {
             gap-4
           "
         >
-
           <div>
-
             <h2
               className="
                 text-xl
@@ -663,9 +474,7 @@ export default function LeadsDashboard() {
                 font-bold
               "
             >
-
               CRM Leads
-
             </h2>
 
             <p
@@ -675,17 +484,12 @@ export default function LeadsDashboard() {
                 mt-1
               "
             >
-
               Realtime inquiry management system
-
             </p>
-
           </div>
 
           <button
-            onClick={
-              fetchLeads
-            }
+            onClick={fetchLeads}
             className="
               bg-slate-100
               hover:bg-slate-200
@@ -695,31 +499,22 @@ export default function LeadsDashboard() {
               w-fit
             "
           >
-
             <RefreshCcw size={18} />
-
           </button>
-
         </div>
 
         {/* LOADING */}
 
         {loading ? (
-
           <div
             className="
               p-10
               text-center
             "
           >
-
             Loading leads...
-
           </div>
-
-        ) : filteredLeads.length ===
-          0 ? (
-
+        ) : filteredLeads.length === 0 ? (
           <div
             className="
               p-8
@@ -727,7 +522,6 @@ export default function LeadsDashboard() {
               text-center
             "
           >
-
             <AlertTriangle
               className="
                 mx-auto
@@ -743,9 +537,7 @@ export default function LeadsDashboard() {
                 font-bold
               "
             >
-
               No Leads Found
-
             </h3>
 
             <p
@@ -756,17 +548,11 @@ export default function LeadsDashboard() {
                 sm:text-base
               "
             >
-
               Leads will appear here automatically.
-
             </p>
-
           </div>
-
         ) : (
-
           <div className="overflow-x-auto">
-
             <table
               className="
                 w-full
@@ -774,148 +560,96 @@ export default function LeadsDashboard() {
                 text-sm
               "
             >
-
               <thead className="bg-slate-50">
-
                 <tr>
+                  <th className="p-4 text-left">Buyer</th>
 
-                  <th className="p-4 text-left">
-                    Buyer
-                  </th>
+                  <th className="p-4 text-left">Contact</th>
 
-                  <th className="p-4 text-left">
-                    Contact
-                  </th>
+                  <th className="p-4 text-left">Property</th>
 
-                  <th className="p-4 text-left">
-                    Property
-                  </th>
+                  <th className="p-4 text-left">Type</th>
 
-                  <th className="p-4 text-left">
-                    Type
-                  </th>
+                  <th className="p-4 text-left">Status</th>
 
-                  <th className="p-4 text-left">
-                    Status
-                  </th>
+                  <th className="p-4 text-left">Actions</th>
 
-                  <th className="p-4 text-left">
-                    Actions
-                  </th>
-
-                  <th className="p-4 text-left">
-                    Time
-                  </th>
-
+                  <th className="p-4 text-left">Time</th>
                 </tr>
-
               </thead>
 
               <tbody>
-
-                {filteredLeads.map(
-                  (lead) => (
-
-                    <tr
-                      key={
-                        lead._id
-                      }
-                      className="
+                {filteredLeads.map((lead) => (
+                  <tr
+                    key={lead._id}
+                    className="
                         border-t
                         hover:bg-slate-50
                         transition
                       "
-                    >
+                  >
+                    {/* BUYER */}
 
-                      {/* BUYER */}
+                    <td className="p-4">
+                      <div className="font-semibold">{lead.buyerName}</div>
 
-                      <td className="p-4">
-
-                        <div className="font-semibold">
-
-                          {lead.buyerName}
-
-                        </div>
-
-                        <div
-                          className="
+                      <div
+                        className="
                             text-slate-500
                             text-xs
                             mt-1
                           "
-                        >
+                      >
+                        {lead.buyerCity || "N/A"}
+                      </div>
+                    </td>
 
-                          {lead.buyerCity ||
-                            "N/A"}
+                    {/* CONTACT */}
 
-                        </div>
-
-                      </td>
-
-                      {/* CONTACT */}
-
-                      <td
-                        className="
+                    <td
+                      className="
                           p-4
                           space-y-2
                         "
-                      >
-
-                        <div
-                          className="
+                    >
+                      <div
+                        className="
                             flex
                             items-center
                             gap-2
                           "
-                        >
+                      >
+                        <Phone size={14} />
 
-                          <Phone size={14} />
+                        <span className="whitespace-nowrap">
+                          {lead.buyerMobile}
+                        </span>
+                      </div>
 
-                          <span className="whitespace-nowrap">
-
-                            {lead.buyerMobile}
-
-                          </span>
-
-                        </div>
-
-                        <div
-                          className="
+                      <div
+                        className="
                             flex
                             items-center
                             gap-2
                             text-slate-500
                           "
-                        >
+                      >
+                        <Mail size={14} />
 
-                          <Mail size={14} />
+                        <span>{lead.buyerEmail || "-"}</span>
+                      </div>
+                    </td>
 
-                          <span>
+                    {/* PROPERTY */}
 
-                            {lead.buyerEmail ||
-                              "-"}
+                    <td className="p-4">
+                      <div className="font-semibold">
+                        {lead.propertyTitle || "Contact Lead"}
+                      </div>
 
-                          </span>
-
-                        </div>
-
-                      </td>
-
-                      {/* PROPERTY */}
-
-                      <td className="p-4">
-
-                        <div className="font-semibold">
-
-                          {lead.propertyTitle ||
-                            "Contact Lead"}
-
-                        </div>
-
-                        {lead.propertyUniqueId && (
-
-                          <div
-                            className="
+                      {lead.propertyUniqueId && (
+                        <div
+                          className="
                               flex
                               items-center
                               gap-2
@@ -923,26 +657,19 @@ export default function LeadsDashboard() {
                               text-slate-500
                               mt-1
                             "
-                          >
+                        >
+                          <Hash size={12} />
 
-                            <Hash size={12} />
+                          {lead.propertyUniqueId}
+                        </div>
+                      )}
+                    </td>
 
-                            {
-                              lead.propertyUniqueId
-                            }
+                    {/* TYPE */}
 
-                          </div>
-
-                        )}
-
-                      </td>
-
-                      {/* TYPE */}
-
-                      <td className="p-4">
-
-                        <div
-                          className={`
+                    <td className="p-4">
+                      <div
+                        className={`
                             px-3
                             py-1
                             rounded-full
@@ -950,68 +677,46 @@ export default function LeadsDashboard() {
                             font-medium
                             w-fit
                             ${
-                              lead.leadType ===
-                              "contact-us"
+                              lead.leadType === "contact-us"
                                 ? "bg-purple-100 text-purple-700"
                                 : "bg-blue-100 text-blue-700"
                             }
                           `}
-                        >
+                      >
+                        {lead.leadType === "contact-us" ? "Contact" : "Inquiry"}
+                      </div>
+                    </td>
 
-                          {
-                            lead.leadType ===
-                            "contact-us"
-                              ? "Contact"
-                              : "Inquiry"
-                          }
+                    {/* STATUS */}
 
-                        </div>
-
-                      </td>
-
-                      {/* STATUS */}
-
-                      <td className="p-4">
-
-                        <span
-                          className={`
+                    <td className="p-4">
+                      <span
+                        className={`
                             px-3
                             py-1
                             rounded-full
                             text-xs
                             font-medium
-                            ${badge(
-                              lead.status
-                            )}
+                            ${badge(lead.status)}
                           `}
-                        >
+                      >
+                        {lead.status}
+                      </span>
+                    </td>
 
-                          {lead.status}
+                    {/* ACTIONS */}
 
-                        </span>
-
-                      </td>
-
-                      {/* ACTIONS */}
-
-                      <td className="p-4">
-
-                        <div
-                          className="
+                    <td className="p-4">
+                      <div
+                        className="
                             flex
                             flex-wrap
                             gap-2
                           "
-                        >
-
-                          <button
-                            onClick={() =>
-                              updateStatus(
-                                lead._id,
-                                "in-progress"
-                              )
-                            }
-                            className="
+                      >
+                        <button
+                          onClick={() => updateStatus(lead._id, "in-progress")}
+                          className="
                               bg-blue-600
                               text-white
                               px-3
@@ -1020,20 +725,13 @@ export default function LeadsDashboard() {
                               text-xs
                               font-medium
                             "
-                          >
+                        >
+                          Progress
+                        </button>
 
-                            Progress
-
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              updateStatus(
-                                lead._id,
-                                "contacted"
-                              )
-                            }
-                            className="
+                        <button
+                          onClick={() => updateStatus(lead._id, "contacted")}
+                          className="
                               bg-purple-600
                               text-white
                               px-3
@@ -1042,20 +740,13 @@ export default function LeadsDashboard() {
                               text-xs
                               font-medium
                             "
-                          >
+                        >
+                          Contacted
+                        </button>
 
-                            Contacted
-
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              updateStatus(
-                                lead._id,
-                                "closed"
-                              )
-                            }
-                            className="
+                        <button
+                          onClick={() => updateStatus(lead._id, "closed")}
+                          className="
                               bg-green-600
                               text-white
                               px-3
@@ -1064,20 +755,13 @@ export default function LeadsDashboard() {
                               text-xs
                               font-medium
                             "
-                          >
+                        >
+                          Close
+                        </button>
 
-                            Close
-
-                          </button>
-
-                          <button
-                            onClick={() =>
-                              updateStatus(
-                                lead._id,
-                                "spam"
-                              )
-                            }
-                            className="
+                        <button
+                          onClick={() => updateStatus(lead._id, "spam")}
+                          className="
                               bg-red-600
                               text-white
                               px-3
@@ -1086,45 +770,30 @@ export default function LeadsDashboard() {
                               text-xs
                               font-medium
                             "
-                          >
+                        >
+                          Spam
+                        </button>
+                      </div>
+                    </td>
 
-                            Spam
+                    {/* TIME */}
 
-                          </button>
-
-                        </div>
-
-                      </td>
-
-                      {/* TIME */}
-
-                      <td
-                        className="
+                    <td
+                      className="
                           p-4
                           text-slate-500
                           whitespace-nowrap
                         "
-                      >
-
-                        {new Date(
-                          lead.createdAt
-                        ).toLocaleString()}
-
-                      </td>
-
-                    </tr>
-                  )
-                )}
-
+                    >
+                      {new Date(lead.createdAt).toLocaleString()}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
-
             </table>
-
           </div>
         )}
-
       </div>
-
     </div>
   );
 }

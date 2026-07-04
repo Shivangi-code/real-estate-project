@@ -7,13 +7,10 @@ import {
 } from "react";
 
 import {
-
   Routes,
-
   Route,
-
   Navigate,
-
+  useLocation,
 } from "react-router-dom";
 
 import {
@@ -263,12 +260,14 @@ function App() {
   // ======================================================
 
   const [
+  isChatOpen,
+  setIsChatOpen,
+] = useState(false);
 
-    isChatOpen,
+const location = useLocation();
 
-    setIsChatOpen,
-
-  ] = useState(false);
+const isAdminRoute =
+  location.pathname.startsWith("/admin");
 
   // ======================================================
   // ================= SOCKET LISTENERS ==================
@@ -593,7 +592,7 @@ function App() {
       {/* ================= MAIN NAVBAR ======================== */}
       {/* ====================================================== */}
 
-      <Navbar />
+      {!isAdminRoute && <Navbar />}
 
       {/* ====================================================== */}
       {/* ================= ROUTES ============================= */}

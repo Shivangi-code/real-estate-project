@@ -4,255 +4,164 @@ import { useNavigate } from "react-router-dom";
 import "../../styles/AddProperty.css";
 
 function AddProperty() {
-
-  const navigate =
-    useNavigate();
+  const navigate = useNavigate();
 
   // ======================================================
   // ================= FORM DATA ==========================
   // ======================================================
 
-  const [formData,
-    setFormData] =
-    useState({
+  const [formData, setFormData] = useState({
+    title: "",
 
-      title: "",
+    // PRICE
+    price: "",
+    priceUnit: "lac",
 
-      // PRICE
-      price: "",
-      priceUnit: "lac",
+    // AREA
+    area: "",
+    areaUnit: "sqft",
 
-      // AREA
-      area: "",
-      areaUnit: "sqft",
+    // LOCATION
+    location: "",
 
-      // LOCATION
-      location: "",
+    // CATEGORY TYPE
+    type: "",
 
-      // CATEGORY TYPE
-      type: "",
+    // SUB TYPE
+    subType: "",
 
-      // SUB TYPE
-      subType: "",
+    // CONSTRUCTION
+    constructionStatus: "",
 
-      // CONSTRUCTION
-      constructionStatus: "",
-
-      // DESCRIPTION
-      description: "",
-    });
+    // DESCRIPTION
+    description: "",
+  });
 
   // ======================================================
   // ================= IMAGES =============================
   // ======================================================
 
-  const [images,
-    setImages] =
-    useState([]);
+  const [images, setImages] = useState([]);
 
   // ======================================================
   // ================= LOADING ============================
   // ======================================================
 
-  const [loading,
-    setLoading] =
-    useState(false);
+  const [loading, setLoading] = useState(false);
 
   // ======================================================
   // ================= HANDLE CHANGE ======================
   // ======================================================
 
-  const handleChange =
-    (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
 
-      setFormData({
-
-        ...formData,
-
-        [e.target.name]:
-          e.target.value,
-      });
-    };
+      [e.target.name]: e.target.value,
+    });
+  };
 
   // ======================================================
   // ================= HANDLE IMAGES ======================
   // ======================================================
 
-  const handleImage =
-    (e) => {
-
-      setImages(
-        Array.from(
-          e.target.files
-        )
-      );
-    };
+  const handleImage = (e) => {
+    setImages(Array.from(e.target.files));
+  };
 
   // ======================================================
   // ================= SUBMIT =============================
   // ======================================================
 
-  const handleSubmit =
-    async (e) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      e.preventDefault();
+    try {
+      setLoading(true);
 
-      try {
+      const token = localStorage.getItem("token");
 
-        setLoading(true);
+      const data = new FormData();
 
-        const token =
-          localStorage.getItem(
-            "token"
-          );
+      // ======================================================
+      // ================= APPEND FORM DATA ===================
+      // ======================================================
 
-        const data =
-          new FormData();
+      Object.keys(formData).forEach((key) => {
+        data.append(key, formData[key]);
+      });
 
-        // ======================================================
-        // ================= APPEND FORM DATA ===================
-        // ======================================================
+      // ======================================================
+      // ================= MULTIPLE IMAGES ====================
+      // ======================================================
 
-        Object.keys(
-          formData
-        ).forEach((key) => {
+      images.forEach((img) => {
+        data.append("images", img);
+      });
 
-          data.append(
-            key,
-            formData[key]
-          );
-        });
+      // ======================================================
+      // ================= API ================================
+      // ======================================================
 
-        // ======================================================
-        // ================= MULTIPLE IMAGES ====================
-        // ======================================================
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/properties/add`,
 
-        images.forEach((img) => {
+        data,
 
-          data.append(
-            "images",
-            img
-          );
-        });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      if (res.data.success) {
+        alert("Property Added Successfully 🚀");
 
-        // ======================================================
-        // ================= API ================================
-        // ======================================================
-
-        const res =
-          await axios.post(
-
-            "http://localhost:5000/api/properties/add",
-
-            data,
-
-            {
-              headers: {
-
-                Authorization:
-                  `Bearer ${token}`,
-
-                "Content-Type":
-                  "multipart/form-data",
-              },
-            }
-          );
-
-        if (
-          res.data.success
-        ) {
-
-          alert(
-            "Property Added Successfully 🚀"
-          );
-
-          navigate(
-            "/properties"
-          );
-        }
-
-      } catch (error) {
-
-        console.log(error);
-
-        alert(
-          error?.response?.data
-            ?.message ||
-          "Something went wrong"
-        );
-
-      } finally {
-
-        setLoading(false);
+        navigate("/properties");
       }
-    };
+    } catch (error) {
+      console.log(error);
+
+      alert(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ======================================================
   // ================= SUBTYPE OPTIONS ====================
   // ======================================================
 
   const subTypeOptions = {
+    Residential: ["House", "Villa", "Flat", "Plot"],
 
-    Residential: [
-      "House",
-      "Villa",
-      "Flat",
-      "Plot",
-    ],
+    Commercial: ["Office", "Shop", "Showroom", "Commercial Land"],
 
-    Commercial: [
-      "Office",
-      "Shop",
-      "Showroom",
-      "Commercial Land",
-    ],
-
-    Agriculture: [
-      "Farm Land",
-      "Agriculture Land",
-    ],
+    Agriculture: ["Farm Land", "Agriculture Land"],
   };
 
   return (
-
     <div className="add-wrapper">
-
       <div className="add-box">
+        <h1>Add New Property</h1>
 
-        <h1>
-          Add New Property
-        </h1>
-
-        <form
-          onSubmit={
-            handleSubmit
-          }
-          className="space-y-6"
-        >
-
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* ====================================================== */}
           {/* ================= TITLE ============================== */}
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Property Title
-            </label>
+            <label>Property Title</label>
 
             <input
               type="text"
               name="title"
-              value={
-                formData.title
-              }
-              onChange={
-                handleChange
-              }
+              value={formData.title}
+              onChange={handleChange}
               placeholder="Enter property title"
               required
             />
-
           </div>
 
           {/* ====================================================== */}
@@ -260,56 +169,32 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div className="grid-2">
-
             <div>
-
-              <label>
-                Price
-              </label>
+              <label>Price</label>
 
               <input
                 type="number"
                 name="price"
-                value={
-                  formData.price
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.price}
+                onChange={handleChange}
                 placeholder="Enter property price"
                 required
               />
-
             </div>
 
             <div>
-
-              <label>
-                Price Unit
-              </label>
+              <label>Price Unit</label>
 
               <select
                 name="priceUnit"
-                value={
-                  formData.priceUnit
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.priceUnit}
+                onChange={handleChange}
               >
+                <option value="lac">Lac</option>
 
-                <option value="lac">
-                  Lac
-                </option>
-
-                <option value="cr">
-                  Cr
-                </option>
-
+                <option value="cr">Cr</option>
               </select>
-
             </div>
-
           </div>
 
           {/* ====================================================== */}
@@ -317,55 +202,31 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div className="grid-2">
-
             <div>
-
-              <label>
-                Area
-              </label>
+              <label>Area</label>
 
               <input
                 type="number"
                 name="area"
-                value={
-                  formData.area
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.area}
+                onChange={handleChange}
                 placeholder="Enter area"
               />
-
             </div>
 
             <div>
-
-              <label>
-                Area Unit
-              </label>
+              <label>Area Unit</label>
 
               <select
                 name="areaUnit"
-                value={
-                  formData.areaUnit
-                }
-                onChange={
-                  handleChange
-                }
+                value={formData.areaUnit}
+                onChange={handleChange}
               >
+                <option value="sqft">Sq Ft</option>
 
-                <option value="sqft">
-                  Sq Ft
-                </option>
-
-                <option value="acre">
-                  Acre
-                </option>
-
+                <option value="acre">Acre</option>
               </select>
-
             </div>
-
           </div>
 
           {/* ====================================================== */}
@@ -373,24 +234,16 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Location
-            </label>
+            <label>Location</label>
 
             <input
               type="text"
               name="location"
-              value={
-                formData.location
-              }
-              onChange={
-                handleChange
-              }
+              value={formData.location}
+              onChange={handleChange}
               placeholder="Enter property location"
               required
             />
-
           </div>
 
           {/* ====================================================== */}
@@ -398,24 +251,16 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Property Category
-            </label>
+            <label>Property Category</label>
 
             <select
               name="type"
-              value={
-                formData.type
-              }
+              value={formData.type}
               onChange={(e) => {
-
                 setFormData({
-
                   ...formData,
 
-                  type:
-                    e.target.value,
+                  type: e.target.value,
 
                   // RESET SUBTYPE
                   subType: "",
@@ -423,25 +268,14 @@ function AddProperty() {
               }}
               required
             >
+              <option value="">Select Type</option>
 
-              <option value="">
-                Select Type
-              </option>
+              <option value="Residential">Residential</option>
 
-              <option value="Residential">
-                Residential
-              </option>
+              <option value="Commercial">Commercial</option>
 
-              <option value="Commercial">
-                Commercial
-              </option>
-
-              <option value="Agriculture">
-                Agriculture
-              </option>
-
+              <option value="Agriculture">Agriculture</option>
             </select>
-
           </div>
 
           {/* ====================================================== */}
@@ -449,43 +283,23 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Property Sub Type
-            </label>
+            <label>Property Sub Type</label>
 
             <select
               name="subType"
-              value={
-                formData.subType
-              }
-              onChange={
-                handleChange
-              }
+              value={formData.subType}
+              onChange={handleChange}
               required
             >
-
-              <option value="">
-                Select Sub Type
-              </option>
+              <option value="">Select Sub Type</option>
 
               {formData.type &&
-                subTypeOptions[
-                  formData.type
-                ]?.map(
-                  (item) => (
-
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                  )
-                )}
-
+                subTypeOptions[formData.type]?.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
             </select>
-
           </div>
 
           {/* ====================================================== */}
@@ -493,39 +307,21 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Construction Status
-            </label>
+            <label>Construction Status</label>
 
             <select
               name="constructionStatus"
-              value={
-                formData.constructionStatus
-              }
-              onChange={
-                handleChange
-              }
+              value={formData.constructionStatus}
+              onChange={handleChange}
             >
+              <option value="">Select Status</option>
 
-              <option value="">
-                Select Status
-              </option>
+              <option value="Ready To Move">Ready To Move</option>
 
-              <option value="Ready To Move">
-                Ready To Move
-              </option>
+              <option value="Under Construction">Under Construction</option>
 
-              <option value="Under Construction">
-                Under Construction
-              </option>
-
-              <option value="New Launch">
-                New Launch
-              </option>
-
+              <option value="New Launch">New Launch</option>
             </select>
-
           </div>
 
           {/* ====================================================== */}
@@ -533,23 +329,15 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Description
-            </label>
+            <label>Description</label>
 
             <textarea
               rows="5"
               name="description"
-              value={
-                formData.description
-              }
-              onChange={
-                handleChange
-              }
+              value={formData.description}
+              onChange={handleChange}
               placeholder="Enter property description"
             />
-
           </div>
 
           {/* ====================================================== */}
@@ -557,18 +345,13 @@ function AddProperty() {
           {/* ====================================================== */}
 
           <div>
-
-            <label>
-              Property Images
-            </label>
+            <label>Property Images</label>
 
             <input
               type="file"
               accept="image/*"
               multiple
-              onChange={
-                handleImage
-              }
+              onChange={handleImage}
             />
 
             {/* ====================================================== */}
@@ -576,44 +359,23 @@ function AddProperty() {
             {/* ====================================================== */}
 
             {images.length > 0 && (
-
               <div className="preview-grid">
-
-                {images.map(
-                  (img, i) => (
-
-                    <img
-                      key={i}
-                      src={URL.createObjectURL(img)}
-                      alt="preview"
-                    />
-                  )
-                )}
-
+                {images.map((img, i) => (
+                  <img key={i} src={URL.createObjectURL(img)} alt="preview" />
+                ))}
               </div>
             )}
-
           </div>
 
           {/* ====================================================== */}
           {/* ================= BUTTON ============================= */}
           {/* ====================================================== */}
 
-          <button
-            type="submit"
-            disabled={loading}
-          >
-
-            {loading
-              ? "Adding..."
-              : "Add Property"}
-
+          <button type="submit" disabled={loading}>
+            {loading ? "Adding..." : "Add Property"}
           </button>
-
         </form>
-
       </div>
-
     </div>
   );
 }

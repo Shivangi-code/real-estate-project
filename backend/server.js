@@ -1,100 +1,80 @@
 require("dns").setDefaultResultOrder("ipv4first");
 
-const express =
-  require("express");
+const express = require("express");
 
-const mongoose =
-  require("mongoose");
+const mongoose = require("mongoose");
 
-const cors =
-  require("cors");
+const cors = require("cors");
 
-const dotenv =
-  require("dotenv");
+const http = require("http");
 
-const http =
-  require("http");
+const dotenv = require("dotenv");
+
+const environment = process.env.NODE_ENV;
+
+if (environment === "sit") {
+  dotenv.config({ path: ".env.sit" });
+} else if (environment === "uat") {
+  dotenv.config({ path: ".env.uat" });
+} else {
+  dotenv.config(); // Uses .env (Production/Development)
+}
+
+console.log("==================================");
+console.log("Environment :", process.env.NODE_ENV || "default");
+console.log("Port        :", process.env.PORT);
+console.log("Mongo URI   :", process.env.MONGO_URI);
+console.log("==================================");
 
 // ======================================================
 // ================= RATE LIMIT =========================
 // ======================================================
 
-const rateLimit =
-  require(
-    "express-rate-limit"
-  );
+const rateLimit = require("express-rate-limit");
 
 // ======================================================
 // ================= SOCKET.IO ==========================
 // ======================================================
 
-const {
-  Server,
-} = require(
-  "socket.io"
-);
-
-dotenv.config();
+const { Server } = require("socket.io");
 
 // ======================================================
 // ================= EXPRESS ============================
 // ======================================================
 
-const app =
-  express();
+const app = express();
 
 // ======================================================
 // ================= HTTP SERVER ========================
 // ======================================================
 
-const server =
-  http.createServer(
-    app
-  );
+const server = http.createServer(app);
 
 // ======================================================
 // ================= SOCKET SERVER ======================
 // ======================================================
 
-const io =
-  new Server(
-    server,
-    {
-      cors: {
+const io = new Server(server, {
+  cors: {
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
 
-        origin:
-          process.env
-            .CLIENT_URL ||
+    credentials: true,
+  },
 
-          "http://localhost:5173",
-
-        credentials: true,
-      },
-
-      transports: [
-
-        "websocket",
-
-        "polling",
-      ],
-    }
-  );
+  transports: ["websocket", "polling"],
+});
 
 // ======================================================
 // ================= GLOBAL SOCKET ======================
 // ======================================================
 
-app.set(
-  "io",
-  io
-);
+app.set("io", io);
 
 // ======================================================
 // ================= ACTIVE USERS =======================
 // ======================================================
 
-const activeUsers =
-  new Map();
+const activeUsers = new Map();
 
 // ======================================================
 // ================= SOCKET EVENTS ======================
@@ -103,72 +83,43 @@ const activeUsers =
 io.on(
   "connection",
 
-  (
-    socket
-  ) => {
-
-    console.log(
-      "⚡ User Connected:",
-      socket.id
-    );
+  (socket) => {
+    console.log("⚡ User Connected:", socket.id);
 
     // ======================================================
     // ================= REGISTER USER ======================
     // ======================================================
 
     socket.on(
-
       "registerUser",
 
-      (
-        userData
-      ) => {
-
+      (userData) => {
         try {
-
-          if (
-            !userData?.userId
-          ) {
-
+          if (!userData?.userId) {
             return;
           }
 
           activeUsers.set(
-
             userData.userId,
 
             {
+              socketId: socket.id,
 
-              socketId:
-                socket.id,
+              role: userData.role || "user",
 
-              role:
-                userData.role ||
-
-                "user",
-
-              connectedAt:
-                new Date(),
-            }
+              connectedAt: new Date(),
+            },
           );
 
+          console.log(`✅ Registered User: ${userData.userId}`);
+        } catch (error) {
           console.log(
-
-            `✅ Registered User: ${userData.userId}`
-          );
-
-        } catch (
-          error
-        ) {
-
-          console.log(
-
             "Socket Register Error:",
 
-            error
+            error,
           );
         }
-      }
+      },
     );
 
     // ======================================================
@@ -176,20 +127,13 @@ io.on(
     // ======================================================
 
     socket.on(
-
       "joinAdminRoom",
 
       () => {
+        socket.join("admin-room");
 
-        socket.join(
-          "admin-room"
-        );
-
-        console.log(
-
-          `👑 Admin Joined: ${socket.id}`
-        );
-      }
+        console.log(`👑 Admin Joined: ${socket.id}`);
+      },
     );
 
     // ======================================================
@@ -197,29 +141,17 @@ io.on(
     // ======================================================
 
     socket.on(
-
       "joinOwnerRoom",
 
-      (
-        ownerId
-      ) => {
-
-        if (
-          !ownerId
-        ) {
-
+      (ownerId) => {
+        if (!ownerId) {
           return;
         }
 
-        socket.join(
-          `owner-${ownerId}`
-        );
+        socket.join(`owner-${ownerId}`);
 
-        console.log(
-
-          `🏠 Owner Joined Room: owner-${ownerId}`
-        );
-      }
+        console.log(`🏠 Owner Joined Room: owner-${ownerId}`);
+      },
     );
 
     // ======================================================
@@ -227,25 +159,18 @@ io.on(
     // ======================================================
 
     socket.on(
-
       "moderationTyping",
 
-      (
-        data
-      ) => {
-
+      (data) => {
         socket
-          .to(
-            "admin-room"
-          )
+          .to("admin-room")
 
           .emit(
-
             "moderationTyping",
 
-            data
+            data,
           );
-      }
+      },
     );
 
     // ======================================================
@@ -253,47 +178,28 @@ io.on(
     // ======================================================
 
     socket.on(
-
       "disconnect",
 
       () => {
-
         console.log(
-
           "❌ User Disconnected:",
 
-          socket.id
+          socket.id,
         );
 
         // REMOVE USER
-        for (const [
+        for (const [userId, userData] of activeUsers.entries()) {
+          if (userData.socketId === socket.id) {
+            activeUsers.delete(userId);
 
-          userId,
-
-          userData,
-
-        ] of activeUsers.entries()) {
-
-          if (
-            userData.socketId ===
-            socket.id
-          ) {
-
-            activeUsers.delete(
-              userId
-            );
-
-            console.log(
-
-              `🗑 Removed User: ${userId}`
-            );
+            console.log(`🗑 Removed User: ${userId}`);
 
             break;
           }
         }
-      }
+      },
     );
-  }
+  },
 );
 
 // ======================================================
@@ -301,20 +207,11 @@ io.on(
 // ======================================================
 
 app.set(
-
   "sendModerationNotification",
 
-  ({
-    ownerId,
-    notification,
-  }) => {
-
+  ({ ownerId, notification }) => {
     try {
-
-      if (
-        !ownerId
-      ) {
-
+      if (!ownerId) {
         return;
       }
 
@@ -322,15 +219,10 @@ app.set(
       // ================= OWNER ROOM EVENT ===================
       // ======================================================
 
-      io.to(
-
-        `owner-${ownerId}`
-
-      ).emit(
-
+      io.to(`owner-${ownerId}`).emit(
         "moderationNotification",
 
-        notification
+        notification,
       );
 
       // ======================================================
@@ -338,34 +230,24 @@ app.set(
       // ======================================================
 
       io.emit(
-
         "propertyUpdated",
 
         {
-
           ownerId,
 
           ...notification,
-        }
+        },
       );
 
+      console.log(`📢 Notification Sent To Owner: ${ownerId}`);
+    } catch (error) {
       console.log(
-
-        `📢 Notification Sent To Owner: ${ownerId}`
-      );
-
-    } catch (
-      error
-    ) {
-
-      console.log(
-
         "Socket Notification Error:",
 
-        error
+        error,
       );
     }
-  }
+  },
 );
 
 // ======================================================
@@ -376,66 +258,41 @@ app.set(
 // ================= GLOBAL LIMIT =======================
 // ======================================================
 
-const globalLimiter =
-  rateLimit({
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
 
-    windowMs:
-      15 *
-      60 *
-      1000,
+  max: process.env.NODE_ENV === "production" ? 500 : 1000,
 
-    max:
-      process.env
-        .NODE_ENV ===
-      "production"
+  message: {
+    success: false,
 
-        ? 500
+    message: "Too many requests. Please try again later.",
+  },
 
-        : 1000,
+  standardHeaders: true,
 
-    message: {
-
-      success: false,
-
-      message:
-        "Too many requests. Please try again later.",
-    },
-
-    standardHeaders:
-      true,
-
-    legacyHeaders:
-      false,
-  });
+  legacyHeaders: false,
+});
 
 // ======================================================
 // ================= AUTH LIMIT =========================
 // ======================================================
 
-const authLimiter =
-  rateLimit({
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
 
-    windowMs:
-      15 *
-      60 *
-      1000,
+  max: 20,
 
-    max: 20,
+  message: {
+    success: false,
 
-    message: {
+    message: "Too many authentication attempts. Please try again later.",
+  },
 
-      success: false,
+  standardHeaders: true,
 
-      message:
-        "Too many authentication attempts. Please try again later.",
-    },
-
-    standardHeaders:
-      true,
-
-    legacyHeaders:
-      false,
-  });
+  legacyHeaders: false,
+});
 
 // ======================================================
 // ================= MIDDLEWARE =========================
@@ -445,26 +302,18 @@ const authLimiter =
 // ================= GLOBAL RATE LIMIT ==================
 // ======================================================
 
-app.use(
-  globalLimiter
-);
+app.use(globalLimiter);
 
 // ======================================================
 // ================= CORS ===============================
 // ======================================================
 
 app.use(
-
   cors({
-
-    origin:
-      process.env
-        .CLIENT_URL ||
-
-      "http://localhost:5173",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
 
     credentials: true,
-  })
+  }),
 );
 
 // ======================================================
@@ -472,21 +321,17 @@ app.use(
 // ======================================================
 
 app.use(
-
   express.json({
-
     limit: "10mb",
-  })
+  }),
 );
 
 app.use(
-
   express.urlencoded({
-
     extended: true,
 
     limit: "10mb",
-  })
+  }),
 );
 
 // ======================================================
@@ -494,12 +339,9 @@ app.use(
 // ======================================================
 
 app.use(
-
   "/uploads",
 
-  express.static(
-    "uploads"
-  )
+  express.static("uploads"),
 );
 
 // ======================================================
@@ -511,14 +353,11 @@ app.use(
 // ======================================================
 
 app.use(
-
   "/api/user-auth",
 
   authLimiter,
 
-  require(
-    "./routes/userAuthRoutes"
-  )
+  require("./routes/userAuthRoutes"),
 );
 
 // ======================================================
@@ -526,12 +365,9 @@ app.use(
 // ======================================================
 
 app.use(
-
   "/api/properties",
 
-  require(
-    "./routes/propertyRoutes"
-  )
+  require("./routes/propertyRoutes"),
 );
 
 // ======================================================
@@ -539,12 +375,9 @@ app.use(
 // ======================================================
 
 app.use(
-
   "/api/admin",
 
-  require(
-    "./routes/adminRoutes"
-  )
+  require("./routes/adminRoutes"),
 );
 
 // ======================================================
@@ -552,12 +385,9 @@ app.use(
 // ======================================================
 
 app.use(
-
   "/api/leads",
 
-  require(
-    "./routes/leadRoutes"
-  )
+  require("./routes/leadRoutes"),
 );
 
 // ======================================================
@@ -565,34 +395,21 @@ app.use(
 // ======================================================
 
 app.get(
-
   "/",
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     res.json({
-
       success: true,
 
-      message:
-        "Real Estate API Running 🚀",
+      message: "Real Estate API Running 🚀",
 
-      environment:
-        process.env
-          .NODE_ENV ||
+      environment: process.env.NODE_ENV || "development",
 
-        "development",
+      socket: "connected",
 
-      socket:
-        "connected",
-
-      timestamp:
-        new Date(),
+      timestamp: new Date(),
     });
-  }
+  },
 );
 
 // ======================================================
@@ -600,86 +417,44 @@ app.get(
 // ======================================================
 
 app.get(
-
   "/api/socket-status",
 
-  (
-    req,
-    res
-  ) => {
-
+  (req, res) => {
     res.json({
-
       success: true,
 
-      connectedUsers:
-        activeUsers.size,
+      connectedUsers: activeUsers.size,
 
-      users:
-        Array.from(
-
-          activeUsers.keys()
-        ),
+      users: Array.from(activeUsers.keys()),
     });
-  }
+  },
 );
 
 // ======================================================
 // ================= 404 HANDLER ========================
 // ======================================================
 
-app.use(
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
 
-  (
-    req,
-    res
-  ) => {
-
-    res.status(404).json({
-
-      success: false,
-
-      message:
-        "API Route Not Found",
-    });
-  }
-);
+    message: "API Route Not Found",
+  });
+});
 
 // ======================================================
 // ================= GLOBAL ERROR HANDLER ===============
 // ======================================================
 
-app.use(
+app.use((err, req, res, next) => {
+  console.log("SERVER ERROR:", err);
 
-  (
-    err,
-    req,
-    res,
-    next
-  ) => {
+  res.status(err.status || 500).json({
+    success: false,
 
-    console.log(
-      "SERVER ERROR:",
-      err
-    );
-
-    res.status(
-
-      err.status ||
-      500
-
-    ).json({
-
-      success: false,
-
-      message:
-
-        err.message ||
-
-        "Internal Server Error",
-    });
-  }
-);
+    message: err.message || "Internal Server Error",
+  });
+});
 
 // ======================================================
 // ================= MONGODB ============================
@@ -687,55 +462,30 @@ app.use(
 
 mongoose
 
-  .connect(
-    process.env
-      .MONGO_URI
-  )
+  .connect(process.env.MONGO_URI)
 
   .then(() => {
-
-    console.log(
-      "MongoDB Connected ✅"
-    );
+    console.log("MongoDB Connected ✅");
 
     // ======================================================
     // ================= START SERVER =======================
     // ======================================================
 
     server.listen(
-
-      process.env
-        .PORT ||
-
-      5000,
+      process.env.PORT || 5000,
 
       () => {
+        console.log(`Server running on port ${process.env.PORT || 5000} 🚀`);
 
-        console.log(
-
-          `Server running on port ${
-            process.env
-              .PORT ||
-
-            5000
-          } 🚀`
-        );
-
-        console.log(
-          "Socket.IO Enabled ✅"
-        );
-      }
+        console.log("Socket.IO Enabled ✅");
+      },
     );
   })
 
-  .catch(
-    (err) => {
+  .catch((err) => {
+    console.log(
+      "MongoDB Error:",
 
-      console.log(
-
-        "MongoDB Error:",
-
-        err
-      );
-    }
-  );
+      err,
+    );
+  });

@@ -4,9 +4,11 @@
   "description": "Real Estate Backend API",
   "main": "server.js",
   "type": "commonjs",
-  "scripts": {
-    "start": "nodemon server.js"
-  },
+"scripts": {
+  "start": "nodemon server.js",
+  "sit": "cross-env NODE_ENV=sit nodemon server.js",
+  "uat": "cross-env NODE_ENV=uat nodemon server.js"
+},
   "author": "",
   "license": "ISC",
   "dependencies": {
@@ -28,6 +30,7 @@
     "twilio": "^5.13.0"
   },
   "devDependencies": {
+    "cross-env": "^10.1.0",
     "nodemon": "^3.1.14"
   },
   "keywords": []

@@ -9,15 +9,11 @@ import React, {
 } from "react";
 
 import {
-
   Phone,
-
   Bell,
-
   Trash2,
-
   CheckCheck,
-
+  MapPin,
 } from "lucide-react";
 
 import axios from "axios";
@@ -36,15 +32,7 @@ import socket from "../socket";
 
 import "../styles/topnavbar.css";
 
-// ======================================================
-// ================= API URL ============================
-// ======================================================
-
-const API_URL =
-
-  import.meta.env.VITE_API_URL ||
-
-  "http://localhost:5000";
+  
 
 // ======================================================
 // ================= SAFE USER ==========================
@@ -216,7 +204,7 @@ function TopNavbar() {
         const response =
           await axios.get(
 
-            `${API_URL}/api/user-auth/notifications`,
+            `${import.meta.env.VITE_API_URL}/api/user-auth/notifications`,
 
             {
 
@@ -346,7 +334,7 @@ function TopNavbar() {
 
         await axios.patch(
 
-          `${API_URL}/api/user-auth/notifications/read-all`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications/read-all`,
 
           {},
 
@@ -415,7 +403,7 @@ function TopNavbar() {
 
         await axios.delete(
 
-          `${API_URL}/api/user-auth/notifications/${id}`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications/${id}`,
 
           {
 
@@ -485,7 +473,7 @@ function TopNavbar() {
 
         await axios.delete(
 
-          `${API_URL}/api/user-auth/notifications`,
+          `${import.meta.env.VITE_API_URL}/api/user-auth/notifications`,
 
           {
 
@@ -539,24 +527,23 @@ function TopNavbar() {
       {/* ====================================================== */}
 
       <div className="top-left">
-
-        <span className="desktop-location">
-
-          📍 Jabalpur, Madhya Pradesh
-
-        </span>
+<span className="desktop-location">
+  <MapPin size={14} className="gold-icon" />
+  <span>Jabalpur, Madhya Pradesh</span>
+</span>
 
         <span className="mobile-location">
+  <MapPin size={13} className="gold-icon" />
+  <span>Jabalpur, Madhya Pradesh</span>
+</span>
 
-          📍 Jabalpur
+        <span className="gold-dot">•</span>
 
-        </span>
+<span>Local Team</span>
 
-        <span>
+<span className="gold-dot">•</span>
 
-          • Local team • Quick response
-
-        </span>
+<span>Quick Response</span>
 
       </div>
 
@@ -623,10 +610,9 @@ function TopNavbar() {
                 <div className="notification-header">
 
                   <h4>
-
-                    Notifications
-
-                  </h4>
+  <Bell size={20} className="notification-title-icon" />
+  Notifications
+</h4>
 
                   <div className="notification-actions">
 
@@ -793,14 +779,15 @@ function TopNavbar() {
         {/* ================= DESKTOP CALL ======================= */}
         {/* ====================================================== */}
 
-        <button className="call-btn desktop-call">
+       <div className="call-info desktop-call">
 
-          <Phone size={16} />
+  <Phone size={16} />
 
-          Call / WhatsApp:
-          +91-7415930089
+  <span className="call-number">
+    +91-7415930089
+  </span>
 
-        </button>
+</div>
 
         {/* ====================================================== */}
         {/* ================= MOBILE CALL ======================== */}

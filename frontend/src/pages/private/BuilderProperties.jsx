@@ -76,16 +76,12 @@ import {
 
 } from "lucide-react";
 
+
 // ======================================================
 // ================= API ================================
 // ======================================================
 
-const API_URL =
-
-  import.meta.env
-    .VITE_API_URL ||
-
-  "http://localhost:5000";
+const API_BASE = import.meta.env.VITE_API_URL;
 
 // ======================================================
 // ================= FALLBACK IMAGE =====================
@@ -223,7 +219,7 @@ export default function BuilderProperties() {
         const response =
           await fetch(
 
-            `${API_URL}/api/properties/my-properties`,
+            `${import.meta.env.VITE_API_URL}/api/properties/my-properties`,
 
             {
 

@@ -17,46 +17,54 @@ function About() {
     <div className="min-h-screen bg-slate-50">
 
       {/* HERO */}
-      <section className="bg-gradient-to-r from-slate-900 to-slate-700 text-white py-20 px-6">
+<section
+  className="
+    bg-gradient-to-r
+    from-slate-900
+    to-slate-700
+    text-white
+    pt-32
+    sm:pt-36
+    md:pt-40
+    pb-16
+    sm:pb-20
+    px-4
+    sm:px-6
+  "
+>
+  <div className="max-w-6xl mx-auto text-center">
 
-        <div className="max-w-6xl mx-auto text-center">
+    <motion.div
+      initial={{
+        opacity: 0,
+        y: 30,
+      }}
+      animate={{
+        opacity: 1,
+        y: 0,
+      }}
+      transition={{
+        duration: 0.6,
+      }}
+    >
 
-          <motion.div
-            initial={{
-              opacity: 0,
-              y: 30,
-            }}
-            animate={{
-              opacity: 1,
-              y: 0,
-            }}
-            transition={{
-              duration: 0.6,
-            }}
-          >
+      <p className="uppercase tracking-[6px] text-slate-300 text-sm mb-5">
+        Trusted Real Estate Platform
+      </p>
 
-            <p className="uppercase tracking-[6px] text-slate-300 text-sm mb-5">
+      <h1 className="text-5xl md:text-6xl font-bold leading-tight">
+        About Housify Realty
+      </h1>
 
-              Trusted Real Estate Platform
+      <p className="mt-6 text-slate-300 text-lg max-w-2xl mx-auto">
+        Your trusted real estate partner helping buyers,
+        sellers and investors with verified property solutions.
+      </p>
 
-            </p>
+    </motion.div>
 
-            <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-
-              About Housify Realty
-
-            </h1>
-
-            <p className="mt-6 text-slate-300 text-lg max-w-2xl mx-auto">
-
-              Your trusted real estate partner helping buyers,
-              sellers and investors with verified property solutions.
-
-            </p>
-
-          </motion.div>
-        </div>
-      </section>
+  </div>
+</section>
 
       {/* CONTENT */}
       <section className="max-w-7xl mx-auto px-6 py-16">

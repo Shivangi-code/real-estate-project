@@ -15,6 +15,8 @@ import {
   Hash,
 } from "lucide-react";
 
+import { API_URL } from "../../config/api";
+
 export default function VerificationBoard() {
 
   const [properties, setProperties] =
@@ -39,7 +41,7 @@ export default function VerificationBoard() {
 
         const res =
           await fetch(
-            "http://localhost:5000/api/admin/properties/all",
+            `${API_URL}/api/admin/properties/all`,
             {
               headers: {
                 Authorization:
@@ -95,7 +97,7 @@ export default function VerificationBoard() {
 
         const res =
           await fetch(
-            `http://localhost:5000/api/admin/property-image/${propertyId}/${imageId}/${action}`,
+            `${API_URL}/api/admin/property-image/${propertyId}/${imageId}/${action}`,
             {
               method:
                 "PUT",
