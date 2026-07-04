@@ -372,7 +372,7 @@ export default function DeletedProperties() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================
@@ -1193,8 +1193,6 @@ export default function DeletedProperties() {
                       "
                     >
 
-                      <IndianRupee size={22} />
-
                       <span
                         className="
 
@@ -1718,7 +1716,7 @@ export default function DeletedProperties() {
                       {/* IMAGES */}
                       <Link
 
-                        to={`/admin/image-verification?property=${property._id}`}
+                        to={`/admin/property/${property._id}/images`}
 
                         className="
 

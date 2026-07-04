@@ -9,7 +9,7 @@ import {
   Link,
 } from "react-router-dom";
 
-import toast from "react-hot-toast";
+import { toast } from "react-toastify";
 
 import {
 
@@ -145,11 +145,17 @@ export default function PropertyReview() {
       try {
 
         setLoading(true);
+        console.log("Property ID:", id);
+        console.log(
+          "Fetching URL:",
+          `${API_BASE}/property/${id}`
+        );
 
+console.log("Token:", token);
         const res =
           await fetch(
 
-            `${API_BASE}/property/${id}`,
+            `${API_BASE}/admin/property/${id}`,
 
             {
 
@@ -185,7 +191,7 @@ export default function PropertyReview() {
           error
         );
 
-        toast.error(
+        console.error(
 
           "Failed to fetch property review"
         );
@@ -382,7 +388,7 @@ export default function PropertyReview() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================
@@ -1102,7 +1108,7 @@ export default function PropertyReview() {
                   <button
 
                     key={
-                      image._id
+                      image._id||image.url
                     }
 
                     onClick={() =>
@@ -1514,7 +1520,7 @@ export default function PropertyReview() {
 
               <Link
 
-                to={`/admin/image-verification?property=${property._id}`}
+                to={`/admin/property/${property._id}/images`}
 
                 className="
 
@@ -2194,7 +2200,11 @@ export default function PropertyReview() {
 
               </div>
 
-              {property.moderationReason && (
+              {
+                (
+                  property.rejectionReason ||
+                  property.moderationReason
+                ) && (
 
                 <div>
 
@@ -2234,6 +2244,7 @@ export default function PropertyReview() {
                     >
 
                       {
+                        property.rejectionReason ||
                         property.moderationReason
                       }
 

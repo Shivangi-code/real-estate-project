@@ -36,6 +36,31 @@ const convertPrice = (
 };
 
 // ======================================================
+// ================= FILTER APPROVED IMAGES =============
+// ======================================================
+
+const filterApprovedImages = (property) => {
+
+  if (!property) return property;
+
+  const plainProperty =
+    property.toObject
+      ? property.toObject()
+      : property;
+
+  plainProperty.images =
+    (plainProperty.images || []).filter(
+
+      (image) =>
+        image.status === "approved"
+
+    );
+
+  return plainProperty;
+
+};
+
+// ======================================================
 // ================= ADD PROPERTY =======================
 // ======================================================
 
@@ -501,6 +526,15 @@ exports.getFilteredProperties = async (req, res) => {
         .lean();
 
     // ======================================================
+    // ================= FILTER APPROVED IMAGES =============
+    // ======================================================
+
+    const filteredProperties =
+      properties.map(
+        filterApprovedImages
+      );
+
+    // ======================================================
     // ================= RESPONSE ===========================
     // ======================================================
 
@@ -511,7 +545,8 @@ exports.getFilteredProperties = async (req, res) => {
       count:
         properties.length,
 
-      properties,
+      properties:
+        filteredProperties,
     });
 
   } catch (err) {
@@ -532,29 +567,69 @@ exports.getFilteredProperties = async (req, res) => {
 };
 
 // ======================================================
-// ================= GET PROPERTY BY ID =================
+// ================= GET PROPERTY BY ID ==================
 // ======================================================
 
 exports.getPropertyById = async (req, res) => {
+
   try {
-    const property = await Property.findById(req.params.id);
+
+    const property =
+      await Property.findById(
+        req.params.id
+      );
 
     if (!property) {
+
       return res.status(404).json({
+
         success: false,
-        message: "Property not found",
+
+        message:
+          "Property not found",
+
       });
+
     }
 
-    res.status(200).json(property);
-  } catch (error) {
-    console.log("Get Property Error ❌", error);
+    // ======================================================
+    // ================= PUBLIC IMAGE FILTER ================
+    // ======================================================
 
-    res.status(500).json({
+    const filteredProperty =
+      filterApprovedImages(
+        property
+      );
+
+    // ======================================================
+    // ================= RESPONSE ===========================
+    // ======================================================
+
+    return res.status(200).json(
+      filteredProperty
+    );
+
+  } catch (error) {
+
+    console.log(
+
+      "Get Property Error ❌",
+
+      error
+
+    );
+
+    return res.status(500).json({
+
       success: false,
-      message: "Server Error",
+
+      message:
+        "Server Error",
+
     });
+
   }
+
 };
 
 // ======================================================
@@ -789,6 +864,22 @@ exports.getSingleProperty =
           (property.totalViews || 0) + 1;
 
         await property.save();
+      }
+
+      // ======================================================
+      // ================= PUBLIC IMAGE FILTER ================
+      // ======================================================
+
+      if (!isOwner && !isAdmin) {
+
+          property.images =
+              property.images.filter(
+
+                  (image) =>
+                      image.status === "approved"
+
+              );
+
       }
 
       // ======================================================

@@ -105,6 +105,21 @@ const imageSchema =
         ref: "User",
       },
 
+      // ================= RESTORE =================
+
+      restoredAt: {
+        type: Date,
+      },
+
+      restoredBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
       rejectionReason: {
 
         type: String,
@@ -122,11 +137,114 @@ const imageSchema =
 
         default: "",
       },
+
+      lastModeratedAt: {
+        type: Date,
+      },
+
+      lastModeratedBy: {
+
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "User",
+      },
+
+      verificationLogs: {
+
+        type: [
+
+          {
+
+            action: {
+
+              type: String,
+
+              enum: [
+
+                "pending",
+
+                "approved",
+
+                "rejected",
+
+                "deleted",
+
+                "restored",
+
+              ],
+
+            },
+
+            previousStatus: {
+
+              type: String,
+
+            },
+
+            newStatus: {
+
+              type: String,
+
+            },
+
+            performedBy: {
+
+              type:
+                mongoose.Schema.Types
+                  .ObjectId,
+
+              ref: "User",
+
+            },
+
+            performedByName: {
+
+              type: String,
+
+              default: "",
+
+            },
+
+            reason: {
+
+              type: String,
+
+              default: "",
+
+            },
+
+            note: {
+
+              type: String,
+
+              default: "",
+
+            },
+
+            performedAt: {
+
+              type: Date,
+
+              default: Date.now,
+
+            },
+
+          },
+
+        ],
+
+        default: [],
+
+      },
     },
 
     {
       timestamps: true,
+      
     }
+
   );
 
 // ======================================================

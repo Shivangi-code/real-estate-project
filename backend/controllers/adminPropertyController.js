@@ -488,6 +488,14 @@ exports.getDeletedProperties =
   };
 
 // ======================================================
+// ================= IMAGE NOTIFICATION ==================
+// ======================================================
+
+// ======================================================
+// ================= CREATE IMAGE PAYLOAD ===============
+// ======================================================
+
+// ======================================================
 // ================= ADMIN DASHBOARD STATS ==============
 // ======================================================
 
@@ -563,6 +571,7 @@ exports.updatePropertyStatus =
         "rejected",
 
         "deleted",
+
       ];
 
       if (
@@ -570,6 +579,7 @@ exports.updatePropertyStatus =
         !validStatuses.includes(
           status
         )
+
       ) {
 
         return res.status(400).json({
@@ -578,7 +588,9 @@ exports.updatePropertyStatus =
 
           message:
             "Invalid status update",
+
         });
+
       }
 
       // ======================================================
@@ -595,6 +607,7 @@ exports.updatePropertyStatus =
             "createdBy",
 
             "name email role uniqueUserId"
+
           );
 
       if (
@@ -607,7 +620,9 @@ exports.updatePropertyStatus =
 
           message:
             "Property not found",
+
         });
+
       }
 
       // ======================================================
@@ -632,7 +647,9 @@ exports.updatePropertyStatus =
 
           message:
             `Property is already ${status}`,
+
         });
+
       }
 
       // ======================================================
@@ -669,11 +686,18 @@ exports.updatePropertyStatus =
         property.rejectedAt =
           null;
 
+        property.rejectedBy =
+          null;
+
         property.deletedAt =
+          null;
+
+        property.deletedBy =
           null;
 
         property.rejectionReason =
           "";
+
       }
 
       // ======================================================
@@ -693,6 +717,7 @@ exports.updatePropertyStatus =
 
         property.rejectionReason =
           moderationReason || "";
+
       }
 
       // ======================================================
@@ -709,6 +734,7 @@ exports.updatePropertyStatus =
 
         property.deletedBy =
           req.user.id;
+
       }
 
       // ======================================================
@@ -723,14 +749,24 @@ exports.updatePropertyStatus =
         property.approvedAt =
           null;
 
+        property.approvedBy =
+          null;
+
         property.rejectedAt =
+          null;
+
+        property.rejectedBy =
           null;
 
         property.deletedAt =
           null;
 
+        property.deletedBy =
+          null;
+
         property.rejectionReason =
           "";
+
       }
 
       // ======================================================
@@ -748,8 +784,7 @@ exports.updatePropertyStatus =
           req.user.id,
 
         actionByName:
-          req.user.name ||
-          "",
+          req.user.name || "",
 
         note:
           moderationNote || "",
@@ -759,16 +794,17 @@ exports.updatePropertyStatus =
 
         timestamp:
           new Date(),
+
       });
 
       // ======================================================
-      // ================= SAVE ===============================
+      // ================= SAVE PROPERTY ======================
       // ======================================================
 
       await property.save();
 
       // ======================================================
-      // ================= SOCKET NOTIFICATION ================
+      // ================= SOCKET NOTIFICATION ===============
       // ======================================================
 
       const notificationPayload =
@@ -784,6 +820,7 @@ exports.updatePropertyStatus =
           moderationNote,
 
           previousStatus,
+
         });
 
       sendRealtimeNotification(
@@ -797,14 +834,16 @@ exports.updatePropertyStatus =
 
           notification:
             notificationPayload,
+
         }
+
       );
 
       // ======================================================
       // ================= RESPONSE ===========================
       // ======================================================
 
-      res.status(200).json({
+      return res.status(200).json({
 
         success: true,
 
@@ -815,6 +854,7 @@ exports.updatePropertyStatus =
 
         notification:
           notificationPayload,
+
       });
 
     } catch (
@@ -826,42 +866,116 @@ exports.updatePropertyStatus =
         "Update Property Status Error ❌",
 
         error
+
       );
 
-      res.status(500).json({
+      return res.status(500).json({
 
         success: false,
 
         message:
           "Server Error",
+
       });
+
     }
+
   };
 
 // ======================================================
-// ================= GET SINGLE PROPERTY ADMIN ==========
+// ================= IMAGE MODERATION ====================
 // ======================================================
 
-exports.getSinglePropertyAdmin =
+// ======================================================
+// ================= UPDATE IMAGE STATUS ================
+// ======================================================
+
+exports.updateImageStatus =
   async (req, res) => {
 
     try {
 
+      // ======================================================
+      // ================= REQUEST DATA ========================
+      // ======================================================
+
+      const {
+
+        propertyId,
+
+        imageId,
+
+      } = req.params;
+
+      const {
+
+        status,
+
+        moderationReason,
+
+        moderationNote,
+
+      } = req.body;
+
+      // ======================================================
+      // ================= VALID STATUS ========================
+      // ======================================================
+
+      const validStatuses = [
+
+        "pending",
+
+        "approved",
+
+        "rejected",
+
+        "deleted",
+
+      ];
+
+      if (
+
+        !validStatuses.includes(
+          status
+        )
+
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            "Invalid image status",
+
+        });
+
+      }
+
+      // ======================================================
+      // ================= FIND PROPERTY =======================
+      // ======================================================
+
       const property =
         await Property.findById(
-          req.params.id
+          propertyId
         )
 
           .populate(
 
             "createdBy",
 
-            "name email role uniqueUserId"
-          );
+            "name email role userUniqueId"
 
-      // ======================================================
-      // ================= PROPERTY NOT FOUND =================
-      // ======================================================
+          )
+
+          .populate(
+
+            "images.uploadedBy",
+
+            "name email role userUniqueId"
+
+          );
 
       if (
         !property
@@ -873,8 +987,371 @@ exports.getSinglePropertyAdmin =
 
           message:
             "Property not found",
+
+        });
+
+      }
+
+      // ======================================================
+      // ================= FIND IMAGE ==========================
+      // ======================================================
+
+      const image =
+        property.images.id(
+          imageId
+        );
+
+      if (
+        !image
+      ) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Image not found",
+
+        });
+
+      }
+
+      // ======================================================
+      // ================= PREVIOUS STATUS =====================
+      // ======================================================
+
+      const previousStatus =
+        image.status;
+
+      // ======================================================
+      // ================= AVOID SAME STATUS ===================
+      // ======================================================
+
+      if (
+        previousStatus ===
+        status
+      ) {
+
+        return res.status(400).json({
+
+          success: false,
+
+          message:
+            `Image is already ${status}`,
+
+        });
+
+      }
+
+      // ======================================================
+      // ================= UPDATE IMAGE STATUS =================
+      // ======================================================
+
+      image.status =
+        status;
+
+      // ======================================================
+      // ================= COMMON MODERATION ===================
+      // ======================================================
+
+      image.lastModeratedAt =
+        new Date();
+
+      image.lastModeratedBy =
+        req.user._id;
+
+      image.moderationNote =
+        moderationNote || "";
+
+      // ======================================================
+      // ================= APPROVED ============================
+      // ======================================================
+
+      if (
+        status ===
+        "approved"
+      ) {
+
+        image.approvedAt =
+          new Date();
+
+        image.approvedBy =
+          req.user._id;
+
+        image.rejectedAt =
+          null;
+
+        image.rejectedBy =
+          null;
+
+        image.deletedAt =
+          null;
+
+        image.deletedBy =
+          null;
+
+        image.rejectionReason =
+          "";
+
+      }
+
+      // ======================================================
+      // ================= REJECTED ============================
+      // ======================================================
+
+      if (
+        status ===
+        "rejected"
+      ) {
+
+        image.rejectedAt =
+          new Date();
+
+        image.rejectedBy =
+          req.user._id;
+
+        image.rejectionReason =
+          moderationReason || "";
+
+      }
+
+      // ======================================================
+      // ================= DELETED =============================
+      // ======================================================
+
+      if (
+        status ===
+        "deleted"
+      ) {
+
+        image.deletedAt =
+          new Date();
+
+        image.deletedBy =
+          req.user._id;
+
+      }
+
+      // ======================================================
+      // ================= BACK TO PENDING =====================
+      // ======================================================
+
+      if (
+        status ===
+        "pending"
+      ) {
+
+        image.approvedAt =
+          null;
+
+        image.approvedBy =
+          null;
+
+        image.rejectedAt =
+          null;
+
+        image.rejectedBy =
+          null;
+
+        image.deletedAt =
+          null;
+
+        image.deletedBy =
+          null;
+
+        image.rejectionReason =
+          "";
+
+      }
+
+      // ======================================================
+      // ================= IMAGE VERIFICATION LOG ==============
+      // ======================================================
+
+      if (
+        Array.isArray(
+          image.verificationLogs
+        )
+      ) {
+
+        image.verificationLogs.push({
+
+          action:
+            status,
+
+          previousStatus,
+
+          newStatus:
+            status,
+
+          performedBy:
+            req.user._id,
+
+          performedByName:
+            req.user.name || "",
+
+          reason:
+            moderationReason || "",
+
+          note:
+            moderationNote || "",
+
+          performedAt:
+            new Date(),
+
+        });
+
+      }
+
+      // ======================================================
+      // ================= UPDATE COVER IMAGE ==================
+      // ======================================================
+
+      const approvedImages =
+        property.images.filter(
+
+          (img) =>
+            img.status ===
+            "approved"
+
+        );
+
+      property.image =
+        approvedImages.length > 0
+
+          ? approvedImages[0].url
+
+          : "";
+
+      // ======================================================
+      // ================= RESTORE =============================
+      // ======================================================
+
+      if (
+
+        previousStatus ===
+          "deleted"
+
+        &&
+
+        (
+          status ===
+            "pending"
+
+          ||
+
+          status ===
+            "approved"
+        )
+
+      ) {
+
+        image.restoredAt =
+          new Date();
+
+        image.restoredBy =
+          req.user._id;
+
+      }
+
+      // ======================================================
+      // ================= SAVE PROPERTY =======================
+      // ======================================================
+
+      await property.save();
+
+      // ======================================================
+      // ================= RESPONSE ============================
+      // ======================================================
+
+      return res.status(200).json({
+
+        success: true,
+
+        message:
+          `Image moved to ${status} successfully`,
+
+        property,
+
+        image,
+
+      });
+
+    } catch (error) {
+
+      console.log(
+
+        "Update Image Status Error ❌",
+
+        error
+
+      );
+
+      return res.status(500).json({
+
+        success: false,
+
+        message:
+          "Server Error",
+
+      });
+
+    }
+
+  };
+
+
+// ======================================================
+// ================= GET SINGLE PROPERTY ADMIN ==========
+// ======================================================
+
+exports.getSinglePropertyAdmin =
+  async (req, res) => {
+
+    try {
+      console.log(
+        "✅ ADMIN PROPERTY REVIEW:",
+        req.params.id
+      );
+      const property =
+        await Property.findById(
+          req.params.id
+        )
+
+          .populate(
+
+            "createdBy",
+
+            "name email role userUniqueId"
+          )
+
+          .populate(
+            "images.uploadedBy",
+            "name email role userUniqueId"
+          );
+
+      console.log(
+        JSON.stringify(
+          property.images[0],
+          null,
+          2
+        )
+      );
+      // ======================================================
+      // ================= PROPERTY NOT FOUND =================
+      // ======================================================
+
+      if (!property) {
+
+        return res.status(404).json({
+
+          success: false,
+
+          message:
+            "Property not found",
         });
       }
+
 
       // ======================================================
       // ================= IMAGE COUNTS =======================

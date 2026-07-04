@@ -215,7 +215,7 @@ export default function RejectedProperties() {
               "Enter rejection reason"
             ) || "";
         }
-
+        
         const res =
           await fetch(
 
@@ -372,7 +372,7 @@ export default function RejectedProperties() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================
@@ -1190,8 +1190,6 @@ export default function RejectedProperties() {
                       "
                     >
 
-                      <IndianRupee size={22} />
-
                       <span
                         className="
 
@@ -1392,7 +1390,7 @@ export default function RejectedProperties() {
                     {/* ====================================================== */}
                     {/* ================= REJECTION REASON =================== */}
                     {/* ====================================================== */}
-
+                    
                     <div
                       className="
 
@@ -1447,6 +1445,7 @@ export default function RejectedProperties() {
                       >
 
                         {
+                          property.rejectionReason ||
                           property.moderationReason ||
 
                           "No rejection reason provided by moderator."
@@ -1715,7 +1714,7 @@ export default function RejectedProperties() {
                       {/* IMAGES */}
                       <Link
 
-                        to={`/admin/image-verification?property=${property._id}`}
+                        to={`/admin/property/${property._id}/images`}
 
                         className="
 

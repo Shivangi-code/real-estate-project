@@ -1172,8 +1172,6 @@ export default function PendingProperties() {
                       "
                     >
 
-                      <IndianRupee size={22} />
-
                       <span
                         className="
 
@@ -1538,7 +1536,7 @@ export default function PendingProperties() {
                       {/* IMAGES */}
                       <Link
 
-                        to={`/admin/image-verification?property=${property._id}`}
+                        to={`/admin/property/${property._id}/images`}
 
                         className="
 

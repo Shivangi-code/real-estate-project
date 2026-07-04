@@ -398,7 +398,6 @@ export default function PropertyDetails() {
               </div>
 
               <div className="flex items-center gap-3 mt-6 text-blue-700">
-                <IndianRupee size={28} />
                 <span className="text-2xl sm:text-3xl lg:text-4xl font-bold">
                   {formatPrice(property?.price)}
                 </span>

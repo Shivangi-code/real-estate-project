@@ -4,10 +4,6 @@ const express =
 const router =
   express.Router();
 
-const controllerPath = require.resolve("../controllers/propertyController");
-
-const controllers = require("../controllers/propertyController");
-
 // ======================================================
 // ================= CONTROLLERS ========================
 // ======================================================
@@ -176,7 +172,16 @@ router.get(
 router.get(
 
   "/:id",
+  (req, res, next) => {
 
+    console.log(
+      "✅ GET SINGLE PROPERTY ROUTE HIT:",
+      req.params.id
+    );
+
+    next();
+
+  },
   getSingleProperty
 );
 

@@ -1560,10 +1560,6 @@ const handleRestore =
                       text-blue-700
                     ">
 
-                      <IndianRupee
-                        size={22}
-                      />
-
                       <span className="
                         text-2xl
 

@@ -114,6 +114,10 @@ import VerificationBoard from "./pages/admin/VerificationBoard";
 
 import LeadsDashboard from "./pages/admin/LeadsDashboard";
 
+import PropertyReview from "./pages/admin/PropertyReview";
+
+import PropertyImagesReview from "./pages/admin/PropertyImagesReview";
+
 // ======================================================
 // ================= SAFE USER ==========================
 // ======================================================
@@ -758,7 +762,7 @@ function App() {
             </ProtectedRoute>
           }
         />
-
+        
         {/* ====================================================== */}
         {/* ================= MY PROPERTIES ====================== */}
         {/* ====================================================== */}
@@ -903,6 +907,24 @@ function App() {
             path="verification-board"
             element={
               <VerificationBoard />
+            }
+          />
+
+          <Route
+            path="property/:id"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <PropertyReview />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="property/:id/images"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <PropertyImagesReview />
+              </ProtectedRoute>
             }
           />
 

@@ -365,7 +365,7 @@ export default function ApprovedProperties() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================
@@ -585,9 +585,9 @@ export default function ApprovedProperties() {
 
               <h1
                 className="
-                  text-3xl
-                  sm:text-4xl
-                  xl:text-5xl
+                  text-2xl
+                  sm:text-3xl
+                  xl:text-4xl
 
                   font-bold
                 "
@@ -1024,7 +1024,7 @@ export default function ApprovedProperties() {
             grid
 
             grid-cols-1
-            2xl:grid-cols-2
+            md:grid-cols-2
 
             gap-5
             sm:gap-7
@@ -1040,6 +1040,10 @@ export default function ApprovedProperties() {
 
                 actionLoading ===
                 `${property._id}-rejected`;
+
+              const pendingLoading =
+                actionLoading ===
+                `${property._id}-pending`;
 
               const deleteLoading =
 
@@ -1108,8 +1112,8 @@ export default function ApprovedProperties() {
 
                         w-full
 
-                        h-[250px]
-                        sm:h-[320px]
+                        h-[220px]
+                        sm:h-[260px] 
 
                         object-cover
                       "
@@ -1182,8 +1186,8 @@ export default function ApprovedProperties() {
                   <div
                     className="
 
-                      p-5
-                      sm:p-7
+                      p-4
+                      sm:p-5
                     "
                   >
 
@@ -1199,7 +1203,7 @@ export default function ApprovedProperties() {
 
                         text-sm
 
-                        mb-3
+                        mb-2
                       "
                     >
 
@@ -1224,12 +1228,16 @@ export default function ApprovedProperties() {
                     <h2
                       className="
 
-                        text-2xl
-                        sm:text-3xl
+                        text-xl
+                        sm:text-2xl
 
                         font-bold
 
+                        leading-tight
+
                         line-clamp-2
+
+                        text-slate-900
                       "
                     >
 
@@ -1249,7 +1257,7 @@ export default function ApprovedProperties() {
 
                         text-slate-500
 
-                        mt-4
+                        mt-2
                       "
                     >
 
@@ -1279,19 +1287,19 @@ export default function ApprovedProperties() {
 
                         text-green-700
 
-                        mt-5
+                        mt-2
                       "
                     >
-
-                      <IndianRupee size={22} />
 
                       <span
                         className="
 
-                          text-2xl
-                          sm:text-3xl
+                          text-xl
+                          sm:text-2xl
 
-                          font-bold
+                          font-semibold
+
+                          leading-none
                         "
                       >
 
@@ -1314,7 +1322,7 @@ export default function ApprovedProperties() {
 
                         gap-3
 
-                        mt-6
+                        mt-4
                       "
                     >
 
@@ -1322,10 +1330,15 @@ export default function ApprovedProperties() {
                       <div
                         className="
                           bg-slate-50
-                          rounded-2xl
-                          p-3
+                          rounded-xl
+                          px-3
+                          py-1.5
                           border
                           border-slate-200
+                          min-h-[58px]
+                          flex
+                          flex-col
+                          justify-center
                         "
                       >
 
@@ -1342,8 +1355,10 @@ export default function ApprovedProperties() {
 
                         <h4
                           className="
-                            font-bold
-                            mt-1
+                            font-semibold
+                            mt-0
+                            text-sm
+                            leading-tight
                           "
                         >
 
@@ -1364,8 +1379,13 @@ export default function ApprovedProperties() {
                       <div
                         className="
                           bg-slate-50
-                          rounded-2xl
-                          p-3
+                          rounded-xl
+                          px-3
+                          py-1.5
+                          min-h-[58px]
+                          flex
+                          flex-col
+                          justify-center
                           border
                           border-slate-200
                         "
@@ -1384,13 +1404,14 @@ export default function ApprovedProperties() {
 
                         <h4
                           className="
-                            font-bold
-                            mt-1
+                            font-semibold
+                            mt-0
+                            text-sm
+                            leading-tight
                           "
                         >
 
                           ₹
-
                           {getPricePerUnit(
 
                             property.price,
@@ -1406,8 +1427,13 @@ export default function ApprovedProperties() {
                       <div
                         className="
                           bg-slate-50
-                          rounded-2xl
-                          p-3
+                          rounded-xl
+                          px-3
+                          py-1.5
+                          min-h-[58px]
+                          flex
+                          flex-col
+                          justify-center
                           border
                           border-slate-200
                         "
@@ -1426,8 +1452,10 @@ export default function ApprovedProperties() {
 
                         <h4
                           className="
-                            font-bold
-                            mt-1
+                            font-semibold
+                            mt-0
+                            text-sm
+                            leading-tight
                             capitalize
                           "
                         >
@@ -1445,8 +1473,13 @@ export default function ApprovedProperties() {
                       <div
                         className="
                           bg-slate-50
-                          rounded-2xl
-                          p-3
+                          rounded-xl
+                          px-3
+                          py-1.5
+                          min-h-[58px]
+                          flex
+                          flex-col
+                          justify-center
                           border
                           border-slate-200
                         "
@@ -1465,8 +1498,10 @@ export default function ApprovedProperties() {
 
                         <h4
                           className="
-                            font-bold
-                            mt-1
+                            font-semibold
+                            mt-0
+                            text-sm
+                            leading-tight
                             capitalize
                           "
                         >
@@ -1483,92 +1518,16 @@ export default function ApprovedProperties() {
                     </div>
 
                     {/* ====================================================== */}
-                    {/* ================= GALLERY ============================ */}
-                    {/* ====================================================== */}
-
-                    {property.images
-                      ?.length > 1 && (
-
-                      <div
-                        className="
-
-                          grid
-
-                          grid-cols-2
-                          sm:grid-cols-3
-
-                          gap-3
-
-                          mt-6
-                        "
-                      >
-
-                        {property.images
-                          .slice(
-                            0,
-                            6
-                          )
-                          .map(
-                            (
-                              img
-                            ) => (
-
-                              <img
-
-                                key={
-                                  img._id
-                                }
-
-                                src={
-                                  img.url
-                                }
-
-                                onError={(
-                                  e
-                                ) => {
-
-                                  e.target.src =
-                                    FALLBACK_IMAGE;
-                                }}
-
-                                alt="gallery"
-
-                                className="
-
-                                  w-full
-
-                                  h-20
-                                  sm:h-24
-
-                                  object-cover
-
-                                  rounded-2xl
-
-                                  border
-                                  border-slate-200
-                                "
-                              />
-                            )
-                          )}
-
-                      </div>
-                    )}
-
-                    {/* ====================================================== */}
                     {/* ================= OWNER ============================== */}
                     {/* ====================================================== */}
 
                     <div
                       className="
-
-                        mt-7
-
+                        mt-2
                         bg-slate-50
-
-                        rounded-3xl
-
-                        p-5
-
+                        rounded-xl
+                        px-3
+                        py-2
                         border
                         border-slate-200
                       "
@@ -1577,7 +1536,7 @@ export default function ApprovedProperties() {
                       <div
                         className="
                           flex
-                          items-start
+                          items-center
                           justify-between
                           gap-4
                         "
@@ -1598,8 +1557,10 @@ export default function ApprovedProperties() {
 
                           <h3
                             className="
-                              font-bold
-                              mt-1
+                              font-semibold
+                              mt-0
+                              text-sm
+                              leading-tight
                             "
                           >
 
@@ -1621,7 +1582,7 @@ export default function ApprovedProperties() {
                               text-sm
                               text-slate-500
 
-                              mt-2
+                              mt-1
                             "
                           >
 
@@ -1661,10 +1622,10 @@ export default function ApprovedProperties() {
                               items-center
                               gap-2
 
-                              text-sm
+                              text-xs
                               text-slate-700
 
-                              mt-2
+                              mt-1
                             "
                           >
 
@@ -1696,9 +1657,9 @@ export default function ApprovedProperties() {
                         grid-cols-1
                         sm:grid-cols-2
 
-                        gap-3
+                        gap-2
 
-                        mt-6
+                        mt-3
                       "
                     >
 
@@ -1714,7 +1675,7 @@ export default function ApprovedProperties() {
 
                           text-slate-800
 
-                          py-3.5
+                          py-2.5
 
                           rounded-2xl
 
@@ -1738,7 +1699,7 @@ export default function ApprovedProperties() {
                       {/* IMAGES */}
                       <Link
 
-                        to={`/admin/image-verification?property=${property._id}`}
+                        to={`/admin/property/${property._id}/images`}
 
                         className="
 
@@ -1747,7 +1708,7 @@ export default function ApprovedProperties() {
 
                           text-indigo-700
 
-                          py-3.5
+                          py-2.5
 
                           rounded-2xl
 
@@ -1780,11 +1741,11 @@ export default function ApprovedProperties() {
                         grid
 
                         grid-cols-1
-                        sm:grid-cols-2
+                        sm:grid-cols-3
 
                         gap-3
 
-                        mt-6
+                        mt-3
                       "
                     >
 
@@ -1813,7 +1774,7 @@ export default function ApprovedProperties() {
 
                           text-white
 
-                          py-3.5
+                          py-2.5
 
                           rounded-2xl
 
@@ -1845,6 +1806,61 @@ export default function ApprovedProperties() {
 
                       </button>
 
+                      {/* PENDING */}
+                      <button
+
+                        disabled={
+                          pendingLoading
+                        }
+
+                        onClick={() =>
+                          updateStatus(
+
+                            property._id,
+
+                            "pending"
+                          )
+                        }
+
+                        className="
+
+                          bg-yellow-500
+                          hover:bg-yellow-600
+
+                          disabled:opacity-60
+
+                          text-white
+
+                          py-2.5
+
+                          rounded-2xl
+
+                          font-bold
+
+                          flex
+                          items-center
+                          justify-center
+                          gap-2
+
+                          transition
+                        "
+                      >
+
+                        {pendingLoading ? (
+
+                          <ButtonLoader />
+
+                        ) : (
+
+                          <>
+                            <RefreshCcw size={18} />
+
+                            Move Pending
+                          </>
+                        )}
+
+                      </button>
+
                       {/* DELETE */}
                       <button
 
@@ -1870,7 +1886,7 @@ export default function ApprovedProperties() {
 
                           text-white
 
-                          py-3.5
+                          py-2.5
 
                           rounded-2xl
 
@@ -1911,7 +1927,7 @@ export default function ApprovedProperties() {
                     <div
                       className="
 
-                        mt-6
+                        mt-4
 
                         flex
                         items-center

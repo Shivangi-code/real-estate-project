@@ -548,7 +548,7 @@ export default function BuilderDashboard() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================

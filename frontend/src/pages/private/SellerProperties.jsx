@@ -247,7 +247,7 @@ export default function SellerProperties() {
 
       return Math.round(
         price / area
-      );
+      ).toLocaleString("en-IN");
     };
 
   // ======================================================
