@@ -414,39 +414,241 @@ const [brokerCount, setBrokerCount] = useState(0);
         </section>
 
         {/* WHY US */}
-        <section className="bg-white py-20">
+        <section className="py-20 bg-[#F8FAFC]">
           <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
             {/* CARD 1 */}
-            <div className="p-8 rounded-[28px] bg-slate-50 shadow-sm hover:shadow-xl transition-all duration-300">
-              <ShieldCheck className="text-green-600 mb-5" size={36} />
+            <div className="
+                  group
+                  relative
+                  overflow-hidden
+                  p-8
+                  rounded-[28px]
 
-              <h3 className="text-2xl font-bold">Verified Properties</h3>
+                  bg-gradient-to-br
+                  from-[#0B1D34]
+                  via-[#081423]
+                  to-[#06111F]
 
-              <p className="text-slate-500 mt-3 leading-7">
+                  border
+                  border-[#1A2A42]
+
+                  backdrop-blur-xl
+
+                  shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+
+                  transition-all
+                  duration-300
+
+                  hover:-translate-y-2
+                  hover:border-[#D4AF37]
+                  hover:shadow-[0_18px_45px_rgba(212,175,55,0.22)]
+                "
+            >
+            
+            <div
+              className="
+                absolute
+                inset-0
+
+                bg-gradient-to-br
+
+                from-white/[0.04]
+                to-transparent
+
+                opacity-0
+
+                group-hover:opacity-100
+
+                transition-opacity
+                duration-300
+
+                pointer-events-none
+              "
+            />
+
+              <ShieldCheck
+                size={36}
+                className="
+                mb-5
+                text-white
+                transition-colors
+                duration-300
+                group-hover:text-[#D4AF37]
+                "
+             />
+
+              <h3 className="
+                  text-2xl
+                  font-bold
+
+                  text-[#D4AF37]
+
+                  transition-colors
+                  duration-300
+
+                  group-hover:text-[#F5D97A]
+                "
+              >Verified Properties</h3>
+
+              <p className="text-slate-300 mt-3 leading-7">
                 Every listing goes through moderation and approval checks for
                 safer browsing.
               </p>
             </div>
 
             {/* CARD 2 */}
-            <div className="p-8 rounded-[28px] bg-slate-50 shadow-sm hover:shadow-xl transition-all duration-300">
-              <Building2 className="text-blue-600 mb-5" size={36} />
+            <div className="
+                    group
+                    relative
+                    overflow-hidden
+                    p-8
+                    rounded-[28px]
 
-              <h3 className="text-2xl font-bold">Premium Inventory</h3>
+                    bg-gradient-to-br
+                    from-[#0B1D34]
+                    via-[#081423]
+                    to-[#06111F]
 
-              <p className="text-slate-500 mt-3 leading-7">
+                    border
+                    border-[#1A2A42]
+
+                    backdrop-blur-xl
+
+                    shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+
+                    transition-all
+                    duration-300
+
+                    hover:-translate-y-2
+                    hover:border-[#D4AF37]
+                    hover:shadow-[0_18px_45px_rgba(212,175,55,0.22)]
+                  "
+            >
+
+              <div
+                className="
+                  absolute
+                  inset-0
+
+                  bg-gradient-to-br
+
+                  from-white/[0.04]
+                  to-transparent
+
+                  opacity-0
+
+                  group-hover:opacity-100
+
+                  transition-opacity
+                  duration-300
+
+                  pointer-events-none
+                "
+              />
+              
+              <Building2
+                size={36} 
+                className="
+                          mb-5
+                          text-white
+                          transition-colors
+                          duration-300
+                          group-hover:text-[#D4AF37]
+                        "  
+              />
+
+              <h3 className="
+                  text-2xl
+                  font-bold
+
+                  text-[#D4AF37]
+
+                  transition-colors
+                  duration-300
+
+                  group-hover:text-[#F5D97A]
+                "
+              >Premium Inventory</h3>
+
+              <p className="text-slate-300 mt-3 leading-7">
                 Residential, luxury and commercial properties all in one
                 platform.
               </p>
             </div>
 
             {/* CARD 3 */}
-            <div className="p-8 rounded-[28px] bg-slate-50 shadow-sm hover:shadow-xl transition-all duration-300">
-              <Users className="text-purple-600 mb-5" size={36} />
+            <div className="
+                group
+                relative
+                overflow-hidden
+                p-8
+                rounded-[28px]
 
-              <h3 className="text-2xl font-bold">Trusted Community</h3>
+                bg-gradient-to-br
+                from-[#0B1D34]
+                via-[#081423]
+                to-[#06111F]
 
-              <p className="text-slate-500 mt-3 leading-7">
+                border
+                border-[#1A2A42]
+
+                backdrop-blur-xl
+
+                shadow-[0_10px_30px_rgba(0,0,0,0.35)]
+
+                transition-all
+                duration-300
+
+                hover:-translate-y-2
+                hover:border-[#D4AF37]
+                hover:shadow-[0_18px_45px_rgba(212,175,55,0.22)]
+              "
+            >
+              <div
+                className="
+                  absolute
+                  inset-0
+
+                  bg-gradient-to-br
+
+                  from-white/[0.04]
+                  to-transparent
+
+                  opacity-0
+
+                  group-hover:opacity-100
+
+                  transition-opacity
+                  duration-300
+
+                  pointer-events-none
+                "
+              />
+              <Users
+                size={36} 
+                className="
+                  mb-5
+                  text-white
+                  transition-colors
+                  duration-300
+                  group-hover:text-[#D4AF37]
+                "  
+              />
+
+              <h3 className="
+                  text-2xl
+                  font-bold
+
+                  text-[#D4AF37]
+
+                  transition-colors
+                  duration-300
+
+                  group-hover:text-[#F5D97A]
+                "
+              >Trusted Community</h3>
+
+              <p className="text-slate-300 mt-3 leading-7">
                 Buyers, sellers, agents and builders connected with
                 transparency.
               </p>
