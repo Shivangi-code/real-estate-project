@@ -203,12 +203,20 @@ const [brokerCount, setBrokerCount] = useState(0);
 <section
   className="
     relative
-    min-h-screen
+    min-h-[100svh]
+    lg:min-h-screen
     flex
-    items-center
+    items-start
+    lg:items-center
     overflow-hidden
     text-white
-    px-4 sm:px-6 md:px-12
+    pt-22
+    pb-10
+    lg:pt-0
+    lg:pb-0
+    px-4
+    sm:px-6
+    md:px-12
   "
   style={{
     backgroundImage: `url(${heroBg})`,
@@ -225,16 +233,16 @@ const [brokerCount, setBrokerCount] = useState(0);
     }}
   />
 
-  <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-10 items-center">
+  <div className="relative z-10 w-full max-w-7xl mx-auto grid lg:grid-cols-[1.2fr_0.8fr] gap-6 lg:gap-10 items-center">
 
     {/* LEFT CONTENT */}
     <div className="max-w-[620px]">
 
-      <p className="uppercase tracking-[4px] text-blue-200 text-xs sm:text-sm mb-3 font-semibold animate-pulse">
+      <p className="uppercase tracking-[4px] text-blue-200 text-xs sm:text-sm mb-2 sm:mb-3 font-semibold animate-pulse">
         VERIFIED REAL ESTATE PLATFORM
       </p>
 
-      <h1 className="text-3xl sm:text-4xl md:text-[48px] lg:text-[56px] font-black leading-[1.1] tracking-[-1px]">
+      <h1 className="text-[2rem] xs:text-[2.2rem] sm:text-4xl md:text-[48px] lg:text-[56px] font-black leading-[1.1] tracking-[-1px]">
         <span className="block animate-heading-one opacity-0">
           Discover Your Future
         </span>
@@ -243,7 +251,7 @@ const [brokerCount, setBrokerCount] = useState(0);
         </span>
       </h1>
 
-      <div className="mt-4 text-slate-200 text-sm sm:text-lg leading-6 sm:leading-8">
+      <div className="mt-3 sm:mt-4 text-slate-200 text-[15px] sm:text-lg leading-6 sm:leading-8">
         <p className="typing-line-one">
           Verified flats, plots, villas and commercial spaces
         </p>
@@ -253,7 +261,7 @@ const [brokerCount, setBrokerCount] = useState(0);
       </div>
 
       {/* SEARCH BAR */}
-      <div className="mt-8 bg-white/10 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-3 flex items-center gap-3 shadow-2xl max-w-xl">
+      <div className="mt-6 sm:mt-8 w-full max-w-xl bg-white/10 backdrop-blur-xl border border-yellow-400/20 rounded-2xl p-2 sm:p-3 flex items-center gap-2 sm:gap-3 shadow-2xl">
 
         <Search className="text-[#D4AF37] ml-2" size={18} />
 
@@ -271,7 +279,7 @@ const [brokerCount, setBrokerCount] = useState(0);
             }
           }}
           placeholder="Search city, area or property..."
-          className="flex-1 bg-transparent outline-none text-white placeholder:text-slate-300 text-sm sm:text-lg"
+          className="flex-1 min-w-0 bg-transparent outline-none text-white placeholder:text-slate-300 text-[14px] sm:text-lg"
         />
 
         <button
@@ -282,14 +290,14 @@ const [brokerCount, setBrokerCount] = useState(0);
                 : "/properties"
             )
           }
-          className="bg-gradient-to-r from-[#D4AF37] to-[#F5D97A] text-[#0B2345] px-5 py-2 rounded-xl font-semibold hover:scale-105 transition"
+          className="bg-gradient-to-r from-[#D4AF37] to-[#F5D97A] text-[#0B2345] font-semibold rounded-xl transition hover:scale-105 px-4 sm:px-6 h-11 sm:h-12 min-w-[90px] sm:min-w-[120px] flex items-center justify-center flex-shrink-0"
         >
           Search
         </button>
       </div>
 
       {/* CTA */}
-      <div className="mt-6">
+      <div className="mt-5 sm:mt-6">
         <button
           onClick={() => navigate("/properties")}
           className="bg-white text-slate-900 px-5 py-2.5 rounded-xl font-semibold hover:scale-105 transition shadow-xl"
@@ -299,56 +307,56 @@ const [brokerCount, setBrokerCount] = useState(0);
       </div>
     </div>
 
-    {/* RIGHT STATS (DESKTOP) */}
-    <div className="hidden lg:flex justify-center">
+    {/* RIGHT STATS */}
+    <div className="w-full flex justify-center mt-6 lg:mt-0">
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="w-full max-w-xl grid grid-cols-2 gap-3 sm:gap-6">
 
         {/* Verified Listings */}
-        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
-          <div className="w-14 h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
+        <div className="flex items-center gap-3 sm:gap-4 bg-black/30 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 w-full">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
             <Building2 size={26} className="text-[#D4AF37]" />
           </div>
           <div className="w-px h-10 bg-[#D4AF37]/30" />
           <div>
-            <h2 className="text-2xl font-bold">{properties.length}+</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">{properties.length}+</h2>
             <p className="text-sm text-white/80">Verified Listings</p>
           </div>
         </div>
 
         {/* Users */}
-        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
-          <div className="w-14 h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
+        <div className="flex items-center gap-3 sm:gap-4 bg-black/30 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 w-full">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
             <Users size={26} className="text-[#D4AF37]" />
           </div>
           <div className="w-px h-10 bg-[#D4AF37]/30" />
           <div>
-            <h2 className="text-2xl font-bold">1K+</h2>
-            <p className="text-sm text-white/80">Happy Users</p>
+            <h2 className="text-xl sm:text-2xl font-bold">1K+</h2>
+            <p className="text-xs sm:text-sm text-white/80">Happy Users</p>
           </div>
         </div>
 
         {/* Verified */}
-        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
-          <div className="w-14 h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
+        <div className="flex items-center gap-3 sm:gap-4 bg-black/30 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 w-full">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
             <ShieldCheck size={26} className="text-[#D4AF37]" />
           </div>
           <div className="w-px h-10 bg-[#D4AF37]/30" />
           <div>
-            <h2 className="text-2xl font-bold">100%</h2>
-            <p className="text-sm text-white/80">Verified</p>
+            <h2 className="text-xl sm:text-2xl font-bold">100%</h2>
+            <p className="text-xs sm:text-sm text-white/80">Verified</p>
           </div>
         </div>
 
         {/* Brokerage */}
-        <div className="flex items-center gap-4 bg-black/30 backdrop-blur-md rounded-2xl px-5 py-4 w-[260px]">
-          <div className="w-14 h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
+        <div className="flex items-center gap-3 sm:gap-4 bg-black/30 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 w-full">
+          <div className="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center border border-[#D4AF37]/60 rounded-xl">
             <BadgeCheck size={26} className="text-[#D4AF37]" />
           </div>
           <div className="w-px h-10 bg-[#D4AF37]/30" />
           <div>
-            <h2 className="text-2xl font-bold">0%</h2>
-            <p className="text-sm text-white/80">Brokerage</p>
+            <h2 className="text-xl sm:text-2xl font-bold">0%</h2>
+            <p className="text-xs sm:text-sm text-white/80">Brokerage</p>
           </div>
         </div>
 

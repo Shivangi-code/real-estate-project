@@ -108,22 +108,24 @@ function SidebarItem({
 
                 ${
                     isActive
-                        ? `
+                      ? `
                         bg-gradient-to-r
                         from-[#d6a44b]
                         to-[#7b5a21]
 
-                        text-white
+                        text-[#08111F]
 
                         shadow-lg
                         shadow-amber-500/20
                         `
-                        : `
-                        text-slate-400
+                      : `
+                        text-[#D7E2F0]
 
                         hover:text-white
 
-                        hover:bg-white/[0.04]
+                        hover:bg-white/[0.08]
+
+                        hover:border hover:border-amber-400/20
                         `
                 }
             `}
@@ -142,27 +144,45 @@ function SidebarItem({
 
         rounded-xl
 
-        bg-white/5
+        bg-white/8
 
         border
-        border-white/5
+        border-white/10
 
-        group-hover:border-amber-400/40
+        group-hover:border-amber-400/50
+
+        group-hover:bg-amber-400/10
 
         transition-all
     "
 >
-    <Icon size={18} />
+    <Icon 
+      size={18}
+      className="
+      text-slate-300
+      group-hover:text-[#D4AF37]
+        transition-colors
+        duration-300
+      " 
+    />
+    
 </div>
 
             <span
-    className="
-        text-[15px]
-        font-semibold
-        whitespace-nowrap
-    "
->
-                {label}
+              className="
+                text-[15px]
+                font-semibold
+                whitespace-nowrap
+
+                text-white/90
+
+                group-hover:text-white
+
+                transition-colors
+                duration-300
+              "
+            >
+              {label}
             </span>
 
         </NavLink>
@@ -383,8 +403,11 @@ relative
 
     -translate-x-1/2
 
-    w-[900px]
-    h-[400px]
+    w-[90vw]
+    max-w-[900px]
+    h-[220px]
+    sm:h-[300px]
+    lg:h-[400px]
 
     rounded-full
 
