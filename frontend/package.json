@@ -4,10 +4,14 @@
   "version": "0.0.0",
   "type": "module",
 "scripts": {
-  "dev": "vite",
+   "dev": "vite",
   "dev:sit": "vite --mode sit",
+  "dev:uat": "vite --mode uat",
+
   "build": "vite build",
   "build:sit": "vite build --mode sit",
+  "build:uat": "vite build --mode uat",
+
   "lint": "eslint .",
   "preview": "vite preview"
 },
