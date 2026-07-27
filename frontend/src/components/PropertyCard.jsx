@@ -156,7 +156,7 @@ function PropertyCard({
 
       {/* ================= IMAGE ================= */}
 
-      <div className="relative overflow-hidden h-[220px] sm:h-[190px]">
+      <div className="relative overflow-hidden h-[180px] sm:h-[200px] lg:h-[220px]">
 
         <motion.img
           src={imageUrl}
@@ -187,7 +187,7 @@ function PropertyCard({
 
         {!isSold && (
 
-          <div className="absolute top-3 left-3 bg-green-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md z-10">
+          <div className="absolute top-3 left-3 bg-green-600 text-white px-2.5 sm:px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1 shadow-md z-10">
 
             <ShieldCheck size={13} />
 
@@ -200,7 +200,7 @@ function PropertyCard({
 
         {isSold && (
 
-          <div className="absolute top-3 left-3 bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold shadow-md z-20">
+          <div className="absolute top-3 left-3 bg-red-600 text-white px-2.5 sm:px-3 py-1 rounded-full text-xs font-bold shadow-md z-20">
 
             SOLD
 
@@ -223,7 +223,7 @@ function PropertyCard({
 
         {/* VIEW PHOTOS */}
 
-        <div className="absolute bottom-3 left-3 bg-[#071133]/90 text-white px-3 py-2 rounded-full text-xs font-medium flex items-center gap-2 shadow-md z-10">
+        <div className="absolute bottom-3 left-3 bg-[#071133]/90 text-white px-3 py-2 rounded-full text-[10px] sm:text-xs font-medium flex items-center gap-2 shadow-md z-10">
 
           View Photos
 
@@ -231,7 +231,7 @@ function PropertyCard({
 
         {/* STATUS */}
 
-        <div className={`absolute bottom-3 right-3 px-3 py-1 rounded-full text-[10px] font-semibold capitalize shadow-md ${
+        <div className={`absolute bottom-3 right-3 px-2.5 sm:px-3 py-1 rounded-full text-[10px] font-semibold capitalize shadow-md ${
           isSold
             ? "bg-red-100 text-red-700"
             : "bg-green-100 text-green-700"
@@ -246,11 +246,11 @@ function PropertyCard({
 
       {/* ================= BODY ================= */}
 
-      <div className="p-4">
+      <div className="p-4 sm:p-5">
 
         {/* PROPERTY ID */}
 
-        <div className="flex items-center gap-1 text-[11px] text-slate-500">
+        <div className="flex items-center gap-1 text-[10px] sm:text-[11px] text-slate-500">
 
           <Hash size={11} />
 
@@ -268,7 +268,7 @@ function PropertyCard({
 
         {/* TITLE */}
 
-        <h3 className="mt-2 text-lg font-bold text-slate-900 line-clamp-1 capitalize">
+        <h3 className="mt-2 text-base sm:text-lg font-bold text-slate-900 line-clamp-1 capitalize">
 
           {data?.title ||
             "Untitled Property"}
@@ -311,7 +311,7 @@ function PropertyCard({
 
         {data?.description && (
 
-          <p className="text-slate-500 text-[11px] mt-2 line-clamp-1 leading-4">
+          <p className="text-slate-500 text-[10px] sm:text-[11px] mt-2 line-clamp-1 leading-4">
 
             {data?.description}
 
@@ -322,7 +322,7 @@ function PropertyCard({
 
         <div className="mt-3">
 
-          <p className={`text-xl sm:text-2xl font-bold ${
+          <p className={`text-lg sm:text-xl lg:text-2xl font-bold ${
             isSold
               ? "text-red-600"
               : "text-[#071133]"
@@ -350,7 +350,7 @@ function PropertyCard({
 
             {/* AREA */}
 
-            <div className="p-3 border-r border-slate-200 flex items-center gap-2 min-h-[60px]">
+            <div className="p-3 border-r border-slate-200 flex items-center gap-2 min-h-[56px] sm:min-h-[60px]">
 
               <div className="bg-blue-50 p-2 rounded-xl">
 
@@ -433,7 +433,7 @@ function PropertyCard({
 
             openProperty();
           }}
-          className={`w-full mt-3 py-3 sm:py-2.5 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
+          className={`w-full mt-3 py-2.5 sm:py-3 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-300 ${
             isSold
               ? "bg-red-600 hover:bg-red-700 text-white"
               : "bg-[#071133] hover:bg-[#0b1d57] text-white"

@@ -1,6 +1,7 @@
 import {
   useEffect,
   useState,
+  useRef,
 } from "react";
 
 import {
@@ -24,6 +25,18 @@ import {
 import PropertyCard from "../../components/PropertyCard";
 
 import socket from "../../socket";
+
+import { ArrowUpDown } from "lucide-react";
+
+import FloatingFilterActions from "../../components/FloatingFilterActions";
+
+import MobileActionBar from "../../components/MobileActionBar";
+
+import DesktopFilterBar from "../../components/DesktopFilterBar";
+
+import MobileFilterDrawer from "../../components/MobileFilterDrawer";
+
+import { px } from "framer-motion";
 
 export default function Properties() {
 
@@ -57,12 +70,12 @@ export default function Properties() {
     );
 
   const [subType,
-  setSubType] =
-  useState(
-    searchParams.get(
-      "subType"
-    ) || ""
-  );
+    setSubType] =
+    useState(
+      searchParams.get(
+        "subType"
+      ) || ""
+    );
 
   const [maxPrice,
     setMaxPrice] =
@@ -71,29 +84,29 @@ export default function Properties() {
         "maxPrice"
       ) || ""
     );
-// ================= SUB TYPES =================
+  // ================= SUB TYPES =================
 
-const subTypeOptions = {
+  const subTypeOptions = {
 
-  Residential: [
-    "House",
-    "Plot",
-    "Villa",
-    "Flat",
-  ],
+    Residential: [
+      "House",
+      "Plot",
+      "Villa",
+      "Flat",
+    ],
 
-  Commercial: [
-    "Office",
-    "Shop",
-    "Showroom",
-    "Commercial Land",
-  ],
+    Commercial: [
+      "Office",
+      "Shop",
+      "Showroom",
+      "Commercial Land",
+    ],
 
-  Agriculture: [
-    "Farm Land",
-    "Agriculture Land",
-  ],
-};
+    Agriculture: [
+      "Farm Land",
+      "Agriculture Land",
+    ],
+  };
 
   const [sort,
     setSort] =
@@ -102,6 +115,107 @@ const subTypeOptions = {
         "sort"
       ) || ""
     );
+
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const [mobileSortOpen, setMobileSortOpen] = useState(false);
+
+  useEffect(() => {
+    if (mobileFiltersOpen || mobileSortOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileFiltersOpen, mobileSortOpen]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setMobileFiltersOpen(false);
+        closeSortSheet();
+      }
+    };
+
+    if (mobileFiltersOpen || mobileSortOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mobileFiltersOpen, mobileSortOpen]);
+
+  const [dragY, setDragY] = useState(0);
+
+  const [startY, setStartY] = useState(0);
+
+  const [isDragging, setIsDragging] = useState(false);
+
+  const [isClosing, setIsClosing] = useState(false);
+
+  useEffect(() => {
+
+    if (!isClosing) return;
+
+    const timer = setTimeout(() => {
+
+      setMobileSortOpen(false);
+
+      setIsClosing(false);
+
+      setDragY(0);
+
+    }, 300);
+
+    return () => clearTimeout(timer);
+
+  }, [isClosing]);
+
+  const closeSortSheet = () => {
+
+    setIsClosing(true);
+
+  };
+
+  const openSortSheet = () => {
+
+    setIsClosing(false);
+
+    setDragY(0);
+
+    setMobileSortOpen(true);
+
+  };
+
+  const [isFilterSticky, setIsFilterSticky] = useState(false);
+
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  const [showStickyBar, setShowStickyBar] = useState(true);
+
+  const [floatingMode, setFloatingMode] = useState("full");
+
+  const [filterStage, setFilterStage] = useState("normal");
+
+  const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
+  const stickyStartYRef = useRef(null);
+
+  const filterBarRef = useRef(null);
+
+  const filterSentinelRef = useRef(null);
+
+  const filterStageRef = useRef("normal");
+
+  const searchOpenScrollYRef = useRef(null);
+
+  const ignoreProgrammaticScrollRef = useRef(false);
+
+  const scrollStopTimerRef = useRef(null);
 
   // ================= UPDATE URL =================
 
@@ -194,8 +308,8 @@ const subTypeOptions = {
         let updated = Array.isArray(data)
           ? data
           : Array.isArray(data?.properties)
-          ? data.properties
-          : [];
+            ? data.properties
+            : [];
 
         // ================= SORT =================
 
@@ -289,6 +403,133 @@ const subTypeOptions = {
     sort,
   ]);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!filterBarRef.current) return;
+
+      const rect = filterBarRef.current.getBoundingClientRect();
+
+      const navbarHeight = 72;
+
+      const shouldStick = rect.top <= navbarHeight;
+
+      console.log({
+        rectTop: rect.top,
+        navbarHeight,
+        shouldStick,
+      });
+
+      setIsFilterSticky(shouldStick);
+
+      const currentScroll = window.scrollY;
+      if (ignoreProgrammaticScrollRef.current) {
+        clearTimeout(scrollStopTimerRef.current);
+
+        scrollStopTimerRef.current = setTimeout(() => {
+          ignoreProgrammaticScrollRef.current = false;
+        }, 120);
+        return;
+      }
+      if (
+        isSearchExpanded &&
+        searchOpenScrollYRef.current !== null &&
+        Math.abs(currentScroll - searchOpenScrollYRef.current) > 20
+      ) {
+        setIsSearchExpanded(false);
+        searchOpenScrollYRef.current = null;
+      }
+
+      const isDesktopOrTablet = window.innerWidth >= 768;
+
+      const sentinelRect =
+        filterSentinelRef.current?.getBoundingClientRect();
+
+      if (!shouldStick) {
+
+        filterStageRef.current = "normal";
+        setFilterStage("normal");
+
+        setIsSearchExpanded(false);
+
+        stickyStartYRef.current = null;
+
+      }
+      else {
+
+        if (stickyStartYRef.current === null) {
+
+          stickyStartYRef.current = currentScroll;
+
+        }
+
+        const stickyDistance =
+          currentScroll - stickyStartYRef.current;
+
+        let nextStage = filterStageRef.current;
+
+        if (isDesktopOrTablet) {
+
+          // Tablets & Desktop:
+          // Never morph into Pill/Bubble.
+          // Stay permanently in Sticky mode.
+          nextStage = "sticky";
+
+        } else {
+
+          // Mobile:
+          // Sticky → Pill → Sticky
+          if (filterStageRef.current === "sticky") {
+
+            if (stickyDistance >= 160) {
+              nextStage = "pill";
+            }
+
+          } else if (filterStageRef.current === "pill") {
+
+            if (stickyDistance <= 120) {
+              nextStage = "sticky";
+            }
+
+          } else {
+
+            nextStage = "sticky";
+
+          }
+
+        }
+
+        if (nextStage !== filterStageRef.current) {
+          filterStageRef.current = nextStage;
+          setFilterStage(nextStage);
+        }
+
+        setFilterStage(nextStage);
+
+        console.log({
+          nextStage,
+          stickyDistance,
+        });
+        console.log({
+          stage: filterStage,
+          stickyStartY: stickyStartYRef.current,
+          stickyDistance,
+        });
+      }
+
+      setLastScrollY(currentScroll);
+      console.log("isSearchExpanded:", isSearchExpanded);
+
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    handleScroll();
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [isSearchExpanded]);
+
   // ================= CLEAR FILTERS =================
 
   const clearFilters =
@@ -299,7 +540,53 @@ const subTypeOptions = {
       setSubType("");
       setMaxPrice("");
       setSort("");
+
+      setIsSearchExpanded(false);
     };
+
+  const handleTouchStart = (e) => {
+    setIsDragging(true);
+    setStartY(e.touches[0].clientY);
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging) return;
+
+    const currentY = e.touches[0].clientY;
+
+    const distance = currentY - startY;
+
+    // Prevent upward drag
+    if (distance < 0) return;
+
+    setDragY(distance);
+  };
+
+  const handleTouchEnd = () => {
+
+    setIsDragging(false);
+
+    if (dragY > 120) {
+
+      closeSortSheet();
+
+      return;
+
+    }
+
+    setDragY(0);
+
+  };
+
+  // ================= ACTIVE FILTER COUNT =================
+
+  const activeFilterCount = [
+    search,
+    type,
+    subType,
+    maxPrice,
+    sort,
+  ].filter(Boolean).length;
 
   return (
 
@@ -345,9 +632,9 @@ const subTypeOptions = {
           sm:px-6
           md:px-10
 
-          py-16
-          sm:py-20
-          md:py-24
+          py-20
+          sm:py-24
+          md:py-28
 
           relative
           overflow-hidden
@@ -407,7 +694,8 @@ const subTypeOptions = {
 
                   font-black
 
-                  leading-tight
+                  leading-[1.1]
+                  tracking-[-1px]
                 ">
 
               <span className="text-white">
@@ -426,7 +714,7 @@ const subTypeOptions = {
 
             </h1>
 
-            <div className="mt-7 inline-flex items-center gap-2 bg-white/10 border border-white/20 backdrop-blur-xl px-5 py-3 rounded-full">
+            <div className="mt-7 inline-flex items-center gap-2 bg-[#D4AF37]/10 border border-[#D4AF37]/20 backdrop-blur-xl px-5 py-3 rounded-full  shadow-lg shadow-black/20">
 
               <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
 
@@ -448,8 +736,9 @@ const subTypeOptions = {
 
                   text-slate-200
 
-                  leading-8
-                  sm:leading-10
+                  leading-7
+                  sm:leading-9
+                  md:leading-10
 
                   font-light
 
@@ -478,225 +767,189 @@ const subTypeOptions = {
 
       </section>
 
+      <div
+        ref={filterSentinelRef}
+        className="h-px"
+      />
+
       {/* FILTER BAR */}
 
-      <section className="
-                max-w-7xl
-                mx-auto
+      <section
+        ref={filterBarRef}
+        className={`
+            max-w-7xl
+            mx-auto
 
-                px-4
-                sm:px-6
-                md:px-10
+            px-4
+            sm:px-6
+            md:px-10
 
-                -mt-8
-                sm:-mt-10
-                md:-mt-12
+            transition-all
+            duration-300
+            ease-out
 
-                relative
-                z-20
-              ">
+            ${isFilterSticky
+            ? `
+                        sticky
+                        top-0.5
+                        z-50
+                        pt-0.5
+                    `
+            : `
+                        -mt-8
+                        sm:-mt-10
+                        md:-mt-12
 
-        <div className="
-          bg-white
+                        relative
+                        z-20
+                    `
+          }
+        `}
+      >
+        {(filterStage !== "pill" || isSearchExpanded) && (
+          <div
+            className={`
+            backdrop-blur-xl
 
-          rounded-[24px]
-          sm:rounded-3xl
+            border
+            border-slate-200
 
-          shadow-xl
+            transition-all
+            duration-300
 
-          p-4
-          sm:p-5
+            ${isFilterSticky
+                ? `
+                    bg-white/90
+                    backdrop-blur-2xl
+                    shadow-[0_12px_40px_rgba(15,23,42,0.18)]
+                    rounded-2xl
+                    p-3
+                    scale-[0.99]
+                  `
+                : `
+                    bg-white/95
+                    rounded-[24px]
+                    sm:rounded-3xl
 
-          grid
+                    shadow-[0_20px_50px_rgba(15,23,42,0.12)]
 
-          grid-cols-1
-          sm:grid-cols-2
-          md:grid-cols-2
-          xl:grid-cols-5
-
-          gap-3
-          sm:gap-4
-        ">
-
-          {/* SEARCH */}
-
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
-
-            <Search
-              size={18}
-              className="text-slate-500"
-            />
-
-            <input
-              type="text"
-              placeholder="Search city or property"
-              value={search}
-              onChange={(e) => {
-
-                setSearch(
-                  e.target.value
-                );
-
-                // RESET SUBTYPE
-                setSubType("");
-              }}
-              className="w-full outline-none"
-            />
-
-          </div>
-
-          {/* TYPE */}
-
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
-
-            <Building2
-              size={18}
-              className="text-slate-500"
-            />
-
-            <select
-              value={type}
-              onChange={(e) => {
-
-                setType(
-                  e.target.value
-                );
-
-                // RESET SUBTYPE
-                setSubType("");
-              }}
-              className="w-full outline-none bg-transparent"
-            >
-
-              <option value="">
-                All Types
-              </option>
-
-              <option value="Residential">
-                Residential
-              </option>
-
-              <option value="Commercial">
-                Commercial
-              </option>
-
-              <option value="Agriculture">
-                Agriculture
-              </option>
-
-            </select>
-
-          </div>
-          
-          {/* SUB TYPE */}
-
-          <div className="
-            flex items-center gap-3
-            border rounded-2xl
-            px-4 py-3.5 sm:py-4
-          ">
-
-            <Home
-              size={18}
-              className="text-slate-500"
-            />
-
-            <select
-              value={subType}
-              onChange={(e) =>
-                setSubType(
-                  e.target.value
-                )
+                    p-4
+                    sm:p-5
+                  `
               }
+
+            grid
+
+            grid-cols-1
+            sm:grid-cols-2
+            lg:grid-cols-6
+
+            gap-4
+          `}
+          >
+
+            {/* SEARCH */}
+
+            <div
+              className={`
+              flex
+              items-center
+              gap-3
+
+              min-h-[58px]
+
+              border
+              ${isFilterSticky
+                  ? "border-slate-300"
+                  : "border-slate-200"
+                }
+
+              rounded-2xl
+
+              px-4
+
+              transition-all
+              duration-300
+
+              hover:border-[#D4AF37]
+
+              focus-within:border-[#D4AF37]
+              focus-within:ring-2
+              focus-within:ring-[#D4AF37]/20
+
+              col-span-full
+              lg:col-span-1
+            `}>
+
+              <Search
+                size={18}
+                className={`
+                transition-all
+                duration-300
+
+                ${isFilterSticky
+                    ? "text-[#071133]"
+                    : "text-slate-400"
+                  }
+              `}
+              />
+
+              <input
+                type="text"
+                placeholder="Search city or property"
+                value={search}
+                onChange={(e) => {
+
+                  setSearch(
+                    e.target.value
+                  );
+
+                  // RESET SUBTYPE
+                  setSubType("");
+                }}
+                className="
+                  w-full
+                  bg-transparent
+                  outline-none
+
+                  text-[15px]
+
+                  placeholder:text-slate-400
+                "
+              />
+
+            </div>
+
+            <MobileActionBar
+              activeFilterCount={activeFilterCount}
+              onFilterClick={() => setMobileFiltersOpen(true)}
+              onSortClick={openSortSheet}
+              onClearClick={clearFilters}
+            />
+
+            <div
               className="
-                w-full
-                outline-none
-                bg-transparent
-                text-sm
-                sm:text-base
+                hidden
+                lg:contents
               "
             >
+              <DesktopFilterBar
+                type={type}
+                setType={setType}
+                subType={subType}
+                setSubType={setSubType}
+                subTypeOptions={subTypeOptions}
+                maxPrice={maxPrice}
+                setMaxPrice={setMaxPrice}
+                sort={sort}
+                setSort={setSort}
+                onClearClick={clearFilters}
+              />
 
-              <option value="">
-                All Sub Types
-              </option>
-
-              {type &&
-                subTypeOptions[type]?.map(
-                  (item) => (
-
-                    <option
-                      key={item}
-                      value={item}
-                    >
-                      {item}
-                    </option>
-                    )
-                )}
-
-            </select>
+            </div>
 
           </div>
-
-          {/* PRICE */}
-
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3.5 sm:py-4">
-
-            <IndianRupee
-              size={18}
-              className="text-slate-500"
-            />
-
-            <input
-              type="number"
-              placeholder="Max Price"
-              value={maxPrice}
-              onChange={(e) =>
-                setMaxPrice(
-                  e.target.value
-                )
-              }
-              className="w-full outline-none"
-            />
-
-          </div>
-
-          {/* SORT */}
-
-          <div className="flex items-center gap-3 border rounded-2xl px-4 py-3">
-
-            <SlidersHorizontal
-              size={18}
-              className="text-slate-500"
-            />
-
-            <select
-              value={sort}
-              onChange={(e) =>
-                setSort(
-                  e.target.value
-                )
-              }
-              className="w-full outline-none bg-transparent"
-            >
-
-              <option value="">
-                Sort by Price
-              </option>
-
-              <option value="low-high">
-                Low to High
-              </option>
-
-              <option value="high-low">
-                High to Low
-              </option>
-
-            </select>
-
-          </div>
-
-        </div>
+        )}
 
       </section>
 
@@ -751,36 +1004,6 @@ const subTypeOptions = {
               {properties.length}
               {" "}
               properties found
-              <button
-                onClick={clearFilters}
-                className="
-                  mt-3
-                  inline-flex
-                  items-center
-                  gap-2
-
-                  bg-slate-900
-                  hover:bg-slate-700
-
-                  text-white
-
-                  px-4
-                  py-2
-
-                  rounded-xl
-
-                  text-sm
-                  font-medium
-
-                  transition-all
-                "
-              >
-
-                <X size={16} />
-
-                Clear Filters
-
-              </button>
             </p>
 
           </div>
@@ -798,18 +1021,18 @@ const subTypeOptions = {
         ) : properties.length === 0 ? (
 
           <div className="
-  bg-white
+            bg-white
 
-  rounded-[24px]
-  sm:rounded-3xl
+            rounded-[24px]
+            sm:rounded-3xl
 
-  p-6
-  sm:p-12
+            p-6
+            sm:p-12
 
-  text-center
+            text-center
 
-  shadow-sm
-">
+            shadow-sm
+          ">
 
             <h3 className="text-2xl font-bold">
 
@@ -858,6 +1081,874 @@ const subTypeOptions = {
         )}
 
       </section>
+
+      <FloatingFilterActions
+        stage={filterStage}
+        isSearchExpanded={isSearchExpanded}
+        activeFilterCount={activeFilterCount}
+
+        onSearchClick={() => {
+          if (!isSearchExpanded) {
+            ignoreProgrammaticScrollRef.current = true;
+          }
+          filterBarRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+          if (!isSearchExpanded) {
+            searchOpenScrollYRef.current = window.scrollY;
+          }
+          setIsSearchExpanded((prev) => !prev);
+        }}
+
+        onFilterClick={() => {
+          setMobileFiltersOpen(true);
+        }}
+
+        onSortClick={openSortSheet}
+
+        onClearClick={clearFilters}
+      />
+      {console.log("Rendering FloatingFilterActions:", filterStage)}
+
+      {/* ================= MOBILE FILTER DRAWER ================= */}
+
+      <div
+        onClick={() => setMobileFiltersOpen(false)}
+        className={`
+          fixed
+          inset-0
+
+          bg-black/50
+
+          z-[1200]
+
+          lg:hidden
+
+          transition-opacity
+          duration-300
+
+          ${mobileFiltersOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+          }
+        `}
+      >
+
+        <div
+          onClick={(e) => e.stopPropagation()}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mobile-filter-title"
+          className={`
+            absolute
+
+            top-0
+            right-0
+
+            h-full
+
+            w-[88%]
+            max-w-[420px]
+
+            bg-gradient-to-b
+            from-white
+            to-slate-50
+
+            shadow-[0_25px_60px_rgba(7,17,51,0.25)]
+
+            flex
+            flex-col
+
+            transform
+            transition-transform
+            duration-300
+            ease-out
+
+            ${mobileFiltersOpen
+              ? "translate-x-0"
+              : "translate-x-full"
+            }
+          `}
+        >
+
+          {/* DRAWER HEADER */}
+
+          <div
+            className="
+                bg-gradient-to-r
+                from-[#071133]
+                via-[#0B1D57]
+                to-[#071133]
+
+                text-white
+
+                px-6
+                py-5
+
+                flex
+                items-center
+                justify-between
+
+                border-b
+                border-white/10
+
+                shadow-lg
+
+                shrink-0
+              "
+          >
+
+            <h2
+              id="mobile-filter-title"
+              className="
+                text-xl
+                font-bold
+                tracking-wide
+              "
+            >
+              Filters
+            </h2>
+
+            <button
+              onClick={() => setMobileFiltersOpen(false)}
+              aria-label="Close filters"
+              className="
+                  w-10
+                  h-10
+
+                  flex
+                  items-center
+                  justify-center
+
+                  rounded-xl
+
+                  text-white
+
+                  transition-all
+                  duration-300
+                  ease-out
+
+                  hover:bg-[#D4AF37]/15
+                  hover:text-[#D4AF37]
+                  hover:scale-110
+                "
+            >
+
+              <X
+                size={20}
+                className="transition-colors duration-300"
+              />
+
+            </button>
+
+          </div>
+
+          {/* BODY */}
+
+          <div
+            className="
+                flex-1
+                overflow-y-auto
+                p-6
+              "
+          >
+
+            <div className="space-y-3 mb-6">
+
+              <label
+                className="
+                    block
+                    text-sm
+                    font-semibold
+                    tracking-wide
+                    text-[#071133]
+                  "
+              >
+                Property Type
+              </label>
+
+              <div
+                className="
+                    group
+
+                    flex
+                    items-center
+                    gap-3
+
+                    min-h-[58px]
+
+                    px-4
+
+                    rounded-2xl
+
+                    border
+                    border-slate-200
+
+                    bg-white/80
+                    backdrop-blur-md
+
+                    shadow-sm
+
+                    transition-all
+                    duration-300
+
+                    hover:border-[#D4AF37]
+                    hover:shadow-lg
+                    hover:-translate-y-[2px]
+
+                    focus-within:border-[#D4AF37]
+                    focus-within:ring-2
+                    focus-within:ring-[#D4AF37]/20
+                  "
+              >
+
+                <Building2
+                  size={18}
+                  className="
+                      text-slate-400
+                      transition-colors
+                      duration-300
+                      group-hover:text-[#D4AF37]
+                    "
+                />
+
+                <select
+                  value={type}
+                  onChange={(e) => {
+                    setType(e.target.value);
+                    setSubType("");
+                  }}
+                  className="
+                      w-full
+                      bg-transparent
+                      outline-none
+                      cursor-pointer
+                      text-[15px]
+                    "
+                >
+
+                  <option value="">All Types</option>
+
+                  <option value="Residential">
+                    Residential
+                  </option>
+
+                  <option value="Commercial">
+                    Commercial
+                  </option>
+
+                  <option value="Agriculture">
+                    Agriculture
+                  </option>
+
+                </select>
+
+              </div>
+
+            </div>
+
+            <div className="space-y-3 mb-6">
+
+              <label
+                className="
+                    block
+                    text-sm
+                    font-semibold
+                    tracking-wide
+                    text-[#071133]
+                  "
+              >
+                Property Sub Type
+              </label>
+
+              <div
+                className="
+                    group
+
+                    flex
+                    items-center
+                    gap-3
+
+                    min-h-[58px]
+
+                    px-4
+
+                    rounded-2xl
+
+                    border
+                    border-slate-200
+
+                    bg-white/80
+                    backdrop-blur-md
+
+                    shadow-sm
+
+                    transition-all
+                    duration-300
+
+                    hover:border-[#D4AF37]
+                    hover:shadow-lg
+                    hover:-translate-y-[2px]
+
+                    focus-within:border-[#D4AF37]
+                    focus-within:ring-2
+                    focus-within:ring-[#D4AF37]/20
+                  "
+              >
+
+                <Home
+                  size={18}
+                  className="
+                      text-slate-400
+                      transition-colors
+                      duration-300
+                      group-hover:text-[#D4AF37]
+                    "
+                />
+
+                <select
+                  value={subType}
+                  onChange={(e) => setSubType(e.target.value)}
+                  className="
+                      w-full
+                      bg-transparent
+                      outline-none
+                      cursor-pointer
+                      text-[15px]
+                    "
+                >
+
+                  <option value="">
+                    All Sub Types
+                  </option>
+
+                  {type &&
+                    subTypeOptions[type]?.map((item) => (
+                      <option
+                        key={item}
+                        value={item}
+                      >
+                        {item}
+                      </option>
+                    ))}
+
+                </select>
+
+              </div>
+
+            </div>
+
+            <div className="space-y-3 mb-6">
+
+              <label
+                className="
+                    block
+                    text-sm
+                    font-semibold
+                    tracking-wide
+                    text-[#071133]
+                  "
+              >
+                Maximum Price
+              </label>
+
+              <div
+                className="
+                    group
+
+                    flex
+                    items-center
+                    gap-3
+
+                    min-h-[58px]
+
+                    border
+                    border-slate-200
+
+                    rounded-2xl
+
+                    px-4
+
+                    bg-white/80
+                    backdrop-blur-md
+
+                    shadow-sm
+
+                    transition-all
+                    duration-300
+
+                    hover:border-[#D4AF37]
+                    hover:shadow-lg
+                    hover:-translate-y-[2px]
+
+                    focus-within:border-[#D4AF37]
+                    focus-within:ring-2
+                    focus-within:ring-[#D4AF37]/20
+                  "
+              >
+
+                <IndianRupee
+                  size={18}
+                  className="
+                      text-slate-400
+                      transition-colors
+                      duration-300
+                      group-hover:text-[#D4AF37]
+                    "
+                />
+
+                <input
+                  type="number"
+                  placeholder="Max Price"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="
+                      w-full
+                      bg-transparent
+                      outline-none
+
+                      text-[15px]
+
+                      placeholder:text-slate-400
+                    "
+                />
+
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* FOOTER */}
+
+          <div
+            className="
+                shrink-0
+
+                border-t
+                border-slate-200
+
+                bg-white/90
+                backdrop-blur-xl
+
+                p-5
+
+                flex
+                gap-3
+              "
+          >
+
+            {/* CLEAR */}
+
+            <button
+              onClick={clearFilters}
+              className="
+                  flex-1
+
+                  h-12
+
+                  rounded-xl
+
+                  border
+                  border-[#D4AF37]
+
+                  text-[#D4AF37]
+
+                  font-semibold
+
+                  transition-all
+                  duration-300
+
+                  hover:bg-[#D4AF37]
+                  hover:text-white
+                "
+            >
+              Clear
+            </button>
+
+            {/* APPLY */}
+
+            <button
+              onClick={() => setMobileFiltersOpen(false)}
+              className="
+                  flex-1
+
+                  h-12
+
+                  rounded-xl
+
+                  bg-gradient-to-r
+                  from-[#071133]
+                  to-[#0B1D57]
+
+                  text-white
+
+                  font-semibold
+
+                  shadow-lg
+
+                  transition-all
+                  duration-300
+
+                  hover:scale-[1.02]
+                  hover:shadow-xl
+                "
+            >
+              Apply Filters
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* ================= MOBILE SORT SHEET ================= */}
+
+      <div
+        onClick={closeSortSheet}
+        className={`
+          fixed
+          inset-0
+
+          bg-black/50
+
+          z-[1250]
+
+          lg:hidden
+
+          transition-opacity
+          duration-300
+
+          ${mobileSortOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+          }
+        `}
+      >
+
+        <div
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className={`
+            absolute
+
+            bottom-0
+            left-0
+            right-0
+            max-h-[80vh]
+
+            rounded-t-3xl
+
+            bg-white
+
+            shadow-[0_-20px_60px_rgba(7,17,51,0.25)]
+
+            transition-transform
+            duration-300
+            ease-out
+
+            ${mobileSortOpen
+              ? "translate-y-0"
+              : "translate-y-full"
+            }
+          `}
+
+          style={{
+            transform: isClosing
+              ? "translateY(100%)"
+              : mobileSortOpen
+                ? `translateY(${dragY}px)`
+                : "translateY(100%)",
+
+            transition: isDragging
+              ? "none"
+              : "transform 300ms ease",
+          }}
+        >
+          {/* Handle */}
+
+          <div className="flex justify-center pt-3">
+
+            <div
+              className="
+                w-14
+                h-1.5
+
+                rounded-full
+
+                bg-slate-300
+              "
+            />
+
+          </div>
+
+          {/* Header */}
+
+          <div
+            className="
+              px-6
+              pt-5
+              pb-3
+
+              flex
+              items-start
+              justify-between
+              gap-4
+            "
+          >
+
+            <div>
+
+              <h2
+                className="
+                  text-xl
+                  font-bold
+                  text-[#071133]
+                "
+              >
+                Sort Properties
+              </h2>
+
+              <p
+                className="
+                  text-sm
+                  text-slate-500
+                  mt-1
+                "
+              >
+                Choose how you'd like the listings to be ordered.
+              </p>
+
+            </div>
+
+            <button
+              onClick={closeSortSheet}
+              aria-label="Close sort sheet"
+              className="
+                w-10
+                h-10
+
+                flex
+                items-center
+                justify-center
+
+                rounded-xl
+
+                text-slate-500
+
+                transition-all
+                duration-300
+
+                hover:bg-slate-100
+                hover:text-[#071133]
+
+                active:scale-95
+              "
+            >
+
+              <X size={20} />
+
+            </button>
+
+          </div>
+
+          <div className="border-b border-slate-200" />
+
+          <div className="py-2">
+
+            {/* Default */}
+
+            <button
+              onClick={() => {
+                setSort("");
+                closeSortSheet();
+              }}
+              className={`
+                w-full
+
+                flex
+                items-center
+                justify-between
+
+                px-6
+                py-4
+
+                rounded-xl
+
+                transition-all
+                duration-200
+
+                active:scale-[0.98]
+
+                ${sort === ""
+                  ? "bg-[#D4AF37]/10 text-[#071133]"
+                  : "hover:bg-slate-50"
+                }
+              `}
+            >
+
+              <span className="font-medium">
+                Default
+              </span>
+
+              {sort === "" && (
+                <div
+                  className="
+                    w-7
+                    h-7
+
+                    rounded-full
+
+                    bg-[#D4AF37]
+
+                    text-white
+
+                    flex
+                    items-center
+                    justify-center
+
+                    text-sm
+                    font-bold
+                  "
+                >
+                  ✓
+                </div>
+              )}
+
+            </button>
+
+            {/* Low → High */}
+
+            <button
+              onClick={() => {
+                setSort("low-high");
+                closeSortSheet();
+              }}
+              className={`
+                w-full
+
+                flex
+                items-center
+                justify-between
+
+                px-6
+                py-4
+
+                rounded-xl
+
+                transition-all
+                duration-200
+
+                active:scale-[0.98]
+                ${sort === "low-high"
+                  ? "bg-[#D4AF37]/10 text-[#071133]"
+                  : "hover:bg-slate-50"
+                }
+              `}
+            >
+
+              <span className="font-medium">
+                Price: Low → High
+              </span>
+
+              {sort === "low-high" && (
+                <div
+                  className="
+                    w-7
+                    h-7
+
+                    rounded-full
+
+                    bg-[#D4AF37]
+
+                    text-white
+
+                    flex
+                    items-center
+                    justify-center
+
+                    text-sm
+                    font-bold
+                  "
+                >
+                  ✓
+                </div>
+              )}
+
+            </button>
+
+            {/* High → Low */}
+
+            <button
+              onClick={() => {
+                setSort("high-low");
+                closeSortSheet();
+              }}
+              className={`
+                w-full
+
+                flex
+                items-center
+                justify-between
+
+                px-6
+                py-4
+
+                rounded-xl
+
+                transition-all
+                duration-200
+
+                active:scale-[0.98]
+
+                ${sort === "high-low"
+                  ? "bg-[#D4AF37]/10 text-[#071133]"
+                  : "hover:bg-slate-50"
+                }
+              `}
+            >
+
+              <span className="font-medium">
+                Price: High → Low
+              </span>
+
+              {sort === "high-low" && (
+                <div
+                  className="
+                    w-7
+                    h-7
+
+                    rounded-full
+
+                    bg-[#D4AF37]
+
+                    text-white
+
+                    flex
+                    items-center
+                    justify-center
+
+                    text-sm
+                    font-bold
+                  "
+                >
+                  ✓
+                </div>
+              )}
+
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
 
     </div>
   );

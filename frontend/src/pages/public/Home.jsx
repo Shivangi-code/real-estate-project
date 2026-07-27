@@ -310,7 +310,7 @@ const [brokerCount, setBrokerCount] = useState(0);
     {/* RIGHT STATS */}
     <div className="w-full flex justify-center mt-6 lg:mt-0">
 
-      <div className="w-full max-w-xl grid grid-cols-2 gap-3 sm:gap-6">
+      <div className="w-full max-w-xl grid grid-cols-2 sm:grid-cols-2 gap-3 sm:gap-6">
 
         {/* Verified Listings */}
         <div className="flex items-center gap-3 sm:gap-4 bg-black/30 backdrop-blur-md rounded-2xl p-4 sm:p-5 lg:p-6 w-full">
@@ -415,13 +415,13 @@ const [brokerCount, setBrokerCount] = useState(0);
 
         {/* WHY US */}
         <section className="py-20 bg-[#F8FAFC]">
-          <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-3 gap-6 md:gap-8">
             {/* CARD 1 */}
             <div className="
                   group
                   relative
                   overflow-hidden
-                  p-8
+                  p-6 sm:p-8
                   rounded-[28px]
 
                   bg-gradient-to-br
@@ -478,7 +478,7 @@ const [brokerCount, setBrokerCount] = useState(0);
              />
 
               <h3 className="
-                  text-2xl
+                  text-xl sm:text-2xl
                   font-bold
 
                   text-[#D4AF37]
@@ -490,7 +490,7 @@ const [brokerCount, setBrokerCount] = useState(0);
                 "
               >Verified Properties</h3>
 
-              <p className="text-slate-300 mt-3 leading-7">
+              <p className="text-slate-300 mt-3 leading-6 sm:leading-7">
                 Every listing goes through moderation and approval checks for
                 safer browsing.
               </p>
@@ -501,7 +501,7 @@ const [brokerCount, setBrokerCount] = useState(0);
                     group
                     relative
                     overflow-hidden
-                    p-8
+                    p-6 sm:p-8
                     rounded-[28px]
 
                     bg-gradient-to-br
@@ -558,7 +558,7 @@ const [brokerCount, setBrokerCount] = useState(0);
               />
 
               <h3 className="
-                  text-2xl
+                  text-xl sm:text-2xl
                   font-bold
 
                   text-[#D4AF37]
@@ -570,7 +570,7 @@ const [brokerCount, setBrokerCount] = useState(0);
                 "
               >Premium Inventory</h3>
 
-              <p className="text-slate-300 mt-3 leading-7">
+              <p className="text-slate-300 mt-3 leading-6 sm:leading-7">
                 Residential, luxury and commercial properties all in one
                 platform.
               </p>
@@ -581,7 +581,7 @@ const [brokerCount, setBrokerCount] = useState(0);
                 group
                 relative
                 overflow-hidden
-                p-8
+                p-6 sm:p-8
                 rounded-[28px]
 
                 bg-gradient-to-br
@@ -636,7 +636,7 @@ const [brokerCount, setBrokerCount] = useState(0);
               />
 
               <h3 className="
-                  text-2xl
+                  text-xl sm:text-2xl
                   font-bold
 
                   text-[#D4AF37]
@@ -648,7 +648,7 @@ const [brokerCount, setBrokerCount] = useState(0);
                 "
               >Trusted Community</h3>
 
-              <p className="text-slate-300 mt-3 leading-7">
+              <p className="text-slate-300 mt-3 leading-6 sm:leading-7">
                 Buyers, sellers, agents and builders connected with
                 transparency.
               </p>
